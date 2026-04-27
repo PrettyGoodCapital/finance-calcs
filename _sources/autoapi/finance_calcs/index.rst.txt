@@ -1,0 +1,21 @@
+finance_calcs
+=============
+
+.. py:module:: finance_calcs
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   finance_calcs.__version__
+
+
+Package Contents
+----------------
+
+.. py:data:: __version__
+   :value: '0.1.0'
+
+
