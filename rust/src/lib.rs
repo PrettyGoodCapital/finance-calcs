@@ -9,7 +9,6 @@ impl Example {
     }
 }
 
-/**********************************/
 #[cfg(test)]
 mod example_tests {
     use super::*;
