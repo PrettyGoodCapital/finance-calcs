@@ -1,0 +1,148 @@
+finance_calcs.volatility
+========================
+
+.. py:module:: finance_calcs.volatility
+
+.. autoapi-nested-parse::
+
+   Volatility indicators as polars expressions.
+
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   finance_calcs.volatility.true_range
+   finance_calcs.volatility.atr
+   finance_calcs.volatility.natr
+   finance_calcs.volatility.parkinson_vol
+   finance_calcs.volatility.garman_klass_vol
+   finance_calcs.volatility.rogers_satchell_vol
+   finance_calcs.volatility.yang_zhang_vol
+   finance_calcs.volatility.ewma_vol
+   finance_calcs.volatility.realized_vol
+
+
+Module Contents
+---------------
+
+.. py:function:: true_range(high: polars.Expr, low: polars.Expr, close: polars.Expr) -> polars.Expr
+
+   Wilder's true range.
+
+   :param high: Bar high.
+   :param low: Bar low.
+   :param close: Bar close.
+
+   :returns: Per-bar TR expression
+             ``max(H-L, |H - C[-1]|, |L - C[-1]|)``.
+
+
+.. py:function:: atr(high: polars.Expr, low: polars.Expr, close: polars.Expr, period: int = 14) -> polars.Expr
+
+   Average True Range using Wilder smoothing.
+
+   :param high: Bar high.
+   :param low: Bar low.
+   :param close: Bar close.
+   :param period: Smoothing period.
+
+   :returns: ATR expression.
+
+
+.. py:function:: natr(high: polars.Expr, low: polars.Expr, close: polars.Expr, period: int = 14) -> polars.Expr
+
+   Normalised ATR — ``100 * ATR / close``.
+
+   :param high: Bar high.
+   :param low: Bar low.
+   :param close: Bar close.
+   :param period: Smoothing period.
+
+   :returns: NATR expression in percent.
+
+
+.. py:function:: parkinson_vol(high: polars.Expr, low: polars.Expr, period: int = 20) -> polars.Expr
+
+   Parkinson high-low range volatility estimator.
+
+   .. math::
+       \\hat{\\sigma}^2 = \\frac{1}{4 \\ln 2} \\cdot \\overline{\\left(\\ln(H/L)\\right)^2}
+
+   :param high: Bar high.
+   :param low: Bar low.
+   :param period: Window length.
+
+   :returns: Per-period volatility expression (rolling).
+
+
+.. py:function:: garman_klass_vol(open_: polars.Expr, high: polars.Expr, low: polars.Expr, close: polars.Expr, period: int = 20) -> polars.Expr
+
+   Garman-Klass OHLC volatility estimator.
+
+   .. math::
+       \\hat{\\sigma}^2 = \\overline{\\tfrac{1}{2}(\\ln H/L)^2 - (2\\ln 2 - 1)(\\ln C/O)^2}
+
+   :param open_: Bar open.
+   :param high: Bar high.
+   :param low: Bar low.
+   :param close: Bar close.
+   :param period: Window length.
+
+   :returns: Per-period GK volatility expression (rolling).
+
+
+.. py:function:: rogers_satchell_vol(open_: polars.Expr, high: polars.Expr, low: polars.Expr, close: polars.Expr, period: int = 20) -> polars.Expr
+
+   Rogers-Satchell drift-independent volatility.
+
+   .. math::
+       \\hat{\\sigma}^2 = \\overline{\\ln(H/C)\\ln(H/O) + \\ln(L/C)\\ln(L/O)}
+
+   :param open_: Bar open.
+   :param high: Bar high.
+   :param low: Bar low.
+   :param close: Bar close.
+   :param period: Window length.
+
+   :returns: RS volatility expression (rolling).
+
+
+.. py:function:: yang_zhang_vol(open_: polars.Expr, high: polars.Expr, low: polars.Expr, close: polars.Expr, period: int = 20, k: float | None = None) -> polars.Expr
+
+   Yang-Zhang volatility — minimum-variance combination of overnight,
+   open-to-close, and Rogers-Satchell drift-independent components.
+
+   :param open_: Bar open.
+   :param high: Bar high.
+   :param low: Bar low.
+   :param close: Bar close.
+   :param period: Window length.
+   :param k: Weight on open-to-close variance. Defaults to
+             ``0.34 / (1.34 + (period+1)/(period-1))``.
+
+   :returns: YZ volatility expression (rolling).
+
+
+.. py:function:: ewma_vol(returns: polars.Expr, span: int = 20) -> polars.Expr
+
+   Exponentially weighted standard deviation.
+
+   :param returns: Return series.
+   :param span: EWMA span.
+
+   :returns: Square root of the EWMA variance of ``returns``.
+
+
+.. py:function:: realized_vol(returns: polars.Expr, period: int = 20) -> polars.Expr
+
+   Rolling realised volatility (sample standard deviation).
+
+   :param returns: Return series.
+   :param period: Window length.
+
+   :returns: Rolling standard deviation expression.
+
+

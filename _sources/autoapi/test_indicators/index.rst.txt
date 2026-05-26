@@ -1,0 +1,99 @@
+test_indicators
+===============
+
+.. py:module:: test_indicators
+
+.. autoapi-nested-parse::
+
+   Tests for technical indicators (overlap / momentum / volatility / volume).
+
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   test_indicators.ohlcv
+   test_indicators.monotone_close
+   test_indicators._select
+   test_indicators.test_sma_constant_series
+   test_indicators.test_ema_runs
+   test_indicators.test_wma_recent_weighted_more
+   test_indicators.test_bbands_middle_is_sma
+   test_indicators.test_bbands_upper_above_lower
+   test_indicators.test_donchian_bounds
+   test_indicators.test_rsi_bounds
+   test_indicators.test_rsi_uptrend_high
+   test_indicators.test_macd_components
+   test_indicators.test_stoch_k_bounds
+   test_indicators.test_willr_bounds
+   test_indicators.test_adx_bounds
+   test_indicators.test_cci_runs
+   test_indicators.test_roc_zero_for_constant
+   test_indicators.test_true_range_nonneg
+   test_indicators.test_atr_positive
+   test_indicators.test_parkinson_positive
+   test_indicators.test_garman_klass_runs
+   test_indicators.test_realized_vol_matches_rolling_std
+   test_indicators.test_obv_monotone_up_for_uptrend
+   test_indicators.test_ad_runs
+   test_indicators.test_adosc_runs
+   test_indicators.test_namespace_single_input
+
+
+Module Contents
+---------------
+
+.. py:function:: ohlcv() -> polars.DataFrame
+
+.. py:function:: monotone_close() -> polars.DataFrame
+
+.. py:function:: _select(df: polars.DataFrame, expr: polars.Expr, name: str = 'out') -> polars.Series
+
+.. py:function:: test_sma_constant_series()
+
+.. py:function:: test_ema_runs(ohlcv)
+
+.. py:function:: test_wma_recent_weighted_more()
+
+.. py:function:: test_bbands_middle_is_sma(ohlcv)
+
+.. py:function:: test_bbands_upper_above_lower(ohlcv)
+
+.. py:function:: test_donchian_bounds(ohlcv)
+
+.. py:function:: test_rsi_bounds(ohlcv)
+
+.. py:function:: test_rsi_uptrend_high(monotone_close)
+
+.. py:function:: test_macd_components(ohlcv)
+
+.. py:function:: test_stoch_k_bounds(ohlcv)
+
+.. py:function:: test_willr_bounds(ohlcv)
+
+.. py:function:: test_adx_bounds(ohlcv)
+
+.. py:function:: test_cci_runs(ohlcv)
+
+.. py:function:: test_roc_zero_for_constant()
+
+.. py:function:: test_true_range_nonneg(ohlcv)
+
+.. py:function:: test_atr_positive(ohlcv)
+
+.. py:function:: test_parkinson_positive(ohlcv)
+
+.. py:function:: test_garman_klass_runs(ohlcv)
+
+.. py:function:: test_realized_vol_matches_rolling_std(ohlcv)
+
+.. py:function:: test_obv_monotone_up_for_uptrend(monotone_close)
+
+.. py:function:: test_ad_runs(ohlcv)
+
+.. py:function:: test_adosc_runs(ohlcv)
+
+.. py:function:: test_namespace_single_input(ohlcv)
+

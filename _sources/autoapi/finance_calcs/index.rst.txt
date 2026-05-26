@@ -3,19 +3,1339 @@ finance_calcs
 
 .. py:module:: finance_calcs
 
+.. autoapi-nested-parse::
+
+   finance-calcs — financial calculations as polars expressions.
+
+   Every public function accepts and returns ``pl.Expr``. Functions are
+   also exposed on a ``.finance`` custom namespace bound to ``pl.Expr``
+   and ``pl.Series``::
+
+       import finance_calcs  # noqa: F401  — registers the namespace
+       import polars as pl
+
+       df.with_columns(
+           pl.col("close").finance.log_returns().alias("ret"),
+       ).select(
+           pl.col("ret").finance.sharpe().alias("sharpe"),
+           pl.col("ret").finance.max_drawdown().alias("mdd"),
+       )
+
+
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 1
+
+   /autoapi/finance_calcs/_namespace/index
+   /autoapi/finance_calcs/_periods/index
+   /autoapi/finance_calcs/alpha/index
+   /autoapi/finance_calcs/factor/index
+   /autoapi/finance_calcs/momentum/index
+   /autoapi/finance_calcs/overlap/index
+   /autoapi/finance_calcs/portfolio/index
+   /autoapi/finance_calcs/post_trade/index
+   /autoapi/finance_calcs/quantile/index
+   /autoapi/finance_calcs/returns/index
+   /autoapi/finance_calcs/risk/index
+   /autoapi/finance_calcs/stats/index
+   /autoapi/finance_calcs/tail/index
+   /autoapi/finance_calcs/volatility/index
+   /autoapi/finance_calcs/volume/index
+
 
 Attributes
 ----------
 
 .. autoapisummary::
 
-   finance_calcs.__version__
+   finance_calcs.information_coefficient
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   finance_calcs.forward_returns
+   finance_calcs.hit_rate
+   finance_calcs.ic_ir
+   finance_calcs.ic_summary_stats
+   finance_calcs.pearson_ic
+   finance_calcs.spearman_ic
+   finance_calcs.alpha
+   finance_calcs.batting_average
+   finance_calcs.beta
+   finance_calcs.down_alpha
+   finance_calcs.down_beta
+   finance_calcs.down_capture
+   finance_calcs.information_ratio
+   finance_calcs.tracking_error
+   finance_calcs.up_alpha
+   finance_calcs.up_beta
+   finance_calcs.up_capture
+   finance_calcs.up_down_capture
+   finance_calcs.adx
+   finance_calcs.cci
+   finance_calcs.cmo
+   finance_calcs.macd_hist
+   finance_calcs.macd_line
+   finance_calcs.macd_signal
+   finance_calcs.minus_di
+   finance_calcs.minus_dm
+   finance_calcs.mom
+   finance_calcs.plus_di
+   finance_calcs.plus_dm
+   finance_calcs.roc
+   finance_calcs.rocp
+   finance_calcs.rocr
+   finance_calcs.rocr100
+   finance_calcs.rsi
+   finance_calcs.stoch_d
+   finance_calcs.stoch_k
+   finance_calcs.trix
+   finance_calcs.willr
+   finance_calcs.bbands_lower
+   finance_calcs.bbands_middle
+   finance_calcs.bbands_upper
+   finance_calcs.dema
+   finance_calcs.donchian_lower
+   finance_calcs.donchian_middle
+   finance_calcs.donchian_upper
+   finance_calcs.ema
+   finance_calcs.midpoint
+   finance_calcs.midprice
+   finance_calcs.sma
+   finance_calcs.tema
+   finance_calcs.wma
+   finance_calcs.active_share
+   finance_calcs.concentration
+   finance_calcs.gross_exposure
+   finance_calcs.gross_leverage
+   finance_calcs.long_exposure
+   finance_calcs.net_exposure
+   finance_calcs.short_exposure
+   finance_calcs.top_n_concentration
+   finance_calcs.slippage_bps
+   finance_calcs.transaction_cost
+   finance_calcs.transaction_notional
+   finance_calcs.turnover
+   finance_calcs.assign_quantile
+   finance_calcs.long_short_spread
+   finance_calcs.quantile_changed
+   finance_calcs.rank_normalize
+   finance_calcs.winsorize
+   finance_calcs.zscore
+   finance_calcs.aggregate_returns
+   finance_calcs.annualized_return
+   finance_calcs.annualized_volatility
+   finance_calcs.cum_returns
+   finance_calcs.cum_returns_final
+   finance_calcs.log_returns
+   finance_calcs.period_bucket
+   finance_calcs.returns
+   finance_calcs.simple_returns
+   finance_calcs.calmar
+   finance_calcs.conditional_value_at_risk
+   finance_calcs.downside_deviation
+   finance_calcs.downside_risk
+   finance_calcs.drawdown_series
+   finance_calcs.max_drawdown
+   finance_calcs.parametric_var
+   finance_calcs.sharpe
+   finance_calcs.sortino
+   finance_calcs.underwater_series
+   finance_calcs.value_at_risk
+   finance_calcs.volatility
+   finance_calcs.common_sense_ratio
+   finance_calcs.deflated_sharpe
+   finance_calcs.higher_moments
+   finance_calcs.kurtosis
+   finance_calcs.minimum_track_record_length
+   finance_calcs.probabilistic_sharpe
+   finance_calcs.sharpe_ci_bootstrap
+   finance_calcs.sharpe_with_ci
+   finance_calcs.skewness
+   finance_calcs.stability_of_timeseries
+   finance_calcs.gpd_cvar
+   finance_calcs.gpd_var
+   finance_calcs.omega_ratio
+   finance_calcs.tail_ratio
+   finance_calcs.ulcer_index
+   finance_calcs.atr
+   finance_calcs.ewma_vol
+   finance_calcs.garman_klass_vol
+   finance_calcs.natr
+   finance_calcs.parkinson_vol
+   finance_calcs.realized_vol
+   finance_calcs.rogers_satchell_vol
+   finance_calcs.true_range
+   finance_calcs.yang_zhang_vol
+   finance_calcs.ad
+   finance_calcs.adosc
+   finance_calcs.obv
 
 
 Package Contents
 ----------------
 
-.. py:data:: __version__
-   :value: '0.1.0'
+.. py:function:: forward_returns(price: polars.Expr, periods: int = 1) -> polars.Expr
+
+   Forward simple return over ``periods`` bars.
+
+   :param price: Price series.
+   :param periods: Look-ahead horizon in bars.
+
+   :returns: Expression yielding ``price.shift(-periods) / price - 1``.
+
+
+.. py:function:: hit_rate(signal: polars.Expr, fwd: polars.Expr) -> polars.Expr
+
+   Fraction of observations where ``sign(signal) == sign(fwd)``.
+
+   :param signal: Signal series.
+   :param fwd: Forward return series.
+
+   :returns: Scalar mean expression in ``[0, 1]``.
+
+
+.. py:function:: ic_ir(ic: polars.Expr, *, window: int | None = None, period: finance_calcs._periods.PeriodLike | None = None, date: polars.Expr | None = None) -> polars.Expr
+
+   IC information ratio — ``mean(ic) / std(ic)``.
+
+   ``window=None`` → scalar; ``window=N`` → rolling IR over each
+   trailing ``N``-observation window; ``period=...`` → per-bucket IR.
+
+
+.. py:function:: ic_summary_stats(ic: polars.Series) -> dict[str, float]
+
+   Summary statistics of an IC time series.
+
+   :param ic: IC time series as a polars Series.
+
+   :returns: Dict with ``mean``, ``std``, ``ir``, ``t_stat``, ``pct_positive``,
+             ``n``. ``t_stat`` is ``ir * sqrt(n)``.
+
+
+.. py:data:: information_coefficient
+
+.. py:function:: pearson_ic(signal: polars.Expr, fwd: polars.Expr) -> polars.Expr
+
+   Pearson information coefficient.
+
+   :param signal: Signal / alpha series.
+   :param fwd: Forward-return series of the same length.
+
+   :returns: Scalar correlation expression.
+
+
+.. py:function:: spearman_ic(signal: polars.Expr, fwd: polars.Expr) -> polars.Expr
+
+   Spearman rank information coefficient.
+
+   :param signal: Signal / alpha series.
+   :param fwd: Forward-return series of the same length.
+
+   :returns: Scalar rank-correlation expression.
+
+
+.. py:function:: alpha(returns: polars.Expr, benchmark: polars.Expr, risk_free: float | polars.Expr = 0.0, periods_per_year: int = 252, *, window: int | None = None, period: finance_calcs._periods.PeriodLike | None = None, date: polars.Expr | None = None) -> polars.Expr
+
+   Annualised Jensen's alpha.
+
+   ``risk_free`` may be a scalar annual rate (divided to per-period)
+   or a :class:`pl.Expr` per-period rate column for a time-varying
+   risk-free rate. ``window=None`` → scalar; ``window=N`` → rolling
+   annualised alpha; ``period=...`` → per-bucket alpha.
+
+
+.. py:function:: batting_average(returns: polars.Expr, benchmark: polars.Expr, *, window: int | None = None, period: finance_calcs._periods.PeriodLike | None = None, date: polars.Expr | None = None) -> polars.Expr
+
+   Fraction of periods where ``returns > benchmark``.
+
+
+.. py:function:: beta(returns: polars.Expr, benchmark: polars.Expr, *, window: int | None = None, period: finance_calcs._periods.PeriodLike | None = None, date: polars.Expr | None = None) -> polars.Expr
+
+   OLS market beta — ``cov(r, b) / var(b)``.
+
+   ``window=None`` → scalar; ``window=N`` → rolling beta;
+   ``period=...`` → per-bucket beta.
+
+
+.. py:function:: down_alpha(returns: polars.Expr, benchmark: polars.Expr, risk_free: float | polars.Expr = 0.0, periods_per_year: int = 252, *, window: int | None = None, period: finance_calcs._periods.PeriodLike | None = None, date: polars.Expr | None = None) -> polars.Expr
+
+   Annualised alpha on down-market bars only.
+
+
+.. py:function:: down_beta(returns: polars.Expr, benchmark: polars.Expr, *, window: int | None = None, period: finance_calcs._periods.PeriodLike | None = None, date: polars.Expr | None = None) -> polars.Expr
+
+   Beta restricted to bars where ``benchmark < 0``.
+
+
+.. py:function:: down_capture(returns: polars.Expr, benchmark: polars.Expr, *, window: int | None = None, period: finance_calcs._periods.PeriodLike | None = None, date: polars.Expr | None = None) -> polars.Expr
+
+   Mean asset return / mean benchmark return on down-market bars.
+
+
+.. py:function:: information_ratio(returns: polars.Expr, benchmark: polars.Expr, periods_per_year: int = 252, *, window: int | None = None, period: finance_calcs._periods.PeriodLike | None = None, date: polars.Expr | None = None) -> polars.Expr
+
+   Annualised information ratio — ``mean(r-b)/std(r-b) * sqrt(ppy)``.
+
+
+.. py:function:: tracking_error(returns: polars.Expr, benchmark: polars.Expr, periods_per_year: int = 252, *, window: int | None = None, period: finance_calcs._periods.PeriodLike | None = None, date: polars.Expr | None = None) -> polars.Expr
+
+   Annualised tracking error — ``std(r - b) * sqrt(ppy)``.
+
+
+.. py:function:: up_alpha(returns: polars.Expr, benchmark: polars.Expr, risk_free: float | polars.Expr = 0.0, periods_per_year: int = 252, *, window: int | None = None, period: finance_calcs._periods.PeriodLike | None = None, date: polars.Expr | None = None) -> polars.Expr
+
+   Annualised alpha on up-market bars only.
+
+
+.. py:function:: up_beta(returns: polars.Expr, benchmark: polars.Expr, *, window: int | None = None, period: finance_calcs._periods.PeriodLike | None = None, date: polars.Expr | None = None) -> polars.Expr
+
+   Beta restricted to bars where ``benchmark > 0``.
+
+
+.. py:function:: up_capture(returns: polars.Expr, benchmark: polars.Expr, *, window: int | None = None, period: finance_calcs._periods.PeriodLike | None = None, date: polars.Expr | None = None) -> polars.Expr
+
+   Mean asset return / mean benchmark return on up-market bars.
+
+
+.. py:function:: up_down_capture(returns: polars.Expr, benchmark: polars.Expr, *, window: int | None = None, period: finance_calcs._periods.PeriodLike | None = None, date: polars.Expr | None = None) -> polars.Expr
+
+   ``up_capture / down_capture``.
+
+
+.. py:function:: adx(high: polars.Expr, low: polars.Expr, close: polars.Expr, period: int = 14) -> polars.Expr
+
+   Average Directional Index (Wilder).
+
+   :param high: Bar high.
+   :param low: Bar low.
+   :param close: Bar close.
+   :param period: Smoothing period.
+
+   :returns: ADX expression in ``[0, 100]``.
+
+
+.. py:function:: cci(high: polars.Expr, low: polars.Expr, close: polars.Expr, period: int = 20) -> polars.Expr
+
+   Commodity Channel Index.
+
+   :param high: Bar high.
+   :param low: Bar low.
+   :param close: Bar close.
+   :param period: Window length.
+
+   :returns: CCI expression. Uses mean absolute deviation in the denominator.
+
+
+.. py:function:: cmo(close: polars.Expr, period: int = 14) -> polars.Expr
+
+   Chande Momentum Oscillator.
+
+   :param close: Price series.
+   :param period: Window length.
+
+   :returns: CMO expression in ``[-100, 100]``.
+
+
+.. py:function:: macd_hist(close: polars.Expr, fast: int = 12, slow: int = 26, signal: int = 9) -> polars.Expr
+
+   MACD histogram — ``MACD - signal``.
+
+   :param close: Price series.
+   :param fast: Fast EMA span.
+   :param slow: Slow EMA span.
+   :param signal: Signal EMA span.
+
+   :returns: Expression yielding the MACD histogram.
+
+
+.. py:function:: macd_line(close: polars.Expr, fast: int = 12, slow: int = 26) -> polars.Expr
+
+   MACD line — ``EMA(fast) - EMA(slow)``.
+
+   :param close: Price series.
+   :param fast: Fast EMA span.
+   :param slow: Slow EMA span.
+
+   :returns: Expression yielding the MACD line.
+
+
+.. py:function:: macd_signal(close: polars.Expr, fast: int = 12, slow: int = 26, signal: int = 9) -> polars.Expr
+
+   MACD signal line — EMA of :func:`macd_line`.
+
+   :param close: Price series.
+   :param fast: Fast EMA span.
+   :param slow: Slow EMA span.
+   :param signal: Signal EMA span.
+
+   :returns: Expression yielding the MACD signal line.
+
+
+.. py:function:: minus_di(high: polars.Expr, low: polars.Expr, close: polars.Expr, period: int = 14) -> polars.Expr
+
+   Wilder's -DI.
+
+   :param high: Bar high.
+   :param low: Bar low.
+   :param close: Bar close.
+   :param period: Smoothing period.
+
+   :returns: -DI expression in percent.
+
+
+.. py:function:: minus_dm(high: polars.Expr, low: polars.Expr) -> polars.Expr
+
+   Wilder's -DM raw (un-smoothed).
+
+   :param high: Bar high.
+   :param low: Bar low.
+
+   :returns: Per-bar -DM expression. Zero when up-move dominates.
+
+
+.. py:function:: mom(close: polars.Expr, period: int = 10) -> polars.Expr
+
+   Momentum — ``close - close[period]``.
+
+   :param close: Price series.
+   :param period: Look-back length.
+
+   :returns: Difference expression.
+
+
+.. py:function:: plus_di(high: polars.Expr, low: polars.Expr, close: polars.Expr, period: int = 14) -> polars.Expr
+
+   Wilder's +DI.
+
+   :param high: Bar high.
+   :param low: Bar low.
+   :param close: Bar close.
+   :param period: Smoothing period.
+
+   :returns: +DI expression in percent.
+
+
+.. py:function:: plus_dm(high: polars.Expr, low: polars.Expr) -> polars.Expr
+
+   Wilder's +DM raw (un-smoothed).
+
+   :param high: Bar high.
+   :param low: Bar low.
+
+   :returns: Per-bar +DM expression. Zero when down-move dominates.
+
+
+.. py:function:: roc(close: polars.Expr, period: int = 10) -> polars.Expr
+
+   Rate-of-change in percent — ``100 * (close / close[period] - 1)``.
+
+   :param close: Price series.
+   :param period: Look-back length.
+
+   :returns: ROC expression.
+
+
+.. py:function:: rocp(close: polars.Expr, period: int = 10) -> polars.Expr
+
+   ROC percentage (TA-Lib): ``(close - close[period]) / close[period]``.
+
+   :param close: Price series.
+   :param period: Look-back length.
+
+   :returns: ROCP expression.
+
+
+.. py:function:: rocr(close: polars.Expr, period: int = 10) -> polars.Expr
+
+   ROC ratio: ``close / close[period]``.
+
+   :param close: Price series.
+   :param period: Look-back length.
+
+   :returns: ROCR expression.
+
+
+.. py:function:: rocr100(close: polars.Expr, period: int = 10) -> polars.Expr
+
+   ROC ratio scaled by 100.
+
+   :param close: Price series.
+   :param period: Look-back length.
+
+   :returns: ROCR100 expression.
+
+
+.. py:function:: rsi(close: polars.Expr, period: int = 14) -> polars.Expr
+
+   Relative Strength Index (Wilder).
+
+   :param close: Price series.
+   :param period: Smoothing period.
+
+   :returns: Expression yielding RSI in ``[0, 100]``.
+
+
+.. py:function:: stoch_d(high: polars.Expr, low: polars.Expr, close: polars.Expr, period: int = 14, d_period: int = 3) -> polars.Expr
+
+   Stochastic %D — SMA of :func:`stoch_k`.
+
+   :param high: Bar high.
+   :param low: Bar low.
+   :param close: Bar close.
+   :param period: %K window length.
+   :param d_period: Smoothing window for %D.
+
+   :returns: Expression yielding %D.
+
+
+.. py:function:: stoch_k(high: polars.Expr, low: polars.Expr, close: polars.Expr, period: int = 14) -> polars.Expr
+
+   Fast stochastic %K.
+
+   :param high: Bar high.
+   :param low: Bar low.
+   :param close: Bar close.
+   :param period: Window length.
+
+   :returns: Expression in ``[0, 100]``.
+
+
+.. py:function:: trix(close: polars.Expr, period: int = 15) -> polars.Expr
+
+   TRIX — 1-day ROC of triple-smoothed log price.
+
+   :param close: Price series.
+   :param period: EMA span.
+
+   :returns: TRIX expression in percent.
+
+
+.. py:function:: willr(high: polars.Expr, low: polars.Expr, close: polars.Expr, period: int = 14) -> polars.Expr
+
+   Williams %R.
+
+   :param high: Bar high.
+   :param low: Bar low.
+   :param close: Bar close.
+   :param period: Window length.
+
+   :returns: Expression in ``[-100, 0]``.
+
+
+.. py:function:: bbands_lower(close: polars.Expr, period: int = 20, nbdev_dn: float = 2.0) -> polars.Expr
+
+   Bollinger lower band ``SMA - nbdev_dn * std``.
+
+   :param close: Price series.
+   :param period: Window length.
+   :param nbdev_dn: Number of standard deviations below the SMA.
+
+   :returns: Lower-band expression.
+
+
+.. py:function:: bbands_middle(close: polars.Expr, period: int = 20) -> polars.Expr
+
+   Bollinger middle band — SMA of close.
+
+   :param close: Price series.
+   :param period: Window length.
+
+   :returns: Rolling mean expression.
+
+
+.. py:function:: bbands_upper(close: polars.Expr, period: int = 20, nbdev_up: float = 2.0) -> polars.Expr
+
+   Bollinger upper band ``SMA + nbdev_up * std``.
+
+   :param close: Price series.
+   :param period: Window length.
+   :param nbdev_up: Number of standard deviations above the SMA.
+
+   :returns: Upper-band expression.
+
+
+.. py:function:: dema(close: polars.Expr, period: int = 20) -> polars.Expr
+
+   Double exponential moving average: ``2 * EMA - EMA(EMA)``.
+
+   :param close: Series to smooth.
+   :param period: Span.
+
+   :returns: DEMA expression.
+
+
+.. py:function:: donchian_lower(low: polars.Expr, period: int = 20) -> polars.Expr
+
+   Donchian lower channel — rolling minimum of ``low``.
+
+   :param low: Bar low.
+   :param period: Window length.
+
+   :returns: Rolling min expression.
+
+
+.. py:function:: donchian_middle(high: polars.Expr, low: polars.Expr, period: int = 20) -> polars.Expr
+
+   Donchian midline.
+
+   :param high: Bar high.
+   :param low: Bar low.
+   :param period: Window length.
+
+   :returns: Average of the upper and lower Donchian channels.
+
+
+.. py:function:: donchian_upper(high: polars.Expr, period: int = 20) -> polars.Expr
+
+   Donchian upper channel — rolling maximum of ``high``.
+
+   :param high: Bar high.
+   :param period: Window length.
+
+   :returns: Rolling max expression.
+
+
+.. py:function:: ema(close: polars.Expr, period: int = 20) -> polars.Expr
+
+   Exponential moving average with ``span = period``.
+
+   :param close: Series to smooth.
+   :param period: Span. The smoothing factor is ``2 / (period + 1)``.
+
+   :returns: EWMA expression.
+
+
+.. py:function:: midpoint(close: polars.Expr, period: int = 14) -> polars.Expr
+
+   ``(rolling_max(close) + rolling_min(close)) / 2``.
+
+   :param close: Price series.
+   :param period: Window length.
+
+   :returns: Midpoint expression.
+
+
+.. py:function:: midprice(high: polars.Expr, low: polars.Expr, period: int = 14) -> polars.Expr
+
+   ``(rolling_max(high) + rolling_min(low)) / 2``.
+
+   :param high: Bar high.
+   :param low: Bar low.
+   :param period: Window length.
+
+   :returns: Midprice expression.
+
+
+.. py:function:: sma(close: polars.Expr, period: int = 20) -> polars.Expr
+
+   Simple moving average over ``period`` observations.
+
+   :param close: Price (or any series) to average.
+   :param period: Window length.
+
+   :returns: Rolling mean expression.
+
+
+.. py:function:: tema(close: polars.Expr, period: int = 20) -> polars.Expr
+
+   Triple exponential moving average ``3*EMA - 3*EMA(EMA) + EMA(EMA(EMA))``.
+
+   :param close: Series to smooth.
+   :param period: Span.
+
+   :returns: TEMA expression.
+
+
+.. py:function:: wma(close: polars.Expr, period: int = 20) -> polars.Expr
+
+   Linearly-weighted moving average.
+
+   :param close: Series to smooth.
+   :param period: Window length.
+
+   :returns: Expression yielding the WMA. Recent observations have higher
+             weight: weight ``i`` = ``i + 1`` for ``i in 0..period-1``.
+
+
+.. py:function:: active_share(weights: polars.Expr, benchmark_weights: polars.Expr) -> polars.Expr
+
+   Active share — ``0.5 * sum(|w - b|)``.
+
+   :param weights: Portfolio weight expression.
+   :param benchmark_weights: Benchmark weight expression aligned to ``weights``.
+
+   :returns: Scalar active-share expression in ``[0, 1]``.
+
+
+.. py:function:: concentration(weights: polars.Expr) -> polars.Expr
+
+   Herfindahl-Hirschman index of normalised absolute weights.
+
+   Computed on absolute weights normalised to sum to 1 — yields
+   ``1/N`` for an equal-weight portfolio of ``N`` names and ``1.0``
+   for a single-name portfolio.
+
+   :param weights: Position weight expression.
+
+   :returns: Scalar HHI expression in ``(0, 1]``.
+
+
+.. py:function:: gross_exposure(weights: polars.Expr) -> polars.Expr
+
+   Alias for ``gross_leverage`` — long + short notional.
+
+   :param weights: Position weight expression.
+
+   :returns: Scalar gross-exposure expression.
+
+
+.. py:function:: gross_leverage(weights: polars.Expr) -> polars.Expr
+
+   Sum of absolute weights — total notional / equity.
+
+   :param weights: Position weight expression.
+
+   :returns: Scalar gross-leverage expression.
+
+
+.. py:function:: long_exposure(weights: polars.Expr) -> polars.Expr
+
+   Sum of positive weights.
+
+   :param weights: Position weight expression.
+
+   :returns: Scalar long-exposure expression.
+
+
+.. py:function:: net_exposure(weights: polars.Expr) -> polars.Expr
+
+   Long minus short notional — signed sum of weights.
+
+   :param weights: Position weight expression.
+
+   :returns: Scalar net-exposure expression.
+
+
+.. py:function:: short_exposure(weights: polars.Expr) -> polars.Expr
+
+   Sum of negative weights (returned as a negative number).
+
+   :param weights: Position weight expression.
+
+   :returns: Scalar short-exposure expression.
+
+
+.. py:function:: top_n_concentration(weights: polars.Expr, n: int = 10) -> polars.Expr
+
+   Fraction of gross exposure held by the top ``n`` absolute weights.
+
+   :param weights: Position weight expression.
+   :param n: Number of top positions.
+
+   :returns: Scalar expression in ``[0, 1]``.
+
+
+.. py:function:: slippage_bps(execution_price: polars.Expr, benchmark_price: polars.Expr, *, side: polars.Expr | None = None) -> polars.Expr
+
+   Execution slippage in basis points.
+
+   Without ``side``, the result is signed price difference versus the
+   benchmark. With ``side``, positive values mean adverse execution cost
+   for buy/cover and sell/short transactions.
+
+
+.. py:function:: transaction_cost(quantity: polars.Expr, price: polars.Expr, *, commission: float | polars.Expr = 0.0, fees: float | polars.Expr = 0.0, bps: float | polars.Expr = 0.0) -> polars.Expr
+
+   Per-trade cost from explicit charges plus basis-point slippage.
+
+   ``bps`` is applied to absolute traded notional. ``commission`` and
+   ``fees`` may be scalars or expressions aligned to the transaction rows.
+
+
+.. py:function:: transaction_notional(quantity: polars.Expr, price: polars.Expr) -> polars.Expr
+
+   Absolute traded notional, ``abs(quantity) * price``.
+
+
+.. py:function:: turnover(weights: polars.Expr, *, window: int | None = None) -> polars.Expr
+
+   Portfolio turnover contribution from position-weight changes.
+
+   Apply over a symbol/security partition, then aggregate by rebalance
+   date. The contribution is ``0.5 * abs(weight - prior_weight)``.
+
+
+.. py:function:: assign_quantile(signal: polars.Expr, n_quantiles: int = 5) -> polars.Expr
+
+   Assign integer quantile labels ``0..n_quantiles-1`` to ``signal``.
+
+   :param signal: Signal series. Nulls produce null labels.
+   :param n_quantiles: Number of quantile buckets.
+
+   :returns: Integer expression in ``[0, n_quantiles - 1]``. Higher signal
+             values map to higher labels.
+
+
+.. py:function:: long_short_spread(returns: polars.Expr, quantile: polars.Expr, upper: int, lower: int) -> polars.Expr
+
+   Top-quantile mean return minus bottom-quantile mean return.
+
+   Use inside ``group_by("date").agg(...)``::
+
+       df.group_by("date").agg(
+           long_short_spread(pl.col("ret"), pl.col("q"), upper=4, lower=0)
+           .alias("ls"),
+       )
+
+   :param returns: Forward return series.
+   :param quantile: Integer quantile label series.
+   :param upper: Long quantile label.
+   :param lower: Short quantile label.
+
+   :returns: Scalar expression.
+
+
+.. py:function:: quantile_changed(quantile: polars.Expr) -> polars.Expr
+
+   Boolean expression: ``quantile != quantile.shift(1)``.
+
+   Use inside ``... .over("asset")`` to compute per-asset turnover
+   flags. Aggregate by date to get the fraction of names that changed
+   quantile.
+
+   :param quantile: Integer quantile label series.
+
+   :returns: Boolean expression. The first observation is null/false.
+
+
+.. py:function:: rank_normalize(signal: polars.Expr) -> polars.Expr
+
+   Cross-sectional rank scaled to ``[-0.5, 0.5]``.
+
+   :param signal: Signal series.
+
+   :returns: Expression with mean zero and bounded support.
+
+
+.. py:function:: winsorize(signal: polars.Expr, cutoff: float = 3.0) -> polars.Expr
+
+   Clip values to ``mean ± cutoff * std``.
+
+   :param signal: Signal series.
+   :param cutoff: Number of standard deviations. Must be positive.
+
+   :returns: Clipped expression.
+
+
+.. py:function:: zscore(signal: polars.Expr) -> polars.Expr
+
+   Cross-sectional z-score: ``(x - mean) / std``.
+
+   :param signal: Signal series.
+
+   :returns: Z-score expression.
+
+
+.. py:function:: aggregate_returns(returns: polars.Expr, date: polars.Expr, period: finance_calcs._periods.PeriodLike) -> polars.Expr
+
+   Compound returns by a calendar or custom period bucket.
+
+
+.. py:function:: annualized_return(returns: polars.Expr, periods_per_year: int = 252, *, window: int | None = None, period: finance_calcs._periods.PeriodLike | None = None, date: polars.Expr | None = None) -> polars.Expr
+
+   Annualised geometric return (CAGR).
+
+   ``window=None`` → scalar lifetime CAGR. ``window=N`` → rolling
+   CAGR annualised by ``periods_per_year / window``. ``period=...`` →
+   CAGR for each period bucket.
+
+
+.. py:function:: annualized_volatility(returns: polars.Expr, periods_per_year: int = 252, *, window: int | None = None, period: finance_calcs._periods.PeriodLike | None = None, date: polars.Expr | None = None) -> polars.Expr
+
+   Annualised standard deviation of returns.
+
+   ``window=None`` → scalar lifetime volatility; ``window=N`` →
+   rolling annualised volatility; ``period=...`` → volatility for each
+   period bucket.
+
+
+.. py:function:: cum_returns(returns: polars.Expr, starting_value: float = 0.0, *, window: int | None = None, period: finance_calcs._periods.PeriodLike | None = None, date: polars.Expr | None = None) -> polars.Expr
+
+   Cumulative compounded return.
+
+   With ``window=None`` returns the cumulative path
+   ``(1 + r).cumprod() - 1``. With ``window=N`` returns the compounded
+   return over each trailing ``N``-bar window. With ``period=...``, the
+   cumulative path resets inside each period bucket.
+
+
+.. py:function:: cum_returns_final(returns: polars.Expr, *, window: int | None = None, period: finance_calcs._periods.PeriodLike | None = None, date: polars.Expr | None = None) -> polars.Expr
+
+   Total compounded return.
+
+   ``window=None`` → scalar terminal compounded return. ``window=N`` →
+   rolling compounded return over each trailing ``N``-bar window.
+   ``period=...`` → terminal compounded return for each period bucket.
+
+
+.. py:function:: log_returns(price: polars.Expr) -> polars.Expr
+
+   Per-period log return :math:`\log(p_t / p_{t-1})`.
+
+
+.. py:function:: period_bucket(date: polars.Expr, period: PeriodLike) -> polars.Expr
+
+   Return a period bucket expression for ``date``.
+
+   ``period`` accepts a :class:`finance_enums.Frequency`, any alias
+   understood by ``finance_enums.to_frequency()``, any Polars duration
+   string accepted by ``dt.truncate()``, or a precomputed bucket
+   expression.
+
+
+.. py:function:: returns(returns: polars.Expr, *, window: int | None = None, period: finance_calcs._periods.PeriodLike | None = None, date: polars.Expr | None = None) -> polars.Expr
+
+   Compound return over a trailing window or full sample.
+
+   ``window=None, period=None`` returns the full-sample compound return.
+   ``window=N`` returns trailing compounded returns over ``N`` rows.
+   ``period=...`` returns the compounded return for each period bucket.
+
+
+.. py:function:: simple_returns(price: polars.Expr) -> polars.Expr
+
+   Per-period simple return :math:`p_t / p_{t-1} - 1`.
+
+
+.. py:function:: calmar(returns: polars.Expr, periods_per_year: int = 252, *, window: int | None = None, period: finance_calcs._periods.PeriodLike | None = None, date: polars.Expr | None = None) -> polars.Expr
+
+   Annualised return divided by the absolute max drawdown.
+
+   ``window=None`` → scalar; ``window=N`` → rolling;
+   ``period=...`` → per-bucket.
+
+
+.. py:function:: conditional_value_at_risk(returns: polars.Expr, cutoff: float = 0.05, *, window: int | None = None, period: finance_calcs._periods.PeriodLike | None = None, date: polars.Expr | None = None) -> polars.Expr
+
+   Historical CVaR / Expected Shortfall.
+
+   ``window=None`` → scalar; ``window=N`` → rolling mean of returns at
+   or below the rolling VaR. ``period=...`` → per-bucket CVaR.
+
+
+.. py:function:: downside_deviation(returns: polars.Expr, required_return: float | polars.Expr = 0.0, periods_per_year: int = 252, *, window: int | None = None, period: finance_calcs._periods.PeriodLike | None = None, date: polars.Expr | None = None) -> polars.Expr
+
+   Annualised semi-deviation below ``required_return``.
+
+   ``required_return`` may be a scalar per-period threshold or a
+   :class:`pl.Expr` per-period column for a time-varying threshold.
+   ``window=None`` → scalar; ``window=N`` → rolling;
+   ``period=...`` → per-bucket.
+
+
+.. py:function:: downside_risk(returns: polars.Expr, required_return: float | polars.Expr = 0.0, periods_per_year: int = 252, *, window: int | None = None, period: finance_calcs._periods.PeriodLike | None = None, date: polars.Expr | None = None) -> polars.Expr
+
+   Annualised downside-risk alias for :func:`downside_deviation`.
+
+
+.. py:function:: drawdown_series(returns: polars.Expr, *, period: finance_calcs._periods.PeriodLike | None = None, date: polars.Expr | None = None) -> polars.Expr
+
+   Per-period drawdown series ``equity / running_peak - 1``.
+
+
+.. py:function:: max_drawdown(returns: polars.Expr, *, window: int | None = None, period: finance_calcs._periods.PeriodLike | None = None, date: polars.Expr | None = None) -> polars.Expr
+
+   Maximum (most negative) drawdown.
+
+   ``window=None`` → lifetime; ``window=N`` → rolling minimum of the
+   drawdown series over each trailing ``N``-bar window. ``period=...``
+   → maximum drawdown inside each period bucket.
+
+
+.. py:function:: parametric_var(returns: polars.Expr, cutoff: float = 0.05, *, period: finance_calcs._periods.PeriodLike | None = None, date: polars.Expr | None = None) -> polars.Expr
+
+   Gaussian (parametric) VaR :math:`\mu + \sigma \Phi^{-1}(p)`.
+
+   ``cutoff`` must be one of ``{0.01, 0.025, 0.05, 0.1}``.
+
+
+.. py:function:: sharpe(returns: polars.Expr, risk_free: float | polars.Expr = 0.0, periods_per_year: int = 252, *, window: int | None = None, period: finance_calcs._periods.PeriodLike | None = None, date: polars.Expr | None = None) -> polars.Expr
+
+   Annualised Sharpe ratio.
+
+   :math:`\sqrt{\mathrm{ppy}}\,\mathrm{mean}(r - r_f) / \mathrm{std}(r - r_f)`.
+
+   ``risk_free`` may be a scalar annual rate (converted to per-period
+   geometrically) or a :class:`pl.Expr` per-period rate column for a
+   time-varying risk-free rate. ``window=None`` → scalar lifetime
+   Sharpe; ``window=N`` → rolling; ``period=...`` → per-bucket.
+
+
+.. py:function:: sortino(returns: polars.Expr, required_return: float | polars.Expr = 0.0, periods_per_year: int = 252, *, window: int | None = None, period: finance_calcs._periods.PeriodLike | None = None, date: polars.Expr | None = None) -> polars.Expr
+
+   Annualised Sortino ratio.
+
+   ``required_return`` may be a scalar per-period threshold or a
+   :class:`pl.Expr` per-period column. ``window=None`` → scalar;
+   ``window=N`` → rolling; ``period=...`` → per-bucket.
+
+
+.. py:function:: underwater_series(returns: polars.Expr, *, period: finance_calcs._periods.PeriodLike | None = None, date: polars.Expr | None = None) -> polars.Expr
+
+   Alias of :func:`drawdown_series`.
+
+
+.. py:function:: value_at_risk(returns: polars.Expr, cutoff: float = 0.05, *, window: int | None = None, period: finance_calcs._periods.PeriodLike | None = None, date: polars.Expr | None = None) -> polars.Expr
+
+   Historical Value-at-Risk.
+
+   ``window=None`` → scalar lower-tail quantile; ``window=N`` →
+   rolling historical VaR. ``period=...`` → per-bucket VaR.
+
+
+.. py:function:: volatility(returns: polars.Expr, periods_per_year: int = 252, *, window: int | None = None, period: finance_calcs._periods.PeriodLike | None = None, date: polars.Expr | None = None) -> polars.Expr
+
+   Annualised volatility alias for :func:`annualized_volatility`.
+
+
+.. py:function:: common_sense_ratio(returns: polars.Expr) -> polars.Expr
+
+   ``tail_ratio * (1 + cumulative_return)`` — sanity sniff test.
+
+   :param returns: Periodic returns expression.
+
+   :returns: Scalar expression.
+
+
+.. py:function:: deflated_sharpe(returns: polars.Series, n_trials: int, sr_variance: float | None = None, periods_per_year: int = 252) -> float
+
+   Deflated Sharpe ratio (Bailey & Lopez de Prado).
+
+   Adjusts the probabilistic Sharpe for multiple-testing across
+   ``n_trials`` candidate strategies.
+
+   :param returns: Periodic returns.
+   :param n_trials: Number of independent strategies tried.
+   :param sr_variance: Variance of the trial Sharpes. If ``None`` a
+                       conservative default of ``1.0`` is used (worst case).
+   :param periods_per_year: Periods per year.
+
+   :returns: ``Pr(SR_true > expected_max_SR_under_null)`` in ``[0, 1]``.
+
+
+.. py:function:: higher_moments(returns: polars.Expr) -> polars.Expr
+
+   Bundled struct of ``{skew, kurt}`` for ``returns``.
+
+   :param returns: Returns expression.
+
+   :returns: Struct expression with fields ``skew`` and ``kurt``.
+
+
+.. py:function:: kurtosis(returns: polars.Expr) -> polars.Expr
+
+   Excess kurtosis of ``returns`` (Fisher definition).
+
+   :param returns: Returns expression.
+
+   :returns: Scalar excess kurtosis.
+
+
+.. py:function:: minimum_track_record_length(returns: polars.Series, benchmark_sr: float = 0.0, alpha: float = 0.05, periods_per_year: int = 252) -> float
+
+   Minimum number of observations for ``SR > benchmark_sr`` at confidence ``1-alpha``.
+
+   :param returns: Periodic returns.
+   :param benchmark_sr: Annualised threshold Sharpe.
+   :param alpha: Significance level (``0.05`` → 95% confidence).
+   :param periods_per_year: Periods per year.
+
+   :returns: Minimum number of observations (float; round up in practice).
+
+
+.. py:function:: probabilistic_sharpe(returns: polars.Series, benchmark_sr: float = 0.0, periods_per_year: int = 252) -> float
+
+   Lopez de Prado probabilistic Sharpe ratio.
+
+   Probability that the observed Sharpe is greater than
+   ``benchmark_sr``, accounting for sample skew and kurtosis.
+
+   :param returns: Periodic returns.
+   :param benchmark_sr: Annualised threshold Sharpe.
+   :param periods_per_year: Periods per year.
+
+   :returns: ``Pr(SR_true > benchmark_sr)`` in ``[0, 1]``.
+
+
+.. py:function:: sharpe_ci_bootstrap(returns: polars.Series, n_bootstrap: int = 1000, confidence: float = 0.95, periods_per_year: int = 252, seed: int | None = None) -> Tuple[float, float, float]
+
+   Bootstrap confidence interval for the Sharpe ratio.
+
+   :param returns: Periodic returns.
+   :param n_bootstrap: Number of bootstrap resamples.
+   :param confidence: Two-sided confidence level.
+   :param periods_per_year: Periods per year.
+   :param seed: RNG seed.
+
+   :returns: Tuple ``(sharpe, lower, upper)``.
+
+
+.. py:function:: sharpe_with_ci(returns: polars.Series, risk_free: float | polars.Series | numpy.ndarray = 0.0, periods_per_year: int = 252, confidence: float = 0.95) -> Tuple[float, float, float]
+
+   Sharpe with HAC-style asymptotic confidence interval.
+
+   :param returns: Periodic returns.
+   :param risk_free: Annual risk-free rate (subtracted period-wise) as a
+                     scalar, or a per-period rate series (``pl.Series`` /
+                     ``np.ndarray``) aligned to ``returns`` for a time-varying
+                     risk-free rate.
+   :param periods_per_year: Periods per year.
+   :param confidence: Two-sided confidence level.
+
+   :returns: Tuple ``(sharpe, lower, upper)`` where the bounds are derived
+             from the Mertens (2002) asymptotic variance of the Sharpe.
+
+
+.. py:function:: skewness(returns: polars.Expr) -> polars.Expr
+
+   Sample skewness of ``returns``.
+
+   :param returns: Returns expression.
+
+   :returns: Scalar skewness.
+
+
+.. py:function:: stability_of_timeseries(returns: polars.Expr) -> polars.Expr
+
+   Coefficient of determination of cumulative log returns vs time.
+
+   Implements pyfolio's ``stability_of_timeseries`` — fit
+   :math:`y_t = a + b \cdot t` to the log-equity curve and return
+   ``R^2``. Closer to 1 means more linear (steady) growth.
+
+   :param returns: Periodic returns (not log).
+
+   :returns: Scalar ``R^2`` expression.
+
+
+.. py:function:: gpd_cvar(returns: polars.Series, var_p: float = 0.01, threshold_p: float = 0.1) -> float
+
+   GPD-fitted extreme CVaR (expected shortfall beyond ``var_p``).
+
+   Closed form for the GPD tail (xi < 1):
+       :math:`CVaR_p = \frac{VaR_p}{1 - \xi} + \frac{\beta - \xi u}{1 - \xi}`
+
+   :param returns: Periodic returns.
+   :param var_p: Tail probability.
+   :param threshold_p: Mass beyond the threshold used for the fit.
+
+   :returns: CVaR magnitude as a positive float.
+
+
+.. py:function:: gpd_var(returns: polars.Series, var_p: float = 0.01, threshold_p: float = 0.1) -> float
+
+   GPD-fitted extreme VaR (positive number, magnitude of loss).
+
+   Fits a Generalized Pareto Distribution to the excess of losses
+   over a threshold (peak-over-threshold) and inverts to obtain the
+   ``var_p`` quantile.
+
+   Closed form:
+       :math:`VaR_p = u + \frac{\beta}{\xi}\left(\left(\frac{n}{n_u} p\right)^{-\xi} - 1\right)`
+
+   :param returns: Periodic returns (``pl.Series``).
+   :param var_p: Tail probability (``0.01`` → 1% VaR).
+   :param threshold_p: Probability mass beyond the threshold ``u``
+                       used for the GPD fit (``0.10`` → top-10% of losses).
+
+   :returns: VaR magnitude as a positive float.
+
+
+.. py:function:: omega_ratio(returns: polars.Expr, required_return: float | polars.Expr = 0.0, *, window: int | None = None, period: finance_calcs._periods.PeriodLike | None = None, date: polars.Expr | None = None) -> polars.Expr
+
+   Omega ratio — gain/loss probability-weighted ratio.
+
+   ``required_return`` may be a scalar per-period threshold or a
+   :class:`pl.Expr` per-period column for a time-varying threshold.
+
+
+.. py:function:: tail_ratio(returns: polars.Expr, *, window: int | None = None, period: finance_calcs._periods.PeriodLike | None = None, date: polars.Expr | None = None) -> polars.Expr
+
+   Right tail / left tail ratio — ``|p95| / |p05|``.
+
+   ``window=None`` → scalar; ``window=N`` → rolling;
+   ``period=...`` → per-bucket.
+
+
+.. py:function:: ulcer_index(returns: polars.Expr, *, window: int | None = None, period: finance_calcs._periods.PeriodLike | None = None, date: polars.Expr | None = None) -> polars.Expr
+
+   RMS of the drawdown sequence.
+
+   ``UI = sqrt(mean(dd_t^2))`` where ``dd_t`` is the percentage
+   drawdown at time ``t``. ``window=None`` → scalar; ``window=N`` →
+   rolling RMS over each trailing ``N``-bar window. ``period=...`` →
+   per-bucket RMS drawdown.
+
+
+.. py:function:: atr(high: polars.Expr, low: polars.Expr, close: polars.Expr, period: int = 14) -> polars.Expr
+
+   Average True Range using Wilder smoothing.
+
+   :param high: Bar high.
+   :param low: Bar low.
+   :param close: Bar close.
+   :param period: Smoothing period.
+
+   :returns: ATR expression.
+
+
+.. py:function:: ewma_vol(returns: polars.Expr, span: int = 20) -> polars.Expr
+
+   Exponentially weighted standard deviation.
+
+   :param returns: Return series.
+   :param span: EWMA span.
+
+   :returns: Square root of the EWMA variance of ``returns``.
+
+
+.. py:function:: garman_klass_vol(open_: polars.Expr, high: polars.Expr, low: polars.Expr, close: polars.Expr, period: int = 20) -> polars.Expr
+
+   Garman-Klass OHLC volatility estimator.
+
+   .. math::
+       \\hat{\\sigma}^2 = \\overline{\\tfrac{1}{2}(\\ln H/L)^2 - (2\\ln 2 - 1)(\\ln C/O)^2}
+
+   :param open_: Bar open.
+   :param high: Bar high.
+   :param low: Bar low.
+   :param close: Bar close.
+   :param period: Window length.
+
+   :returns: Per-period GK volatility expression (rolling).
+
+
+.. py:function:: natr(high: polars.Expr, low: polars.Expr, close: polars.Expr, period: int = 14) -> polars.Expr
+
+   Normalised ATR — ``100 * ATR / close``.
+
+   :param high: Bar high.
+   :param low: Bar low.
+   :param close: Bar close.
+   :param period: Smoothing period.
+
+   :returns: NATR expression in percent.
+
+
+.. py:function:: parkinson_vol(high: polars.Expr, low: polars.Expr, period: int = 20) -> polars.Expr
+
+   Parkinson high-low range volatility estimator.
+
+   .. math::
+       \\hat{\\sigma}^2 = \\frac{1}{4 \\ln 2} \\cdot \\overline{\\left(\\ln(H/L)\\right)^2}
+
+   :param high: Bar high.
+   :param low: Bar low.
+   :param period: Window length.
+
+   :returns: Per-period volatility expression (rolling).
+
+
+.. py:function:: realized_vol(returns: polars.Expr, period: int = 20) -> polars.Expr
+
+   Rolling realised volatility (sample standard deviation).
+
+   :param returns: Return series.
+   :param period: Window length.
+
+   :returns: Rolling standard deviation expression.
+
+
+.. py:function:: rogers_satchell_vol(open_: polars.Expr, high: polars.Expr, low: polars.Expr, close: polars.Expr, period: int = 20) -> polars.Expr
+
+   Rogers-Satchell drift-independent volatility.
+
+   .. math::
+       \\hat{\\sigma}^2 = \\overline{\\ln(H/C)\\ln(H/O) + \\ln(L/C)\\ln(L/O)}
+
+   :param open_: Bar open.
+   :param high: Bar high.
+   :param low: Bar low.
+   :param close: Bar close.
+   :param period: Window length.
+
+   :returns: RS volatility expression (rolling).
+
+
+.. py:function:: true_range(high: polars.Expr, low: polars.Expr, close: polars.Expr) -> polars.Expr
+
+   Wilder's true range.
+
+   :param high: Bar high.
+   :param low: Bar low.
+   :param close: Bar close.
+
+   :returns: Per-bar TR expression
+             ``max(H-L, |H - C[-1]|, |L - C[-1]|)``.
+
+
+.. py:function:: yang_zhang_vol(open_: polars.Expr, high: polars.Expr, low: polars.Expr, close: polars.Expr, period: int = 20, k: float | None = None) -> polars.Expr
+
+   Yang-Zhang volatility — minimum-variance combination of overnight,
+   open-to-close, and Rogers-Satchell drift-independent components.
+
+   :param open_: Bar open.
+   :param high: Bar high.
+   :param low: Bar low.
+   :param close: Bar close.
+   :param period: Window length.
+   :param k: Weight on open-to-close variance. Defaults to
+             ``0.34 / (1.34 + (period+1)/(period-1))``.
+
+   :returns: YZ volatility expression (rolling).
+
+
+.. py:function:: ad(high: polars.Expr, low: polars.Expr, close: polars.Expr, volume: polars.Expr) -> polars.Expr
+
+   Chaikin Accumulation/Distribution line.
+
+   :param high: Bar high.
+   :param low: Bar low.
+   :param close: Bar close.
+   :param volume: Bar volume.
+
+   :returns: Running A/D line. Bars with zero range contribute zero flow.
+
+
+.. py:function:: adosc(high: polars.Expr, low: polars.Expr, close: polars.Expr, volume: polars.Expr, fast: int = 3, slow: int = 10) -> polars.Expr
+
+   Chaikin A/D Oscillator — ``EMA(AD, fast) - EMA(AD, slow)``.
+
+   :param high: Bar high.
+   :param low: Bar low.
+   :param close: Bar close.
+   :param volume: Bar volume.
+   :param fast: Fast EMA span.
+   :param slow: Slow EMA span.
+
+   :returns: ADOSC expression.
+
+
+.. py:function:: obv(close: polars.Expr, volume: polars.Expr) -> polars.Expr
+
+   On-Balance Volume.
+
+   :param close: Price series.
+   :param volume: Volume series.
+
+   :returns: Running cumulative signed volume. The first bar contributes zero
+             because the prior close is unknown.
 
 

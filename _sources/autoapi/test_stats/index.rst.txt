@@ -1,0 +1,48 @@
+test_stats
+==========
+
+.. py:module:: test_stats
+
+.. autoapi-nested-parse::
+
+   Tests for statistical-validity metrics.
+
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   test_stats._toy_returns
+   test_stats.test_skew_kurt_higher_moments
+   test_stats.test_stability_of_timeseries
+   test_stats.test_common_sense_ratio_positive
+   test_stats.test_probabilistic_sharpe_high_for_strong_track_record
+   test_stats.test_deflated_sharpe_lower_than_psr
+   test_stats.test_min_track_record_length_finite
+   test_stats.test_sharpe_ci_bootstrap_brackets_point_estimate
+   test_stats.test_sharpe_with_ci_brackets_point_estimate
+
+
+Module Contents
+---------------
+
+.. py:function:: _toy_returns(n: int = 252, mu: float = 0.0005, sigma: float = 0.01, seed: int = 7) -> polars.DataFrame
+
+.. py:function:: test_skew_kurt_higher_moments()
+
+.. py:function:: test_stability_of_timeseries()
+
+.. py:function:: test_common_sense_ratio_positive()
+
+.. py:function:: test_probabilistic_sharpe_high_for_strong_track_record()
+
+.. py:function:: test_deflated_sharpe_lower_than_psr()
+
+.. py:function:: test_min_track_record_length_finite()
+
+.. py:function:: test_sharpe_ci_bootstrap_brackets_point_estimate()
+
+.. py:function:: test_sharpe_with_ci_brackets_point_estimate()
+

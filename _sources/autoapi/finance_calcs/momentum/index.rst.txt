@@ -1,0 +1,261 @@
+finance_calcs.momentum
+======================
+
+.. py:module:: finance_calcs.momentum
+
+.. autoapi-nested-parse::
+
+   Momentum technical indicators as polars expressions.
+
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   finance_calcs.momentum.rsi
+   finance_calcs.momentum.macd_line
+   finance_calcs.momentum.macd_signal
+   finance_calcs.momentum.macd_hist
+   finance_calcs.momentum.mom
+   finance_calcs.momentum.roc
+   finance_calcs.momentum.rocp
+   finance_calcs.momentum.rocr
+   finance_calcs.momentum.rocr100
+   finance_calcs.momentum.willr
+   finance_calcs.momentum.stoch_k
+   finance_calcs.momentum.stoch_d
+   finance_calcs.momentum.cci
+   finance_calcs.momentum.cmo
+   finance_calcs.momentum.trix
+   finance_calcs.momentum.plus_dm
+   finance_calcs.momentum.minus_dm
+   finance_calcs.momentum.plus_di
+   finance_calcs.momentum.minus_di
+   finance_calcs.momentum.adx
+
+
+Module Contents
+---------------
+
+.. py:function:: rsi(close: polars.Expr, period: int = 14) -> polars.Expr
+
+   Relative Strength Index (Wilder).
+
+   :param close: Price series.
+   :param period: Smoothing period.
+
+   :returns: Expression yielding RSI in ``[0, 100]``.
+
+
+.. py:function:: macd_line(close: polars.Expr, fast: int = 12, slow: int = 26) -> polars.Expr
+
+   MACD line — ``EMA(fast) - EMA(slow)``.
+
+   :param close: Price series.
+   :param fast: Fast EMA span.
+   :param slow: Slow EMA span.
+
+   :returns: Expression yielding the MACD line.
+
+
+.. py:function:: macd_signal(close: polars.Expr, fast: int = 12, slow: int = 26, signal: int = 9) -> polars.Expr
+
+   MACD signal line — EMA of :func:`macd_line`.
+
+   :param close: Price series.
+   :param fast: Fast EMA span.
+   :param slow: Slow EMA span.
+   :param signal: Signal EMA span.
+
+   :returns: Expression yielding the MACD signal line.
+
+
+.. py:function:: macd_hist(close: polars.Expr, fast: int = 12, slow: int = 26, signal: int = 9) -> polars.Expr
+
+   MACD histogram — ``MACD - signal``.
+
+   :param close: Price series.
+   :param fast: Fast EMA span.
+   :param slow: Slow EMA span.
+   :param signal: Signal EMA span.
+
+   :returns: Expression yielding the MACD histogram.
+
+
+.. py:function:: mom(close: polars.Expr, period: int = 10) -> polars.Expr
+
+   Momentum — ``close - close[period]``.
+
+   :param close: Price series.
+   :param period: Look-back length.
+
+   :returns: Difference expression.
+
+
+.. py:function:: roc(close: polars.Expr, period: int = 10) -> polars.Expr
+
+   Rate-of-change in percent — ``100 * (close / close[period] - 1)``.
+
+   :param close: Price series.
+   :param period: Look-back length.
+
+   :returns: ROC expression.
+
+
+.. py:function:: rocp(close: polars.Expr, period: int = 10) -> polars.Expr
+
+   ROC percentage (TA-Lib): ``(close - close[period]) / close[period]``.
+
+   :param close: Price series.
+   :param period: Look-back length.
+
+   :returns: ROCP expression.
+
+
+.. py:function:: rocr(close: polars.Expr, period: int = 10) -> polars.Expr
+
+   ROC ratio: ``close / close[period]``.
+
+   :param close: Price series.
+   :param period: Look-back length.
+
+   :returns: ROCR expression.
+
+
+.. py:function:: rocr100(close: polars.Expr, period: int = 10) -> polars.Expr
+
+   ROC ratio scaled by 100.
+
+   :param close: Price series.
+   :param period: Look-back length.
+
+   :returns: ROCR100 expression.
+
+
+.. py:function:: willr(high: polars.Expr, low: polars.Expr, close: polars.Expr, period: int = 14) -> polars.Expr
+
+   Williams %R.
+
+   :param high: Bar high.
+   :param low: Bar low.
+   :param close: Bar close.
+   :param period: Window length.
+
+   :returns: Expression in ``[-100, 0]``.
+
+
+.. py:function:: stoch_k(high: polars.Expr, low: polars.Expr, close: polars.Expr, period: int = 14) -> polars.Expr
+
+   Fast stochastic %K.
+
+   :param high: Bar high.
+   :param low: Bar low.
+   :param close: Bar close.
+   :param period: Window length.
+
+   :returns: Expression in ``[0, 100]``.
+
+
+.. py:function:: stoch_d(high: polars.Expr, low: polars.Expr, close: polars.Expr, period: int = 14, d_period: int = 3) -> polars.Expr
+
+   Stochastic %D — SMA of :func:`stoch_k`.
+
+   :param high: Bar high.
+   :param low: Bar low.
+   :param close: Bar close.
+   :param period: %K window length.
+   :param d_period: Smoothing window for %D.
+
+   :returns: Expression yielding %D.
+
+
+.. py:function:: cci(high: polars.Expr, low: polars.Expr, close: polars.Expr, period: int = 20) -> polars.Expr
+
+   Commodity Channel Index.
+
+   :param high: Bar high.
+   :param low: Bar low.
+   :param close: Bar close.
+   :param period: Window length.
+
+   :returns: CCI expression. Uses mean absolute deviation in the denominator.
+
+
+.. py:function:: cmo(close: polars.Expr, period: int = 14) -> polars.Expr
+
+   Chande Momentum Oscillator.
+
+   :param close: Price series.
+   :param period: Window length.
+
+   :returns: CMO expression in ``[-100, 100]``.
+
+
+.. py:function:: trix(close: polars.Expr, period: int = 15) -> polars.Expr
+
+   TRIX — 1-day ROC of triple-smoothed log price.
+
+   :param close: Price series.
+   :param period: EMA span.
+
+   :returns: TRIX expression in percent.
+
+
+.. py:function:: plus_dm(high: polars.Expr, low: polars.Expr) -> polars.Expr
+
+   Wilder's +DM raw (un-smoothed).
+
+   :param high: Bar high.
+   :param low: Bar low.
+
+   :returns: Per-bar +DM expression. Zero when down-move dominates.
+
+
+.. py:function:: minus_dm(high: polars.Expr, low: polars.Expr) -> polars.Expr
+
+   Wilder's -DM raw (un-smoothed).
+
+   :param high: Bar high.
+   :param low: Bar low.
+
+   :returns: Per-bar -DM expression. Zero when up-move dominates.
+
+
+.. py:function:: plus_di(high: polars.Expr, low: polars.Expr, close: polars.Expr, period: int = 14) -> polars.Expr
+
+   Wilder's +DI.
+
+   :param high: Bar high.
+   :param low: Bar low.
+   :param close: Bar close.
+   :param period: Smoothing period.
+
+   :returns: +DI expression in percent.
+
+
+.. py:function:: minus_di(high: polars.Expr, low: polars.Expr, close: polars.Expr, period: int = 14) -> polars.Expr
+
+   Wilder's -DI.
+
+   :param high: Bar high.
+   :param low: Bar low.
+   :param close: Bar close.
+   :param period: Smoothing period.
+
+   :returns: -DI expression in percent.
+
+
+.. py:function:: adx(high: polars.Expr, low: polars.Expr, close: polars.Expr, period: int = 14) -> polars.Expr
+
+   Average Directional Index (Wilder).
+
+   :param high: Bar high.
+   :param low: Bar low.
+   :param close: Bar close.
+   :param period: Smoothing period.
+
+   :returns: ADX expression in ``[0, 100]``.
+
+

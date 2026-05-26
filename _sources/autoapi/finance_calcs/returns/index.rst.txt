@@ -1,0 +1,111 @@
+finance_calcs.returns
+=====================
+
+.. py:module:: finance_calcs.returns
+
+.. autoapi-nested-parse::
+
+   Core return calculations as polars expressions.
+
+   Every function accepts and returns ``pl.Expr``. Functions with a natural
+   rolling form take a ``window=None`` keyword: ``None`` means full-sample
+   (a scalar), an integer means a trailing rolling window of that many
+   observations. Calendar or custom slices use ``period=`` with either a
+   ``date=`` expression or a precomputed bucket expression.
+
+   Per the workspace rule, there are no separate ``rolling_*`` or
+   ``periodic_*`` siblings — temporal granularity is controlled by
+   ``window=`` or ``period=``.
+
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   finance_calcs.returns.period_bucket
+   finance_calcs.returns.simple_returns
+   finance_calcs.returns.log_returns
+   finance_calcs.returns.cum_returns
+   finance_calcs.returns.cum_returns_final
+   finance_calcs.returns.returns
+   finance_calcs.returns.aggregate_returns
+   finance_calcs.returns.annualized_return
+   finance_calcs.returns.annualized_volatility
+
+
+Module Contents
+---------------
+
+.. py:function:: period_bucket(date: polars.Expr, period: PeriodLike) -> polars.Expr
+
+   Return a period bucket expression for ``date``.
+
+   ``period`` accepts a :class:`finance_enums.Frequency`, any alias
+   understood by ``finance_enums.to_frequency()``, any Polars duration
+   string accepted by ``dt.truncate()``, or a precomputed bucket
+   expression.
+
+
+.. py:function:: simple_returns(price: polars.Expr) -> polars.Expr
+
+   Per-period simple return :math:`p_t / p_{t-1} - 1`.
+
+
+.. py:function:: log_returns(price: polars.Expr) -> polars.Expr
+
+   Per-period log return :math:`\log(p_t / p_{t-1})`.
+
+
+.. py:function:: cum_returns(returns: polars.Expr, starting_value: float = 0.0, *, window: int | None = None, period: finance_calcs._periods.PeriodLike | None = None, date: polars.Expr | None = None) -> polars.Expr
+
+   Cumulative compounded return.
+
+   With ``window=None`` returns the cumulative path
+   ``(1 + r).cumprod() - 1``. With ``window=N`` returns the compounded
+   return over each trailing ``N``-bar window. With ``period=...``, the
+   cumulative path resets inside each period bucket.
+
+
+.. py:function:: cum_returns_final(returns: polars.Expr, *, window: int | None = None, period: finance_calcs._periods.PeriodLike | None = None, date: polars.Expr | None = None) -> polars.Expr
+
+   Total compounded return.
+
+   ``window=None`` → scalar terminal compounded return. ``window=N`` →
+   rolling compounded return over each trailing ``N``-bar window.
+   ``period=...`` → terminal compounded return for each period bucket.
+
+
+.. py:function:: returns(returns: polars.Expr, *, window: int | None = None, period: finance_calcs._periods.PeriodLike | None = None, date: polars.Expr | None = None) -> polars.Expr
+
+   Compound return over a trailing window or full sample.
+
+   ``window=None, period=None`` returns the full-sample compound return.
+   ``window=N`` returns trailing compounded returns over ``N`` rows.
+   ``period=...`` returns the compounded return for each period bucket.
+
+
+.. py:function:: aggregate_returns(returns: polars.Expr, date: polars.Expr, period: finance_calcs._periods.PeriodLike) -> polars.Expr
+
+   Compound returns by a calendar or custom period bucket.
+
+
+.. py:function:: annualized_return(returns: polars.Expr, periods_per_year: int = 252, *, window: int | None = None, period: finance_calcs._periods.PeriodLike | None = None, date: polars.Expr | None = None) -> polars.Expr
+
+   Annualised geometric return (CAGR).
+
+   ``window=None`` → scalar lifetime CAGR. ``window=N`` → rolling
+   CAGR annualised by ``periods_per_year / window``. ``period=...`` →
+   CAGR for each period bucket.
+
+
+.. py:function:: annualized_volatility(returns: polars.Expr, periods_per_year: int = 252, *, window: int | None = None, period: finance_calcs._periods.PeriodLike | None = None, date: polars.Expr | None = None) -> polars.Expr
+
+   Annualised standard deviation of returns.
+
+   ``window=None`` → scalar lifetime volatility; ``window=N`` →
+   rolling annualised volatility; ``period=...`` → volatility for each
+   period bucket.
+
+

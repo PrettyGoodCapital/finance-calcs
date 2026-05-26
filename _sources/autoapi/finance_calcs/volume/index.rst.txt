@@ -1,0 +1,61 @@
+finance_calcs.volume
+====================
+
+.. py:module:: finance_calcs.volume
+
+.. autoapi-nested-parse::
+
+   Volume indicators as polars expressions.
+
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   finance_calcs.volume.obv
+   finance_calcs.volume.ad
+   finance_calcs.volume.adosc
+
+
+Module Contents
+---------------
+
+.. py:function:: obv(close: polars.Expr, volume: polars.Expr) -> polars.Expr
+
+   On-Balance Volume.
+
+   :param close: Price series.
+   :param volume: Volume series.
+
+   :returns: Running cumulative signed volume. The first bar contributes zero
+             because the prior close is unknown.
+
+
+.. py:function:: ad(high: polars.Expr, low: polars.Expr, close: polars.Expr, volume: polars.Expr) -> polars.Expr
+
+   Chaikin Accumulation/Distribution line.
+
+   :param high: Bar high.
+   :param low: Bar low.
+   :param close: Bar close.
+   :param volume: Bar volume.
+
+   :returns: Running A/D line. Bars with zero range contribute zero flow.
+
+
+.. py:function:: adosc(high: polars.Expr, low: polars.Expr, close: polars.Expr, volume: polars.Expr, fast: int = 3, slow: int = 10) -> polars.Expr
+
+   Chaikin A/D Oscillator — ``EMA(AD, fast) - EMA(AD, slow)``.
+
+   :param high: Bar high.
+   :param low: Bar low.
+   :param close: Bar close.
+   :param volume: Bar volume.
+   :param fast: Fast EMA span.
+   :param slow: Slow EMA span.
+
+   :returns: ADOSC expression.
+
+

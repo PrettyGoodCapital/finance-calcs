@@ -1,0 +1,135 @@
+test_returns_risk
+=================
+
+.. py:module:: test_returns_risk
+
+.. autoapi-nested-parse::
+
+   Tests for finance_calcs core return and basic-risk expressions.
+
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   test_returns_risk.constant_returns
+   test_returns_risk.two_sided_returns
+   test_returns_risk.prices
+   test_returns_risk.test_simple_returns
+   test_returns_risk.test_log_returns
+   test_returns_risk.test_cum_returns_final
+   test_returns_risk.test_cum_returns_series
+   test_returns_risk.test_annualized_return
+   test_returns_risk.test_annualized_volatility
+   test_returns_risk.test_volatility_alias
+   test_returns_risk.test_rolling_returns
+   test_returns_risk.test_returns_matches_cum_returns_final
+   test_returns_risk.test_returns_window
+   test_returns_risk.test_returns_rejects_window_and_period
+   test_returns_risk.test_period_bucket_accepts_frequency_aliases_and_polars_windows
+   test_returns_risk.test_period_returns_repeat_bucket_compound_return
+   test_returns_risk.test_period_metrics_require_date
+   test_returns_risk.test_period_metrics_accept_explicit_bucket_expression
+   test_returns_risk.test_period_sharpe_matches_grouped_monthly_result
+   test_returns_risk.test_namespace_period_returns
+   test_returns_risk.test_sharpe_zero_mean_zero
+   test_returns_risk.test_sharpe_constant_positive
+   test_returns_risk.test_sortino_uses_only_downside
+   test_returns_risk.test_downside_risk_alias
+   test_returns_risk.test_max_drawdown_known
+   test_returns_risk.test_drawdown_series_nonpositive
+   test_returns_risk.test_calmar_finite
+   test_returns_risk.test_value_at_risk_quantile
+   test_returns_risk.test_cvar_tail_mean
+   test_returns_risk.test_parametric_var_known_z
+   test_returns_risk.test_parametric_var_unsupported_cutoff
+   test_returns_risk.test_rolling_sharpe_shape
+   test_returns_risk.test_sharpe_accepts_expr_risk_free
+   test_returns_risk.test_sortino_accepts_expr_required_return
+   test_returns_risk.test_namespace_on_expr
+   test_returns_risk.test_namespace_on_series
+   test_returns_risk.test_namespace_sharpe_handles_exact_zero_variance_series
+   test_returns_risk.test_namespace_pipeline
+
+
+Module Contents
+---------------
+
+.. py:function:: constant_returns() -> polars.Series
+
+.. py:function:: two_sided_returns() -> polars.Series
+
+.. py:function:: prices() -> polars.Series
+
+.. py:function:: test_simple_returns(prices)
+
+.. py:function:: test_log_returns(prices)
+
+.. py:function:: test_cum_returns_final(constant_returns)
+
+.. py:function:: test_cum_returns_series(two_sided_returns)
+
+.. py:function:: test_annualized_return(constant_returns)
+
+.. py:function:: test_annualized_volatility()
+
+.. py:function:: test_volatility_alias()
+
+.. py:function:: test_rolling_returns(two_sided_returns)
+
+.. py:function:: test_returns_matches_cum_returns_final(two_sided_returns)
+
+.. py:function:: test_returns_window(two_sided_returns)
+
+.. py:function:: test_returns_rejects_window_and_period(two_sided_returns)
+
+.. py:function:: test_period_bucket_accepts_frequency_aliases_and_polars_windows()
+
+.. py:function:: test_period_returns_repeat_bucket_compound_return()
+
+.. py:function:: test_period_metrics_require_date(two_sided_returns)
+
+.. py:function:: test_period_metrics_accept_explicit_bucket_expression()
+
+.. py:function:: test_period_sharpe_matches_grouped_monthly_result()
+
+.. py:function:: test_namespace_period_returns()
+
+.. py:function:: test_sharpe_zero_mean_zero()
+
+.. py:function:: test_sharpe_constant_positive(constant_returns)
+
+.. py:function:: test_sortino_uses_only_downside(two_sided_returns)
+
+.. py:function:: test_downside_risk_alias(two_sided_returns)
+
+.. py:function:: test_max_drawdown_known()
+
+.. py:function:: test_drawdown_series_nonpositive(two_sided_returns)
+
+.. py:function:: test_calmar_finite()
+
+.. py:function:: test_value_at_risk_quantile(two_sided_returns)
+
+.. py:function:: test_cvar_tail_mean()
+
+.. py:function:: test_parametric_var_known_z()
+
+.. py:function:: test_parametric_var_unsupported_cutoff()
+
+.. py:function:: test_rolling_sharpe_shape()
+
+.. py:function:: test_sharpe_accepts_expr_risk_free()
+
+.. py:function:: test_sortino_accepts_expr_required_return()
+
+.. py:function:: test_namespace_on_expr(prices)
+
+.. py:function:: test_namespace_on_series(constant_returns)
+
+.. py:function:: test_namespace_sharpe_handles_exact_zero_variance_series()
+
+.. py:function:: test_namespace_pipeline(prices)
+

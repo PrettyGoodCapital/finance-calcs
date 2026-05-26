@@ -1,0 +1,55 @@
+finance_calcs.post_trade
+========================
+
+.. py:module:: finance_calcs.post_trade
+
+.. autoapi-nested-parse::
+
+   Post-trade transaction cost metrics as polars expressions.
+
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   finance_calcs.post_trade.transaction_notional
+   finance_calcs.post_trade.transaction_cost
+   finance_calcs.post_trade.slippage_bps
+   finance_calcs.post_trade.turnover
+
+
+Module Contents
+---------------
+
+.. py:function:: transaction_notional(quantity: polars.Expr, price: polars.Expr) -> polars.Expr
+
+   Absolute traded notional, ``abs(quantity) * price``.
+
+
+.. py:function:: transaction_cost(quantity: polars.Expr, price: polars.Expr, *, commission: float | polars.Expr = 0.0, fees: float | polars.Expr = 0.0, bps: float | polars.Expr = 0.0) -> polars.Expr
+
+   Per-trade cost from explicit charges plus basis-point slippage.
+
+   ``bps`` is applied to absolute traded notional. ``commission`` and
+   ``fees`` may be scalars or expressions aligned to the transaction rows.
+
+
+.. py:function:: slippage_bps(execution_price: polars.Expr, benchmark_price: polars.Expr, *, side: polars.Expr | None = None) -> polars.Expr
+
+   Execution slippage in basis points.
+
+   Without ``side``, the result is signed price difference versus the
+   benchmark. With ``side``, positive values mean adverse execution cost
+   for buy/cover and sell/short transactions.
+
+
+.. py:function:: turnover(weights: polars.Expr, *, window: int | None = None) -> polars.Expr
+
+   Portfolio turnover contribution from position-weight changes.
+
+   Apply over a symbol/security partition, then aggregate by rebalance
+   date. The contribution is ``0.5 * abs(weight - prior_weight)``.
+
+

@@ -1,0 +1,53 @@
+finance_calcs._periods
+======================
+
+.. py:module:: finance_calcs._periods
+
+.. autoapi-nested-parse::
+
+   Period and calendar-bucket helpers for expression metrics.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   finance_calcs._periods.PeriodLike
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   finance_calcs._periods._period_rule
+   finance_calcs._periods.period_bucket
+   finance_calcs._periods._check_window_period
+   finance_calcs._periods._bucket_or_none
+
+
+Module Contents
+---------------
+
+.. py:type:: PeriodLike
+   :canonical: Frequency | str | pl.Expr
+
+
+.. py:function:: _period_rule(period: finance_enums.Frequency | str) -> str
+
+.. py:function:: period_bucket(date: polars.Expr, period: PeriodLike) -> polars.Expr
+
+   Return a period bucket expression for ``date``.
+
+   ``period`` accepts a :class:`finance_enums.Frequency`, any alias
+   understood by ``finance_enums.to_frequency()``, any Polars duration
+   string accepted by ``dt.truncate()``, or a precomputed bucket
+   expression.
+
+
+.. py:function:: _check_window_period(window: int | None, period: PeriodLike | None) -> None
+
+.. py:function:: _bucket_or_none(date: polars.Expr | None, period: PeriodLike | None) -> polars.Expr | None
+

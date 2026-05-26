@@ -198,8 +198,32 @@
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <ul>
 <li class="toctree-l1 has-children"><a class="reference internal" href="autoapi/index.html">API Reference</a><input aria-label="Toggle navigation of API Reference" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="autoapi/test_all/index.html">test_all</a></li>
-<li class="toctree-l2"><a class="reference internal" href="autoapi/finance_calcs/index.html">finance_calcs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autoapi/test_tail/index.html">test_tail</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autoapi/test_alpha/index.html">test_alpha</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autoapi/test_stats/index.html">test_stats</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autoapi/test_factor/index.html">test_factor</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="autoapi/finance_calcs/index.html">finance_calcs</a><input aria-label="Toggle navigation of finance_calcs" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="autoapi/finance_calcs/_namespace/index.html">finance_calcs._namespace</a></li>
+<li class="toctree-l3"><a class="reference internal" href="autoapi/finance_calcs/_periods/index.html">finance_calcs._periods</a></li>
+<li class="toctree-l3"><a class="reference internal" href="autoapi/finance_calcs/alpha/index.html">finance_calcs.alpha</a></li>
+<li class="toctree-l3"><a class="reference internal" href="autoapi/finance_calcs/factor/index.html">finance_calcs.factor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="autoapi/finance_calcs/momentum/index.html">finance_calcs.momentum</a></li>
+<li class="toctree-l3"><a class="reference internal" href="autoapi/finance_calcs/overlap/index.html">finance_calcs.overlap</a></li>
+<li class="toctree-l3"><a class="reference internal" href="autoapi/finance_calcs/portfolio/index.html">finance_calcs.portfolio</a></li>
+<li class="toctree-l3"><a class="reference internal" href="autoapi/finance_calcs/post_trade/index.html">finance_calcs.post_trade</a></li>
+<li class="toctree-l3"><a class="reference internal" href="autoapi/finance_calcs/quantile/index.html">finance_calcs.quantile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="autoapi/finance_calcs/returns/index.html">finance_calcs.returns</a></li>
+<li class="toctree-l3"><a class="reference internal" href="autoapi/finance_calcs/risk/index.html">finance_calcs.risk</a></li>
+<li class="toctree-l3"><a class="reference internal" href="autoapi/finance_calcs/stats/index.html">finance_calcs.stats</a></li>
+<li class="toctree-l3"><a class="reference internal" href="autoapi/finance_calcs/tail/index.html">finance_calcs.tail</a></li>
+<li class="toctree-l3"><a class="reference internal" href="autoapi/finance_calcs/volatility/index.html">finance_calcs.volatility</a></li>
+<li class="toctree-l3"><a class="reference internal" href="autoapi/finance_calcs/volume/index.html">finance_calcs.volume</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="autoapi/test_portfolio/index.html">test_portfolio</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autoapi/test_indicators/index.html">test_indicators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autoapi/test_post_trade/index.html">test_post_trade</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autoapi/test_returns_risk/index.html">test_returns_risk</a></li>
 </ul>
 </li>
 </ul>
@@ -249,10 +273,92 @@
 <a class="reference external" href="https://pypi.python.org/pypi/finance-calcs"><img alt="PyPI" src="https://img.shields.io/pypi/v/finance-calcs.svg" /></a></p>
 <section id="overview">
 <h2>Overview<a class="headerlink" href="#overview" title="Link to this heading">¶</a></h2>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>This library was generated using <a class="reference external" href="https://copier.readthedocs.io/en/stable/">copier</a> from the <a class="reference external" href="https://github.com/python-project-templates/base">Base Python Project Template repository</a>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">finance-calcs</span></code> provides financial calculations as composable polars
+expressions. The library is designed for lazy execution, namespace-style
+ergonomics, and direct interoperability with the rest of the
+<code class="docutils literal notranslate"><span class="pre">finance-*</span></code> stack.</p>
+<p>The public API is built around a few simple rules:</p>
+<ul class="simple">
+<li><p>every function accepts and returns <code class="docutils literal notranslate"><span class="pre">pl.Expr</span></code></p></li>
+<li><p>metrics are exposed once, with optional <code class="docutils literal notranslate"><span class="pre">window=</span></code> and <code class="docutils literal notranslate"><span class="pre">period=</span></code> style
+controls rather than separate rolling/monthly/annual variants</p></li>
+<li><p>functions are also available through the <code class="docutils literal notranslate"><span class="pre">.finance</span></code> namespace on both
+<code class="docutils literal notranslate"><span class="pre">pl.Expr</span></code> and <code class="docutils literal notranslate"><span class="pre">pl.Series</span></code></p></li>
+</ul>
+<section id="implemented-coverage">
+<h3>Implemented coverage<a class="headerlink" href="#implemented-coverage" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>Core returns: <code class="docutils literal notranslate"><span class="pre">simple_returns</span></code>, <code class="docutils literal notranslate"><span class="pre">log_returns</span></code>, <code class="docutils literal notranslate"><span class="pre">cum_returns</span></code>, <code class="docutils literal notranslate"><span class="pre">returns</span></code>,
+<code class="docutils literal notranslate"><span class="pre">aggregate_returns</span></code>, <code class="docutils literal notranslate"><span class="pre">period_bucket</span></code>, <code class="docutils literal notranslate"><span class="pre">annualized_return</span></code>,
+<code class="docutils literal notranslate"><span class="pre">annualized_volatility</span></code></p></li>
+<li><p>Risk metrics: <code class="docutils literal notranslate"><span class="pre">volatility</span></code>, <code class="docutils literal notranslate"><span class="pre">sharpe</span></code>, <code class="docutils literal notranslate"><span class="pre">sortino</span></code>, <code class="docutils literal notranslate"><span class="pre">calmar</span></code>,
+<code class="docutils literal notranslate"><span class="pre">downside_risk</span></code>, <code class="docutils literal notranslate"><span class="pre">value_at_risk</span></code>, <code class="docutils literal notranslate"><span class="pre">conditional_value_at_risk</span></code>,
+<code class="docutils literal notranslate"><span class="pre">parametric_var</span></code>, drawdown helpers</p></li>
+<li><p>Alpha/factor metrics: alpha, beta, capture ratios, tracking error,
+information ratio</p></li>
+<li><p>Technical indicators: overlap, momentum, volatility, and volume
+primitives exposed as polars expressions</p></li>
+<li><p>Post-trade and portfolio utilities: turnover, transaction cost,
+notional, exposure, and concentration helpers</p></li>
+</ul>
+</section>
+<section id="quick-start">
+<h3>Quick start<a class="headerlink" href="#quick-start" title="Link to this heading">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">polars</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pl</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">finance_calcs</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">fc</span>
+
+<span class="n">df</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">&quot;close&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">100.0</span><span class="p">,</span> <span class="mf">101.0</span><span class="p">,</span> <span class="mf">99.0</span><span class="p">,</span> <span class="mf">102.0</span><span class="p">,</span> <span class="mf">103.0</span><span class="p">]})</span>
+
+<span class="n">out</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">with_columns</span><span class="p">(</span>
+  <span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;close&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">finance</span><span class="o">.</span><span class="n">simple_returns</span><span class="p">()</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">&quot;ret&quot;</span><span class="p">),</span>
+<span class="p">)</span><span class="o">.</span><span class="n">select</span><span class="p">(</span>
+  <span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;ret&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">finance</span><span class="o">.</span><span class="n">cum_returns_final</span><span class="p">()</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">&quot;total_return&quot;</span><span class="p">),</span>
+  <span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;ret&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">finance</span><span class="o">.</span><span class="n">sharpe</span><span class="p">(</span><span class="n">periods_per_year</span><span class="o">=</span><span class="mi">252</span><span class="p">)</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">&quot;sharpe&quot;</span><span class="p">),</span>
+  <span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;ret&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">finance</span><span class="o">.</span><span class="n">volatility</span><span class="p">(</span><span class="n">periods_per_year</span><span class="o">=</span><span class="mi">252</span><span class="p">)</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">&quot;vol&quot;</span><span class="p">),</span>
+<span class="p">)</span>
+</pre></div>
 </div>
+</section>
+<section id="period-and-frequency-slices">
+<h3>Period and frequency slices<a class="headerlink" href="#period-and-frequency-slices" title="Link to this heading">¶</a></h3>
+<p>Use <code class="docutils literal notranslate"><span class="pre">period=</span></code> for calendar-style slices and keep <code class="docutils literal notranslate"><span class="pre">window=</span></code> for rolling row-count
+windows. A <code class="docutils literal notranslate"><span class="pre">period</span></code> can be a <code class="docutils literal notranslate"><span class="pre">finance_enums.Frequency</span></code>, any alias accepted by
+<code class="docutils literal notranslate"><span class="pre">finance_enums.to_frequency()</span></code>, any Polars <code class="docutils literal notranslate"><span class="pre">dt.truncate()</span></code> duration string, or a
+precomputed bucket expression.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">date</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">finance_enums</span><span class="w"> </span><span class="kn">import</span> <span class="n">Frequency</span>
+
+<span class="n">df</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+  <span class="p">{</span>
+    <span class="s2">&quot;date&quot;</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">date_range</span><span class="p">(</span><span class="n">date</span><span class="p">(</span><span class="mi">2024</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">date</span><span class="p">(</span><span class="mi">2024</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">31</span><span class="p">),</span> <span class="n">eager</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+    <span class="s2">&quot;ret&quot;</span><span class="p">:</span> <span class="mf">0.001</span><span class="p">,</span>
+  <span class="p">}</span>
+<span class="p">)</span>
+
+<span class="n">out</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">with_columns</span><span class="p">(</span>
+  <span class="n">fc</span><span class="o">.</span><span class="n">period_bucket</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;date&quot;</span><span class="p">),</span> <span class="n">Frequency</span><span class="o">.</span><span class="n">Month</span><span class="p">)</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">&quot;month&quot;</span><span class="p">),</span>
+  <span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;ret&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">finance</span><span class="o">.</span><span class="n">returns</span><span class="p">(</span><span class="n">period</span><span class="o">=</span><span class="s2">&quot;month&quot;</span><span class="p">,</span> <span class="n">date</span><span class="o">=</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;date&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">&quot;month_return&quot;</span><span class="p">),</span>
+  <span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;ret&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">finance</span><span class="o">.</span><span class="n">sharpe</span><span class="p">(</span><span class="n">period</span><span class="o">=</span><span class="s2">&quot;1q&quot;</span><span class="p">,</span> <span class="n">date</span><span class="o">=</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;date&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">&quot;quarter_sharpe&quot;</span><span class="p">),</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>For fiscal periods, strategy regimes, or exchange-calendar grids built upstream,
+pass the bucket expression directly:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">df</span><span class="o">.</span><span class="n">with_columns</span><span class="p">(</span>
+  <span class="n">fc</span><span class="o">.</span><span class="n">returns</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;ret&quot;</span><span class="p">),</span> <span class="n">period</span><span class="o">=</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;fiscal_period&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">&quot;fiscal_return&quot;</span><span class="p">),</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">finance-calcs</span></code> is intended to pair with:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">finance-datagen</span></code> for synthetic fixtures and test inputs</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">finance-dates</span></code> for calendar-aware date handling upstream</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">finance-enums</span></code> for shared enum-backed trading semantics upstream</p></li>
+</ul>
+<p>That keeps calculations focused on typed expressions instead of schema
+cleanup, string parsing, or calendar repair.</p>
+</section>
 </section>
 </section>
 
@@ -294,7 +400,12 @@
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">finance calcs</a><ul>
-<li><a class="reference internal" href="#overview">Overview</a></li>
+<li><a class="reference internal" href="#overview">Overview</a><ul>
+<li><a class="reference internal" href="#implemented-coverage">Implemented coverage</a></li>
+<li><a class="reference internal" href="#quick-start">Quick start</a></li>
+<li><a class="reference internal" href="#period-and-frequency-slices">Period and frequency slices</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>

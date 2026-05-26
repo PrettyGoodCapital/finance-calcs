@@ -1,0 +1,85 @@
+finance_calcs._namespace
+========================
+
+.. py:module:: finance_calcs._namespace
+
+.. autoapi-nested-parse::
+
+   Polars custom namespace registration.
+
+   Registers ``.finance`` on ``pl.Expr`` and ``pl.Series`` so all public
+   calculations can be invoked fluently::
+
+       df.with_columns(pl.col("close").finance.simple_returns().alias("ret"))
+       df.select(pl.col("ret").finance.sharpe_ratio())
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   finance_calcs._namespace._alpha
+   finance_calcs._namespace._factor
+   finance_calcs._namespace._momentum
+   finance_calcs._namespace._overlap
+   finance_calcs._namespace._portfolio
+   finance_calcs._namespace._post_trade
+   finance_calcs._namespace._quantile
+   finance_calcs._namespace._returns
+   finance_calcs._namespace._risk
+   finance_calcs._namespace._stats
+   finance_calcs._namespace._tail
+   finance_calcs._namespace._volatility
+   finance_calcs._namespace._volume
+   finance_calcs._namespace._MODULES
+   finance_calcs._namespace.ExprFinance
+   finance_calcs._namespace.SeriesFinance
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   finance_calcs._namespace._bind
+
+
+Module Contents
+---------------
+
+.. py:data:: _alpha
+
+.. py:data:: _factor
+
+.. py:data:: _momentum
+
+.. py:data:: _overlap
+
+.. py:data:: _portfolio
+
+.. py:data:: _post_trade
+
+.. py:data:: _quantile
+
+.. py:data:: _returns
+
+.. py:data:: _risk
+
+.. py:data:: _stats
+
+.. py:data:: _tail
+
+.. py:data:: _volatility
+
+.. py:data:: _volume
+
+.. py:function:: _bind(target_register, modules)
+
+.. py:data:: _MODULES
+
+.. py:data:: ExprFinance
+
+.. py:data:: SeriesFinance
+

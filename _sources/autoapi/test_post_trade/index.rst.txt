@@ -1,0 +1,36 @@
+test_post_trade
+===============
+
+.. py:module:: test_post_trade
+
+.. autoapi-nested-parse::
+
+   Tests for post-trade transaction cost metrics.
+
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   test_post_trade.test_transaction_notional_uses_absolute_quantity
+   test_post_trade.test_transaction_cost_combines_bps_and_explicit_costs
+   test_post_trade.test_slippage_bps_is_side_aware_cost
+   test_post_trade.test_turnover_aggregates_position_weight_changes
+   test_post_trade.test_namespace_post_trade_metrics
+
+
+Module Contents
+---------------
+
+.. py:function:: test_transaction_notional_uses_absolute_quantity() -> None
+
+.. py:function:: test_transaction_cost_combines_bps_and_explicit_costs() -> None
+
+.. py:function:: test_slippage_bps_is_side_aware_cost() -> None
+
+.. py:function:: test_turnover_aggregates_position_weight_changes() -> None
+
+.. py:function:: test_namespace_post_trade_metrics() -> None
+

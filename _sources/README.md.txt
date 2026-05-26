@@ -9,5 +9,91 @@ Standard financial calculations
 
 ## Overview
 
-> [!NOTE]
-> This library was generated using [copier](https://copier.readthedocs.io/en/stable/) from the [Base Python Project Template repository](https://github.com/python-project-templates/base).
+`finance-calcs` provides financial calculations as composable polars
+expressions. The library is designed for lazy execution, namespace-style
+ergonomics, and direct interoperability with the rest of the
+`finance-*` stack.
+
+The public API is built around a few simple rules:
+
+- every function accepts and returns `pl.Expr`
+- metrics are exposed once, with optional `window=` and `period=` style
+  controls rather than separate rolling/monthly/annual variants
+- functions are also available through the `.finance` namespace on both
+  `pl.Expr` and `pl.Series`
+
+### Implemented coverage
+
+- Core returns: `simple_returns`, `log_returns`, `cum_returns`, `returns`,
+  `aggregate_returns`, `period_bucket`, `annualized_return`,
+  `annualized_volatility`
+- Risk metrics: `volatility`, `sharpe`, `sortino`, `calmar`,
+  `downside_risk`, `value_at_risk`, `conditional_value_at_risk`,
+  `parametric_var`, drawdown helpers
+- Alpha/factor metrics: alpha, beta, capture ratios, tracking error,
+  information ratio
+- Technical indicators: overlap, momentum, volatility, and volume
+  primitives exposed as polars expressions
+- Post-trade and portfolio utilities: turnover, transaction cost,
+  notional, exposure, and concentration helpers
+
+### Quick start
+
+```python
+import polars as pl
+import finance_calcs as fc
+
+df = pl.DataFrame({"close": [100.0, 101.0, 99.0, 102.0, 103.0]})
+
+out = df.with_columns(
+  pl.col("close").finance.simple_returns().alias("ret"),
+).select(
+  pl.col("ret").finance.cum_returns_final().alias("total_return"),
+  pl.col("ret").finance.sharpe(periods_per_year=252).alias("sharpe"),
+  pl.col("ret").finance.volatility(periods_per_year=252).alias("vol"),
+)
+```
+
+### Period and frequency slices
+
+Use `period=` for calendar-style slices and keep `window=` for rolling row-count
+windows. A `period` can be a `finance_enums.Frequency`, any alias accepted by
+`finance_enums.to_frequency()`, any Polars `dt.truncate()` duration string, or a
+precomputed bucket expression.
+
+```python
+from datetime import date
+
+from finance_enums import Frequency
+
+df = pl.DataFrame(
+  {
+    "date": pl.date_range(date(2024, 1, 1), date(2024, 3, 31), eager=True),
+    "ret": 0.001,
+  }
+)
+
+out = df.with_columns(
+  fc.period_bucket(pl.col("date"), Frequency.Month).alias("month"),
+  pl.col("ret").finance.returns(period="month", date=pl.col("date")).alias("month_return"),
+  pl.col("ret").finance.sharpe(period="1q", date=pl.col("date")).alias("quarter_sharpe"),
+)
+```
+
+For fiscal periods, strategy regimes, or exchange-calendar grids built upstream,
+pass the bucket expression directly:
+
+```python
+df.with_columns(
+  fc.returns(pl.col("ret"), period=pl.col("fiscal_period")).alias("fiscal_return"),
+)
+```
+
+`finance-calcs` is intended to pair with:
+
+- `finance-datagen` for synthetic fixtures and test inputs
+- `finance-dates` for calendar-aware date handling upstream
+- `finance-enums` for shared enum-backed trading semantics upstream
+
+That keeps calculations focused on typed expressions instead of schema
+cleanup, string parsing, or calendar repair.
