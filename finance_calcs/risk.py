@@ -69,6 +69,14 @@ def _rf_per_period(risk_free: float | pl.Expr, periods_per_year: int) -> float |
     return (1.0 + risk_free) ** (1.0 / periods_per_year) - 1.0
 
 
+def _safe_scalar_ratio(numerator: float, denominator: float) -> float:
+    if denominator != 0.0:
+        return numerator / denominator
+    if numerator == 0.0:
+        return float("nan")
+    return float("inf") if numerator > 0.0 else float("-inf")
+
+
 def sharpe(
     returns: pl.Expr,
     risk_free: float | pl.Expr = 0.0,
@@ -94,7 +102,11 @@ def sharpe(
     if bucket is not None:
         return excess.mean().over(bucket) / excess.std().over(bucket) * scale
     if window is None:
-        return excess.mean() / excess.std() * scale
+        mean = excess.mean()
+        std = excess.std()
+        if isinstance(mean, pl.Expr) or isinstance(std, pl.Expr):
+            return mean / std * scale
+        return _safe_scalar_ratio(mean, std) * scale
     return excess.rolling_mean(window) / excess.rolling_std(window) * scale
 
 

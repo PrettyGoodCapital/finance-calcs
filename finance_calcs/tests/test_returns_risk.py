@@ -304,6 +304,12 @@ def test_namespace_on_series(constant_returns):
     assert val is None or math.isnan(val) or math.isinf(val) or abs(val) > 1e6
 
 
+def test_namespace_sharpe_handles_exact_zero_variance_series():
+    rets = pl.Series("r", [1.0] * 252)
+    val = rets.finance.sharpe()
+    assert math.isinf(val)
+
+
 def test_namespace_pipeline(prices):
     df = pl.DataFrame({"p": prices})
     out = df.with_columns(
