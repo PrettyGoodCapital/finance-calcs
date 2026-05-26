@@ -10,8 +10,8 @@ path = "rust/python/lib.rs"
 crate-type = ["cdylib"]
 
 [dependencies]
-finance_calcs = { path = "./rust", version = "*" }
-pyo3 = { version = "0.28.2", features = ["abi3", "extension-module", "multiple-pymethods"] }
+finance_calcs = { path = "./rust", version = "0.1.0" }
+pyo3 = { version = "0.28.2", features = ["abi3", "abi3-py310", "extension-module", "multiple-pymethods"] }
 
 [profile.release]
 panic = 'abort'
