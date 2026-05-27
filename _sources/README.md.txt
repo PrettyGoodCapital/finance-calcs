@@ -45,23 +45,11 @@ return and risk metrics as Polars expressions.
 
 ```python
 import polars as pl
-from finance_datagen import GBMGenerator
+from finance_datagen import generate_prices
 
 import finance_calcs as fc
 
-prices = GBMGenerator(
-    s0=100.0,
-    mu=0.07,
-    sigma=0.22,
-    n_steps=252,
-    symbol="ACME",
-    seed=7,
-    currency="USD",
-    exchange="XNYS",
-    instrument_type="Spot",
-    market_type="Equities",
-    venue_type="Exchange",
-).generate()
+prices = generate_prices(symbol="ACME", seed=7)
 
 out = prices.with_columns(
     pl.col("price").finance.simple_returns().alias("ret"),
@@ -120,20 +108,6 @@ bucketed = prices.with_columns(
     fc.returns(pl.col("ret"), period=pl.col("fiscal_year")).alias("fiscal_return"),
 )
 ```
-
-## Documentation
-
-`finance-calcs` uses yardang like the sibling `finance-*` packages.
-
-```bash
-make docs
-make docs-serve
-```
-
-The generated documentation is built from:
-
-- [Examples](docs/src/EXAMPLES.md) - realistic workflows using `finance-datagen`
-- [API](docs/src/API.md) - every public function grouped by topic
 
 ## Stack integration
 

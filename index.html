@@ -304,23 +304,11 @@ public function.</p>
 <p>Generate a deterministic daily equity path with <code class="docutils literal notranslate"><span class="pre">finance-datagen</span></code>, then compute
 return and risk metrics as Polars expressions.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">polars</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pl</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">finance_datagen</span><span class="w"> </span><span class="kn">import</span> <span class="n">GBMGenerator</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">finance_datagen</span><span class="w"> </span><span class="kn">import</span> <span class="n">generate_prices</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">finance_calcs</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">fc</span>
 
-<span class="n">prices</span> <span class="o">=</span> <span class="n">GBMGenerator</span><span class="p">(</span>
-    <span class="n">s0</span><span class="o">=</span><span class="mf">100.0</span><span class="p">,</span>
-    <span class="n">mu</span><span class="o">=</span><span class="mf">0.07</span><span class="p">,</span>
-    <span class="n">sigma</span><span class="o">=</span><span class="mf">0.22</span><span class="p">,</span>
-    <span class="n">n_steps</span><span class="o">=</span><span class="mi">252</span><span class="p">,</span>
-    <span class="n">symbol</span><span class="o">=</span><span class="s2">&quot;ACME&quot;</span><span class="p">,</span>
-    <span class="n">seed</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span>
-    <span class="n">currency</span><span class="o">=</span><span class="s2">&quot;USD&quot;</span><span class="p">,</span>
-    <span class="n">exchange</span><span class="o">=</span><span class="s2">&quot;XNYS&quot;</span><span class="p">,</span>
-    <span class="n">instrument_type</span><span class="o">=</span><span class="s2">&quot;Spot&quot;</span><span class="p">,</span>
-    <span class="n">market_type</span><span class="o">=</span><span class="s2">&quot;Equities&quot;</span><span class="p">,</span>
-    <span class="n">venue_type</span><span class="o">=</span><span class="s2">&quot;Exchange&quot;</span><span class="p">,</span>
-<span class="p">)</span><span class="o">.</span><span class="n">generate</span><span class="p">()</span>
+<span class="n">prices</span> <span class="o">=</span> <span class="n">generate_prices</span><span class="p">(</span><span class="n">symbol</span><span class="o">=</span><span class="s2">&quot;ACME&quot;</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
 
 <span class="n">out</span> <span class="o">=</span> <span class="n">prices</span><span class="o">.</span><span class="n">with_columns</span><span class="p">(</span>
     <span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;price&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">finance</span><span class="o">.</span><span class="n">simple_returns</span><span class="p">()</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">&quot;ret&quot;</span><span class="p">),</span>
@@ -375,19 +363,6 @@ pass the bucket expression directly:</p>
 <span class="p">)</span>
 </pre></div>
 </div>
-</section>
-<section id="documentation">
-<h2>Documentation<a class="headerlink" href="#documentation" title="Link to this heading">¶</a></h2>
-<p><code class="docutils literal notranslate"><span class="pre">finance-calcs</span></code> uses yardang like the sibling <code class="docutils literal notranslate"><span class="pre">finance-*</span></code> packages.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make<span class="w"> </span>docs
-make<span class="w"> </span>docs-serve
-</pre></div>
-</div>
-<p>The generated documentation is built from:</p>
-<ul class="simple">
-<li><p><a class="reference internal" href="docs/src/EXAMPLES.html"><span class="std std-doc">Examples</span></a> - realistic workflows using <code class="docutils literal notranslate"><span class="pre">finance-datagen</span></code></p></li>
-<li><p><a class="reference internal" href="docs/src/API.html"><span class="std std-doc">API</span></a> - every public function grouped by topic</p></li>
-</ul>
 </section>
 <section id="stack-integration">
 <h2>Stack integration<a class="headerlink" href="#stack-integration" title="Link to this heading">¶</a></h2>

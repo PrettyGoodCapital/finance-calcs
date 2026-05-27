@@ -9,28 +9,16 @@ ______________________________________________________________________
 
 ## Price Path to Return and Risk Metrics
 
-Use `GBMGenerator` for a realistic close series, then derive returns and risk
+Use `generate_prices` for a realistic close series, then derive returns and risk
 metrics with expression calls.
 
 ```python
 import polars as pl
-from finance_datagen import GBMGenerator
+from finance_datagen import generate_prices
 
 import finance_calcs as fc
 
-prices = GBMGenerator(
-    s0=100.0,
-    mu=0.07,
-    sigma=0.22,
-    n_steps=252,
-    symbol="ACME",
-    seed=7,
-    currency="USD",
-    exchange="XNYS",
-    instrument_type="Spot",
-    market_type="Equities",
-    venue_type="Exchange",
-).generate()
+prices = generate_prices(symbol="ACME", seed=7)
 
 metrics = prices.with_columns(
     pl.col("price").finance.simple_returns().alias("ret"),
@@ -57,12 +45,12 @@ derived from a timestamp column.
 
 ```python
 import polars as pl
-from finance_datagen import GBMGenerator
+from finance_datagen import generate_prices
 from finance_enums import Frequency
 
 import finance_calcs as fc
 
-prices = GBMGenerator(n_steps=252, symbol="ACME", seed=11).generate()
+prices = generate_prices(symbol="ACME", seed=11)
 returns = prices.with_columns(
     pl.col("price").finance.simple_returns().alias("ret"),
 )
@@ -99,9 +87,9 @@ volatility, and volume indicators.
 
 ```python
 import polars as pl
-from finance_datagen import GBMGenerator, ohlc_from_close
+from finance_datagen import generate_prices, ohlc_from_close
 
-prices = GBMGenerator(n_steps=252, symbol="ACME", seed=5).generate()
+prices = generate_prices(symbol="ACME", seed=5)
 bars = ohlc_from_close(prices["price"], symbol="ACME", seed=5)
 
 features = bars.with_columns(
@@ -320,11 +308,11 @@ series from the same price fixtures.
 
 ```python
 import polars as pl
-from finance_datagen import GBMGenerator
+from finance_datagen import generate_prices
 
 import finance_calcs as fc
 
-prices = GBMGenerator(n_steps=756, sigma=0.25, seed=12).generate()
+prices = generate_prices(n_steps=756, sigma=0.25, seed=12)
 returns = prices.select(pl.col("price").finance.simple_returns().alias("ret"))["ret"].drop_nulls()
 
 psr = fc.probabilistic_sharpe(returns, benchmark_sr=0.0)

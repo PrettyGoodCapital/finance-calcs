@@ -246,26 +246,14 @@ the snippets are suitable for documentation, tests, and notebooks.</p>
 <hr class="docutils" />
 <section id="price-path-to-return-and-risk-metrics">
 <h2>Price Path to Return and Risk Metrics<a class="headerlink" href="#price-path-to-return-and-risk-metrics" title="Link to this heading">¶</a></h2>
-<p>Use <code class="docutils literal notranslate"><span class="pre">GBMGenerator</span></code> for a realistic close series, then derive returns and risk
+<p>Use <code class="docutils literal notranslate"><span class="pre">generate_prices</span></code> for a realistic close series, then derive returns and risk
 metrics with expression calls.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">polars</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pl</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">finance_datagen</span><span class="w"> </span><span class="kn">import</span> <span class="n">GBMGenerator</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">finance_datagen</span><span class="w"> </span><span class="kn">import</span> <span class="n">generate_prices</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">finance_calcs</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">fc</span>
 
-<span class="n">prices</span> <span class="o">=</span> <span class="n">GBMGenerator</span><span class="p">(</span>
-    <span class="n">s0</span><span class="o">=</span><span class="mf">100.0</span><span class="p">,</span>
-    <span class="n">mu</span><span class="o">=</span><span class="mf">0.07</span><span class="p">,</span>
-    <span class="n">sigma</span><span class="o">=</span><span class="mf">0.22</span><span class="p">,</span>
-    <span class="n">n_steps</span><span class="o">=</span><span class="mi">252</span><span class="p">,</span>
-    <span class="n">symbol</span><span class="o">=</span><span class="s2">&quot;ACME&quot;</span><span class="p">,</span>
-    <span class="n">seed</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span>
-    <span class="n">currency</span><span class="o">=</span><span class="s2">&quot;USD&quot;</span><span class="p">,</span>
-    <span class="n">exchange</span><span class="o">=</span><span class="s2">&quot;XNYS&quot;</span><span class="p">,</span>
-    <span class="n">instrument_type</span><span class="o">=</span><span class="s2">&quot;Spot&quot;</span><span class="p">,</span>
-    <span class="n">market_type</span><span class="o">=</span><span class="s2">&quot;Equities&quot;</span><span class="p">,</span>
-    <span class="n">venue_type</span><span class="o">=</span><span class="s2">&quot;Exchange&quot;</span><span class="p">,</span>
-<span class="p">)</span><span class="o">.</span><span class="n">generate</span><span class="p">()</span>
+<span class="n">prices</span> <span class="o">=</span> <span class="n">generate_prices</span><span class="p">(</span><span class="n">symbol</span><span class="o">=</span><span class="s2">&quot;ACME&quot;</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
 
 <span class="n">metrics</span> <span class="o">=</span> <span class="n">prices</span><span class="o">.</span><span class="n">with_columns</span><span class="p">(</span>
     <span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;price&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">finance</span><span class="o">.</span><span class="n">simple_returns</span><span class="p">()</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">&quot;ret&quot;</span><span class="p">),</span>
@@ -289,12 +277,12 @@ top-level functions when several input columns are involved.</p>
 <code class="docutils literal notranslate"><span class="pre">finance_enums.Frequency</span></code> or a Polars duration string when the bucket can be
 derived from a timestamp column.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">polars</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pl</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">finance_datagen</span><span class="w"> </span><span class="kn">import</span> <span class="n">GBMGenerator</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">finance_datagen</span><span class="w"> </span><span class="kn">import</span> <span class="n">generate_prices</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">finance_enums</span><span class="w"> </span><span class="kn">import</span> <span class="n">Frequency</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">finance_calcs</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">fc</span>
 
-<span class="n">prices</span> <span class="o">=</span> <span class="n">GBMGenerator</span><span class="p">(</span><span class="n">n_steps</span><span class="o">=</span><span class="mi">252</span><span class="p">,</span> <span class="n">symbol</span><span class="o">=</span><span class="s2">&quot;ACME&quot;</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">11</span><span class="p">)</span><span class="o">.</span><span class="n">generate</span><span class="p">()</span>
+<span class="n">prices</span> <span class="o">=</span> <span class="n">generate_prices</span><span class="p">(</span><span class="n">symbol</span><span class="o">=</span><span class="s2">&quot;ACME&quot;</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">11</span><span class="p">)</span>
 <span class="n">returns</span> <span class="o">=</span> <span class="n">prices</span><span class="o">.</span><span class="n">with_columns</span><span class="p">(</span>
     <span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;price&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">finance</span><span class="o">.</span><span class="n">simple_returns</span><span class="p">()</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">&quot;ret&quot;</span><span class="p">),</span>
 <span class="p">)</span>
@@ -327,9 +315,9 @@ required.</p>
 high, low, open, close, and volume inputs needed by overlap, momentum,
 volatility, and volume indicators.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">polars</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pl</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">finance_datagen</span><span class="w"> </span><span class="kn">import</span> <span class="n">GBMGenerator</span><span class="p">,</span> <span class="n">ohlc_from_close</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">finance_datagen</span><span class="w"> </span><span class="kn">import</span> <span class="n">generate_prices</span><span class="p">,</span> <span class="n">ohlc_from_close</span>
 
-<span class="n">prices</span> <span class="o">=</span> <span class="n">GBMGenerator</span><span class="p">(</span><span class="n">n_steps</span><span class="o">=</span><span class="mi">252</span><span class="p">,</span> <span class="n">symbol</span><span class="o">=</span><span class="s2">&quot;ACME&quot;</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span><span class="o">.</span><span class="n">generate</span><span class="p">()</span>
+<span class="n">prices</span> <span class="o">=</span> <span class="n">generate_prices</span><span class="p">(</span><span class="n">symbol</span><span class="o">=</span><span class="s2">&quot;ACME&quot;</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
 <span class="n">bars</span> <span class="o">=</span> <span class="n">ohlc_from_close</span><span class="p">(</span><span class="n">prices</span><span class="p">[</span><span class="s2">&quot;price&quot;</span><span class="p">],</span> <span class="n">symbol</span><span class="o">=</span><span class="s2">&quot;ACME&quot;</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
 
 <span class="n">features</span> <span class="o">=</span> <span class="n">bars</span><span class="o">.</span><span class="n">with_columns</span><span class="p">(</span>
@@ -529,11 +517,11 @@ costs, then aggregate by date, symbol, or venue.</p>
 <p>Some statistical helpers consume an eager <code class="docutils literal notranslate"><span class="pre">pl.Series</span></code>. Use generated return
 series from the same price fixtures.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">polars</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pl</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">finance_datagen</span><span class="w"> </span><span class="kn">import</span> <span class="n">GBMGenerator</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">finance_datagen</span><span class="w"> </span><span class="kn">import</span> <span class="n">generate_prices</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">finance_calcs</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">fc</span>
 
-<span class="n">prices</span> <span class="o">=</span> <span class="n">GBMGenerator</span><span class="p">(</span><span class="n">n_steps</span><span class="o">=</span><span class="mi">756</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mf">0.25</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span><span class="o">.</span><span class="n">generate</span><span class="p">()</span>
+<span class="n">prices</span> <span class="o">=</span> <span class="n">generate_prices</span><span class="p">(</span><span class="n">n_steps</span><span class="o">=</span><span class="mi">756</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mf">0.25</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
 <span class="n">returns</span> <span class="o">=</span> <span class="n">prices</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;price&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">finance</span><span class="o">.</span><span class="n">simple_returns</span><span class="p">()</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">&quot;ret&quot;</span><span class="p">))[</span><span class="s2">&quot;ret&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">drop_nulls</span><span class="p">()</span>
 
 <span class="n">psr</span> <span class="o">=</span> <span class="n">fc</span><span class="o">.</span><span class="n">probabilistic_sharpe</span><span class="p">(</span><span class="n">returns</span><span class="p">,</span> <span class="n">benchmark_sr</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span>
