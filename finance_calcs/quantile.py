@@ -14,7 +14,9 @@ __all__ = [
     "zscore",
     "winsorize",
     "long_short_spread",
+    "mean_return_by_quantile",
     "quantile_changed",
+    "quantile_turnover",
 ]
 
 
@@ -104,6 +106,17 @@ def long_short_spread(
     return long_leg - short_leg
 
 
+def mean_return_by_quantile(
+    returns: pl.Expr,
+    quantile: pl.Expr,
+    *,
+    n_quantiles: int = 5,
+    prefix: str = "q",
+) -> list[pl.Expr]:
+    """Build mean-return expressions for quantile labels ``0..n-1``."""
+    return [returns.filter(quantile == label).mean().alias(f"{prefix}{label}") for label in range(n_quantiles)]
+
+
 def quantile_changed(quantile: pl.Expr) -> pl.Expr:
     """Boolean expression: ``quantile != quantile.shift(1)``.
 
@@ -118,3 +131,8 @@ def quantile_changed(quantile: pl.Expr) -> pl.Expr:
         Boolean expression. The first observation is null/false.
     """
     return quantile != quantile.shift(1)
+
+
+def quantile_turnover(changed: pl.Expr) -> pl.Expr:
+    """Fraction of names whose quantile assignment changed."""
+    return changed.fill_null(False).cast(pl.Float64).mean()

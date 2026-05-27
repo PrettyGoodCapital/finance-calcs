@@ -105,6 +105,40 @@ def test_hit_rate_perfect():
     assert hr == pytest.approx(1.0)
 
 
+def test_conditional_ic_filters_observations(panel):
+    out = panel.group_by("date").agg(
+        fc.conditional_ic(
+            pl.col("signal"),
+            pl.col("fwd"),
+            pl.col("signal") > 0,
+            method="pearson",
+        ).alias("ic"),
+    )
+
+    assert out["ic"].drop_nulls().len() > 0
+    assert float(out["ic"].drop_nulls().mean()) > 0.0
+
+
+def test_horizon_ic_and_decay(panel):
+    enriched = panel.with_columns(
+        (pl.col("fwd") * 0.8 + 0.001).alias("fwd_1"),
+        (pl.col("fwd") * 0.4 - 0.001).alias("fwd_5"),
+    )
+
+    out = enriched.group_by("date").agg(
+        fc.horizon_ic(pl.col("signal"), pl.col("fwd_1"), method="pearson").alias("h1"),
+        *fc.ic_decay(
+            pl.col("signal"),
+            {1: pl.col("fwd_1"), 5: pl.col("fwd_5")},
+            method="pearson",
+        ),
+    )
+
+    assert {"h1", "ic_1", "ic_5"}.issubset(out.columns)
+    assert out["h1"].to_list() == pytest.approx(out["ic_1"].to_list())
+    assert float(out["ic_5"].mean()) > 0.0
+
+
 def test_assign_quantile_uniform():
     df = pl.DataFrame({"x": list(range(20))})
     out = df.select(fc.assign_quantile(pl.col("x"), 5).alias("q")).to_series()
@@ -145,11 +179,37 @@ def test_long_short_spread(panel):
     assert float(spread["ls"].mean()) > 0.0
 
 
+def test_mean_return_by_quantile(panel):
+    panel_q = panel.with_columns(
+        fc.assign_quantile(pl.col("signal"), 5).over("date").alias("q"),
+    )
+
+    out = panel_q.group_by("date").agg(
+        *fc.mean_return_by_quantile(pl.col("fwd"), pl.col("q"), n_quantiles=5),
+    )
+
+    assert {"q0", "q1", "q2", "q3", "q4"}.issubset(out.columns)
+    assert float(out["q4"].mean()) > float(out["q0"].mean())
+
+
 def test_quantile_changed():
     df = pl.DataFrame({"q": [0, 0, 1, 1, 2, 2, 2]})
     out = df.select(fc.quantile_changed(pl.col("q")).alias("c")).to_series().to_list()
     assert out[0] is None
     assert out[1:] == [False, True, False, True, False, False]
+
+
+def test_quantile_turnover_aggregates_changed_flags():
+    df = pl.DataFrame(
+        {
+            "date": [1, 1, 1, 2, 2, 2],
+            "changed": [False, True, False, True, True, False],
+        }
+    )
+
+    out = df.group_by("date").agg(fc.quantile_turnover(pl.col("changed")).alias("turnover")).sort("date")
+
+    assert out["turnover"].to_list() == pytest.approx([1 / 3, 2 / 3])
 
 
 def test_namespace_alpha():

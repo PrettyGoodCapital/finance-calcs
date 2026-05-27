@@ -3,9 +3,10 @@
 `finance-calcs` exposes calculation functions at the top level and through the
 `.finance` namespace on both `polars.Expr` and `polars.Series`. Most functions
 return `pl.Expr` so they compose naturally inside `select`, `with_columns`, and
-lazy pipelines. A small number of statistical helpers take a concrete
-`pl.Series` and return Python scalars or tuples because they use bootstrap or
-extreme-value routines that are not expression kernels.
+lazy pipelines. A small number of statistical and post-trade helpers take
+concrete `pl.Series` or `pl.DataFrame` inputs because they compute sample-level
+summaries, extract round trips, or fit extreme-value routines outside the Polars
+expression engine.
 
 Use this page as the complete public API map. Function signatures below are
 shown in a compact form; the reference blocks at the end of each section are
@@ -281,15 +282,18 @@ Alpha helpers are designed for cross-sectional signal panels. Compute forward
 returns, per-date IC values, and IC summary statistics from generated or real
 `date, symbol, signal, fwd_returns` data.
 
-| Function                                            | Use it for                     | Notes                                                             |
-| --------------------------------------------------- | ------------------------------ | ----------------------------------------------------------------- |
-| `forward_returns(price, periods=1)`                 | Future simple returns          | `price.shift(-periods) / price - 1`                               |
-| `pearson_ic(signal, fwd)`                           | Linear information coefficient | Pearson correlation                                               |
-| `spearman_ic(signal, fwd)`                          | Rank information coefficient   | Spearman correlation through ranks                                |
-| `information_coefficient(signal, fwd)`              | Default IC alias               | Alias for `spearman_ic`                                           |
-| `ic_ir(ic, *, window=None, period=None, date=None)` | IC information ratio           | Mean IC divided by IC standard deviation                          |
-| `hit_rate(signal, fwd)`                             | Directional hit rate           | Fraction where signal and forward return signs agree              |
-| `ic_summary_stats(ic)`                              | Series-level IC summary        | Returns count, mean, std, IR, t-stat, p-value, skew, and kurtosis |
+| Function                                                    | Use it for                     | Notes                                                       |
+| ----------------------------------------------------------- | ------------------------------ | ----------------------------------------------------------- |
+| `forward_returns(price, periods=1)`                         | Future simple returns          | `price.shift(-periods) / price - 1`                         |
+| `pearson_ic(signal, fwd)`                                   | Linear information coefficient | Pearson correlation                                         |
+| `spearman_ic(signal, fwd)`                                  | Rank information coefficient   | Spearman correlation through ranks                          |
+| `information_coefficient(signal, fwd)`                      | Default IC alias               | Alias for `spearman_ic`                                     |
+| `conditional_ic(signal, fwd, condition, method="spearman")` | Conditional IC                 | Correlation after filtering observations by a condition     |
+| `horizon_ic(signal, fwd, method="spearman")`                | One-horizon IC                 | IC against one forward-return horizon                       |
+| `ic_decay(signal, forward_returns_by_horizon)`              | IC decay expressions           | Builds one aliased IC expression per horizon                |
+| `ic_ir(ic, *, window=None, period=None, date=None)`         | IC information ratio           | Mean IC divided by IC standard deviation                    |
+| `hit_rate(signal, fwd)`                                     | Directional hit rate           | Fraction where signal and forward return signs agree        |
+| `ic_summary_stats(ic)`                                      | Series-level IC summary        | Returns count, mean, std, IR, t-stat, and positive-IC share |
 
 ```{eval-rst}
 .. currentmodule:: finance_calcs
@@ -298,6 +302,9 @@ returns, per-date IC values, and IC summary statistics from generated or real
 .. autofunction:: pearson_ic
 .. autofunction:: spearman_ic
 .. autofunction:: information_coefficient
+.. autofunction:: conditional_ic
+.. autofunction:: horizon_ic
+.. autofunction:: ic_decay
 .. autofunction:: ic_ir
 .. autofunction:: hit_rate
 .. autofunction:: ic_summary_stats
@@ -317,7 +324,9 @@ quantile spread analytics.
 | `zscore(signal)`                                     | Cross-sectional z-score         | Centers and scales by sample standard deviation    |
 | `winsorize(signal, cutoff=3.0)`                      | Outlier clipping                | Clips to `mean +/- cutoff * std`                   |
 | `long_short_spread(returns, quantile, upper, lower)` | Quantile spread return          | Mean return of upper quantile minus lower quantile |
+| `mean_return_by_quantile(returns, quantile)`         | Quantile return expressions     | Builds one mean-return expression per quantile     |
 | `quantile_changed(quantile)`                         | Turnover signal                 | True when quantile label changed from previous row |
+| `quantile_turnover(changed)`                         | Quantile turnover               | Mean of quantile-change flags                      |
 
 ```{eval-rst}
 .. currentmodule:: finance_calcs
@@ -327,7 +336,9 @@ quantile spread analytics.
 .. autofunction:: zscore
 .. autofunction:: winsorize
 .. autofunction:: long_short_spread
+.. autofunction:: mean_return_by_quantile
 .. autofunction:: quantile_changed
+.. autofunction:: quantile_turnover
 ```
 
 ______________________________________________________________________
@@ -467,21 +478,59 @@ ______________________________________________________________________
 
 ## Post-Trade
 
-Post-trade utilities consume transaction or execution data. They are expression
-kernels, so they can run per row, inside groups, or inside lazy pipelines.
+Post-trade utilities consume transaction, round-trip, or execution data. Cost,
+slippage, turnover, and trade-quality metrics are expression kernels. Round-trip
+extraction and summary helpers take concrete `pl.DataFrame` inputs because they
+need ordered trade sequences.
 
-| Function                                                                  | Use it for                      | Notes                                           |
-| ------------------------------------------------------------------------- | ------------------------------- | ----------------------------------------------- |
-| `transaction_notional(quantity, price)`                                   | Absolute traded notional        | `abs(quantity) * price`                         |
-| `transaction_cost(quantity, price, *, commission=0.0, fees=0.0, bps=0.0)` | Explicit plus basis-point costs | Adds commission, fees, and bps cost on notional |
-| `slippage_bps(execution_price, benchmark_price, *, side=None)`            | Execution slippage              | Side-aware when a side expression is provided   |
-| `turnover(weights, *, window=None)`                                       | Position-weight turnover        | Absolute weight change; optional rolling sum    |
+| Function                                                                  | Use it for                      | Notes                                                |
+| ------------------------------------------------------------------------- | ------------------------------- | ---------------------------------------------------- |
+| `transaction_notional(quantity, price)`                                   | Absolute traded notional        | `abs(quantity) * price`                              |
+| `transaction_cost(quantity, price, *, commission=0.0, fees=0.0, bps=0.0)` | Explicit plus basis-point costs | Adds commission, fees, and bps cost on notional      |
+| `transaction_volume(quantity, price, *, period=None, date=None)`          | Traded notional volume          | Sums notional over the full sample or period bucket  |
+| `slippage_bps(execution_price, benchmark_price, *, side=None)`            | Execution slippage              | Side-aware when a side expression is provided        |
+| `implementation_shortfall(execution_price, decision_price, *, side=None)` | Decision-price slippage         | Side-aware implementation shortfall in bps           |
+| `vwap_slippage(execution_price, vwap, *, side=None)`                      | VWAP slippage                   | Side-aware execution vs. VWAP in bps                 |
+| `turnover(weights, *, window=None)`                                       | Position-weight turnover        | Absolute weight change; optional rolling sum         |
+| `cost_per_trade(...)`                                                     | Per-trade cost alias            | Same calculation as `transaction_cost`               |
+| `cost_attribution(transactions)`                                          | Cost decomposition              | Returns component totals and percentages             |
+| `extract_round_trips(transactions)`                                       | FIFO round-trip extraction      | Builds entry/exit trade rows from signed quantities  |
+| `round_trip_stats(round_trips)`                                           | Trade-quality summary           | Count, win rate, average PnL, total PnL, PF, payoff  |
+| `long_short_round_trip_stats(round_trips)`                                | Long/short trade summary        | Aggregates round trips by side                       |
+| `sector_round_trip_stats(round_trips, sector_map)`                        | Sector trade summary            | Aggregates round trips by mapped sector              |
+| `win_rate(pnl)`                                                           | Profitable-trade fraction       | Expression metric                                    |
+| `profit_factor(pnl)`                                                      | Gross profit / gross loss       | Expression metric                                    |
+| `payoff_ratio(pnl)`                                                       | Average win / average loss      | Expression metric                                    |
+| `avg_trade_pnl(pnl)`                                                      | Mean trade PnL                  | Expression metric                                    |
+| `trade_duration_stats(duration)`                                          | Holding-period summary          | Returns mean, median, and max duration               |
+| `mae_mfe(trades, prices)`                                                 | Maximum adverse/favorable move  | Adds `mae` and `mfe` to round trips                  |
+| `consecutive_wins_losses(pnl)`                                            | Win/loss streaks                | Returns max consecutive wins and losses              |
+| `exit_reason_stats(trades)`                                               | PnL by exit reason              | Groups counts and PnL by exit-reason label           |
+| `trade_size_return_correlation(size, returns)`                            | Size/return relationship        | Correlation of absolute trade size with trade return |
 
 ```{eval-rst}
 .. currentmodule:: finance_calcs
 
 .. autofunction:: transaction_notional
 .. autofunction:: transaction_cost
+.. autofunction:: transaction_volume
 .. autofunction:: slippage_bps
+.. autofunction:: implementation_shortfall
+.. autofunction:: vwap_slippage
 .. autofunction:: turnover
+.. autofunction:: cost_per_trade
+.. autofunction:: cost_attribution
+.. autofunction:: extract_round_trips
+.. autofunction:: round_trip_stats
+.. autofunction:: long_short_round_trip_stats
+.. autofunction:: sector_round_trip_stats
+.. autofunction:: win_rate
+.. autofunction:: profit_factor
+.. autofunction:: payoff_ratio
+.. autofunction:: avg_trade_pnl
+.. autofunction:: trade_duration_stats
+.. autofunction:: mae_mfe
+.. autofunction:: consecutive_wins_losses
+.. autofunction:: exit_reason_stats
+.. autofunction:: trade_size_return_correlation
 ```

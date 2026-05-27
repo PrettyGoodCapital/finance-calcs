@@ -7,6 +7,8 @@ aggregated across time with :func:`ic_ir` and friends.
 
 from __future__ import annotations
 
+from collections.abc import Mapping
+
 import polars as pl
 
 from ._periods import PeriodLike, _bucket_or_none, _check_window_period
@@ -16,6 +18,9 @@ __all__ = [
     "pearson_ic",
     "spearman_ic",
     "information_coefficient",
+    "conditional_ic",
+    "horizon_ic",
+    "ic_decay",
     "ic_ir",
     "hit_rate",
     "ic_summary_stats",
@@ -62,6 +67,38 @@ def spearman_ic(signal: pl.Expr, fwd: pl.Expr) -> pl.Expr:
 
 
 information_coefficient = spearman_ic
+
+
+def conditional_ic(
+    signal: pl.Expr,
+    fwd: pl.Expr,
+    condition: pl.Expr,
+    *,
+    method: str = "spearman",
+) -> pl.Expr:
+    """Information coefficient on observations matching ``condition``."""
+    return pl.corr(signal.filter(condition), fwd.filter(condition), method=method)
+
+
+def horizon_ic(
+    signal: pl.Expr,
+    fwd: pl.Expr,
+    *,
+    method: str = "spearman",
+) -> pl.Expr:
+    """Information coefficient for one forward-return horizon."""
+    return pl.corr(signal, fwd, method=method)
+
+
+def ic_decay(
+    signal: pl.Expr,
+    forward_returns_by_horizon: Mapping[int, pl.Expr],
+    *,
+    method: str = "spearman",
+    prefix: str = "ic_",
+) -> list[pl.Expr]:
+    """Build one horizon IC expression per forward-return horizon."""
+    return [horizon_ic(signal, fwd, method=method).alias(f"{prefix}{horizon}") for horizon, fwd in sorted(forward_returns_by_horizon.items())]
 
 
 def ic_ir(
