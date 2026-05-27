@@ -140,11 +140,24 @@ ranked = signals.with_columns(
 
 ic = ranked.group_by("date").agg(
     fc.spearman_ic(pl.col("signal"), pl.col("fwd_returns")).alias("ic"),
+    fc.conditional_ic(pl.col("signal"), pl.col("fwd_returns"), pl.col("signal") > 0).alias("positive_signal_ic"),
     fc.hit_rate(pl.col("signal"), pl.col("fwd_returns")).alias("hit_rate"),
     fc.long_short_spread(pl.col("fwd_returns"), pl.col("quantile"), upper=4, lower=0).alias("q5_q1_spread"),
 )
 
 ic_summary = fc.ic_summary_stats(ic["ic"])
+
+quantile_returns = ranked.group_by("date").agg(
+    *fc.mean_return_by_quantile(pl.col("fwd_returns"), pl.col("quantile"), n_quantiles=5),
+)
+
+horizon_panel = ranked.with_columns(
+    (pl.col("fwd_returns") * 0.8).alias("fwd_1"),
+    (pl.col("fwd_returns") * 0.5).alias("fwd_5"),
+)
+horizon_ic = horizon_panel.group_by("date").agg(
+    *fc.ic_decay(pl.col("signal"), {1: pl.col("fwd_1"), 5: pl.col("fwd_5")}),
+)
 ```
 
 To monitor quantile turnover, evaluate changes within each symbol and aggregate
@@ -154,7 +167,7 @@ by date.
 turnover = ranked.with_columns(
     fc.quantile_changed(pl.col("quantile")).over("symbol").fill_null(False).alias("changed"),
 ).group_by("date").agg(
-    pl.col("changed").mean().alias("quantile_turnover"),
+    fc.quantile_turnover(pl.col("changed")).alias("quantile_turnover"),
 )
 ```
 
@@ -274,6 +287,7 @@ transactions = generate_transactions(
 costed = transactions.with_columns(
     pl.col("timestamp").dt.date().alias("date"),
     fc.transaction_notional(pl.col("amount"), pl.col("price")).alias("notional"),
+    fc.transaction_volume(pl.col("amount"), pl.col("price"), period="day", date=pl.col("timestamp")).alias("daily_notional"),
     fc.transaction_cost(
         pl.col("amount"),
         pl.col("price"),
@@ -287,6 +301,8 @@ daily_costs = costed.group_by("date").agg(
     pl.col("notional").sum().alias("gross_notional"),
     pl.col("cost").sum().alias("total_cost"),
 )
+
+cost_breakdown = fc.cost_attribution(transactions)
 ```
 
 Turnover starts from a position panel because it measures changes in weights:
@@ -296,6 +312,38 @@ turnover = positions.sort(["symbol", "date"]).with_columns(
     fc.turnover(pl.col("weight")).over("symbol").alias("turnover_contribution"),
 ).group_by("date").agg(
     pl.col("turnover_contribution").sum().alias("turnover"),
+)
+```
+
+Round-trip and execution-quality helpers operate on concrete Polars frames
+because they need ordered trade sequences.
+
+```python
+manual_transactions = pl.DataFrame(
+    {
+        "timestamp": [date(2024, 1, 2), date(2024, 1, 3), date(2024, 1, 4), date(2024, 1, 5)],
+        "symbol": ["ACME", "ACME", "ACME", "BETA"],
+        "amount": [100.0, -40.0, -60.0, -50.0],
+        "price": [100.0, 110.0, 95.0, 42.0],
+    }
+)
+round_trips = fc.extract_round_trips(manual_transactions)
+trade_stats = fc.round_trip_stats(round_trips)
+
+price_path = pl.DataFrame(
+    {
+        "timestamp": [date(2024, 1, 2), date(2024, 1, 3), date(2024, 1, 4)],
+        "symbol": ["ACME", "ACME", "ACME"],
+        "price": [100.0, 92.0, 112.0],
+    }
+)
+excursions = fc.mae_mfe(round_trips.filter(pl.col("symbol") == "ACME"), price_path)
+
+execution_quality = pl.DataFrame(
+    {"side": ["Buy", "Sell"], "exec": [101.0, 99.0], "decision": [100.0, 100.0], "vwap": [100.5, 99.5]}
+).select(
+    fc.implementation_shortfall(pl.col("exec"), pl.col("decision"), side=pl.col("side")).alias("is_bps"),
+    fc.vwap_slippage(pl.col("exec"), pl.col("vwap"), side=pl.col("side")).alias("vwap_bps"),
 )
 ```
 

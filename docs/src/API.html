@@ -242,9 +242,10 @@
 <p><code class="docutils literal notranslate"><span class="pre">finance-calcs</span></code> exposes calculation functions at the top level and through the
 <code class="docutils literal notranslate"><span class="pre">.finance</span></code> namespace on both <code class="docutils literal notranslate"><span class="pre">polars.Expr</span></code> and <code class="docutils literal notranslate"><span class="pre">polars.Series</span></code>. Most functions
 return <code class="docutils literal notranslate"><span class="pre">pl.Expr</span></code> so they compose naturally inside <code class="docutils literal notranslate"><span class="pre">select</span></code>, <code class="docutils literal notranslate"><span class="pre">with_columns</span></code>, and
-lazy pipelines. A small number of statistical helpers take a concrete
-<code class="docutils literal notranslate"><span class="pre">pl.Series</span></code> and return Python scalars or tuples because they use bootstrap or
-extreme-value routines that are not expression kernels.</p>
+lazy pipelines. A small number of statistical and post-trade helpers take
+concrete <code class="docutils literal notranslate"><span class="pre">pl.Series</span></code> or <code class="docutils literal notranslate"><span class="pre">pl.DataFrame</span></code> inputs because they compute sample-level
+summaries, extract round trips, or fit extreme-value routines outside the Polars
+expression engine.</p>
 <p>Use this page as the complete public API map. Function signatures below are
 shown in a compact form; the reference blocks at the end of each section are
 rendered by yardang/Sphinx from the live docstrings.</p>
@@ -1680,17 +1681,29 @@ returns, per-date IC values, and IC summary statistics from generated or real
 <td><p>Default IC alias</p></td>
 <td><p>Alias for <code class="docutils literal notranslate"><span class="pre">spearman_ic</span></code></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ic_ir(ic,</span> <span class="pre">*,</span> <span class="pre">window=None,</span> <span class="pre">period=None,</span> <span class="pre">date=None)</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">conditional_ic(signal,</span> <span class="pre">fwd,</span> <span class="pre">condition,</span> <span class="pre">method=&quot;spearman&quot;)</span></code></p></td>
+<td><p>Conditional IC</p></td>
+<td><p>Correlation after filtering observations by a condition</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">horizon_ic(signal,</span> <span class="pre">fwd,</span> <span class="pre">method=&quot;spearman&quot;)</span></code></p></td>
+<td><p>One-horizon IC</p></td>
+<td><p>IC against one forward-return horizon</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ic_decay(signal,</span> <span class="pre">forward_returns_by_horizon)</span></code></p></td>
+<td><p>IC decay expressions</p></td>
+<td><p>Builds one aliased IC expression per horizon</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ic_ir(ic,</span> <span class="pre">*,</span> <span class="pre">window=None,</span> <span class="pre">period=None,</span> <span class="pre">date=None)</span></code></p></td>
 <td><p>IC information ratio</p></td>
 <td><p>Mean IC divided by IC standard deviation</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">hit_rate(signal,</span> <span class="pre">fwd)</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">hit_rate(signal,</span> <span class="pre">fwd)</span></code></p></td>
 <td><p>Directional hit rate</p></td>
 <td><p>Fraction where signal and forward return signs agree</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ic_summary_stats(ic)</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ic_summary_stats(ic)</span></code></p></td>
 <td><p>Series-level IC summary</p></td>
-<td><p>Returns count, mean, std, IR, t-stat, p-value, skew, and kurtosis</p></td>
+<td><p>Returns count, mean, std, IR, t-stat, and positive-IC share</p></td>
 </tr>
 </tbody>
 </table>
@@ -1761,6 +1774,24 @@ returns, per-date IC values, and IC summary statistics from generated or real
 <dd class="field-even"><p>Scalar rank-correlation expression.</p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="finance_calcs.conditional_ic">
+<span class="sig-prename descclassname"><span class="pre">finance_calcs.</span></span><span class="sig-name descname"><span class="pre">conditional_ic</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">signal</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fwd</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">condition</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'spearman'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Expr</span></span></span><a class="reference internal" href="../../_modules/finance_calcs/alpha.html#conditional_ic"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#finance_calcs.conditional_ic" title="Link to this definition">¶</a></dt>
+<dd><p>Information coefficient on observations matching <code class="docutils literal notranslate"><span class="pre">condition</span></code>.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="finance_calcs.horizon_ic">
+<span class="sig-prename descclassname"><span class="pre">finance_calcs.</span></span><span class="sig-name descname"><span class="pre">horizon_ic</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">signal</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fwd</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'spearman'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Expr</span></span></span><a class="reference internal" href="../../_modules/finance_calcs/alpha.html#horizon_ic"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#finance_calcs.horizon_ic" title="Link to this definition">¶</a></dt>
+<dd><p>Information coefficient for one forward-return horizon.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="finance_calcs.ic_decay">
+<span class="sig-prename descclassname"><span class="pre">finance_calcs.</span></span><span class="sig-name descname"><span class="pre">ic_decay</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">signal</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forward_returns_by_horizon</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Expr</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'spearman'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prefix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'ic_'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">Expr</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/finance_calcs/alpha.html#ic_decay"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#finance_calcs.ic_decay" title="Link to this definition">¶</a></dt>
+<dd><p>Build one horizon IC expression per forward-return horizon.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -1838,9 +1869,17 @@ quantile spread analytics.</p>
 <td><p>Quantile spread return</p></td>
 <td><p>Mean return of upper quantile minus lower quantile</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">quantile_changed(quantile)</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">mean_return_by_quantile(returns,</span> <span class="pre">quantile)</span></code></p></td>
+<td><p>Quantile return expressions</p></td>
+<td><p>Builds one mean-return expression per quantile</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">quantile_changed(quantile)</span></code></p></td>
 <td><p>Turnover signal</p></td>
 <td><p>True when quantile label changed from previous row</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">quantile_turnover(changed)</span></code></p></td>
+<td><p>Quantile turnover</p></td>
+<td><p>Mean of quantile-change flags</p></td>
 </tr>
 </tbody>
 </table>
@@ -1935,6 +1974,12 @@ values map to higher labels.</p>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="finance_calcs.mean_return_by_quantile">
+<span class="sig-prename descclassname"><span class="pre">finance_calcs.</span></span><span class="sig-name descname"><span class="pre">mean_return_by_quantile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">returns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quantile</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_quantiles</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prefix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'q'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">Expr</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/finance_calcs/quantile.html#mean_return_by_quantile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#finance_calcs.mean_return_by_quantile" title="Link to this definition">¶</a></dt>
+<dd><p>Build mean-return expressions for quantile labels <code class="docutils literal notranslate"><span class="pre">0..n-1</span></code>.</p>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="finance_calcs.quantile_changed">
 <span class="sig-prename descclassname"><span class="pre">finance_calcs.</span></span><span class="sig-name descname"><span class="pre">quantile_changed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">quantile</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Expr</span></span></span><a class="reference internal" href="../../_modules/finance_calcs/quantile.html#quantile_changed"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#finance_calcs.quantile_changed" title="Link to this definition">¶</a></dt>
 <dd><p>Boolean expression: <code class="docutils literal notranslate"><span class="pre">quantile</span> <span class="pre">!=</span> <span class="pre">quantile.shift(1)</span></code>.</p>
@@ -1949,6 +1994,12 @@ quantile.</p>
 <dd class="field-even"><p>Boolean expression. The first observation is null/false.</p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="finance_calcs.quantile_turnover">
+<span class="sig-prename descclassname"><span class="pre">finance_calcs.</span></span><span class="sig-name descname"><span class="pre">quantile_turnover</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">changed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Expr</span></span></span><a class="reference internal" href="../../_modules/finance_calcs/quantile.html#quantile_turnover"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#finance_calcs.quantile_turnover" title="Link to this definition">¶</a></dt>
+<dd><p>Fraction of names whose quantile assignment changed.</p>
 </dd></dl>
 
 </section>
@@ -2620,8 +2671,10 @@ for a single-name portfolio.</p>
 <hr class="docutils" />
 <section id="post-trade">
 <h2>Post-Trade<a class="headerlink" href="#post-trade" title="Link to this heading">¶</a></h2>
-<p>Post-trade utilities consume transaction or execution data. They are expression
-kernels, so they can run per row, inside groups, or inside lazy pipelines.</p>
+<p>Post-trade utilities consume transaction, round-trip, or execution data. Cost,
+slippage, turnover, and trade-quality metrics are expression kernels. Round-trip
+extraction and summary helpers take concrete <code class="docutils literal notranslate"><span class="pre">pl.DataFrame</span></code> inputs because they
+need ordered trade sequences.</p>
 <div class="table-wrapper colwidths-auto docutils container">
 <table class="docutils align-default">
 <thead>
@@ -2639,13 +2692,85 @@ kernels, so they can run per row, inside groups, or inside lazy pipelines.</p>
 <td><p>Explicit plus basis-point costs</p></td>
 <td><p>Adds commission, fees, and bps cost on notional</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">slippage_bps(execution_price,</span> <span class="pre">benchmark_price,</span> <span class="pre">*,</span> <span class="pre">side=None)</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">transaction_volume(quantity,</span> <span class="pre">price,</span> <span class="pre">*,</span> <span class="pre">period=None,</span> <span class="pre">date=None)</span></code></p></td>
+<td><p>Traded notional volume</p></td>
+<td><p>Sums notional over the full sample or period bucket</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">slippage_bps(execution_price,</span> <span class="pre">benchmark_price,</span> <span class="pre">*,</span> <span class="pre">side=None)</span></code></p></td>
 <td><p>Execution slippage</p></td>
 <td><p>Side-aware when a side expression is provided</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">turnover(weights,</span> <span class="pre">*,</span> <span class="pre">window=None)</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">implementation_shortfall(execution_price,</span> <span class="pre">decision_price,</span> <span class="pre">*,</span> <span class="pre">side=None)</span></code></p></td>
+<td><p>Decision-price slippage</p></td>
+<td><p>Side-aware implementation shortfall in bps</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">vwap_slippage(execution_price,</span> <span class="pre">vwap,</span> <span class="pre">*,</span> <span class="pre">side=None)</span></code></p></td>
+<td><p>VWAP slippage</p></td>
+<td><p>Side-aware execution vs. VWAP in bps</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">turnover(weights,</span> <span class="pre">*,</span> <span class="pre">window=None)</span></code></p></td>
 <td><p>Position-weight turnover</p></td>
 <td><p>Absolute weight change; optional rolling sum</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cost_per_trade(...)</span></code></p></td>
+<td><p>Per-trade cost alias</p></td>
+<td><p>Same calculation as <code class="docutils literal notranslate"><span class="pre">transaction_cost</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cost_attribution(transactions)</span></code></p></td>
+<td><p>Cost decomposition</p></td>
+<td><p>Returns component totals and percentages</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">extract_round_trips(transactions)</span></code></p></td>
+<td><p>FIFO round-trip extraction</p></td>
+<td><p>Builds entry/exit trade rows from signed quantities</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">round_trip_stats(round_trips)</span></code></p></td>
+<td><p>Trade-quality summary</p></td>
+<td><p>Count, win rate, average PnL, total PnL, PF, payoff</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">long_short_round_trip_stats(round_trips)</span></code></p></td>
+<td><p>Long/short trade summary</p></td>
+<td><p>Aggregates round trips by side</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">sector_round_trip_stats(round_trips,</span> <span class="pre">sector_map)</span></code></p></td>
+<td><p>Sector trade summary</p></td>
+<td><p>Aggregates round trips by mapped sector</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">win_rate(pnl)</span></code></p></td>
+<td><p>Profitable-trade fraction</p></td>
+<td><p>Expression metric</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">profit_factor(pnl)</span></code></p></td>
+<td><p>Gross profit / gross loss</p></td>
+<td><p>Expression metric</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">payoff_ratio(pnl)</span></code></p></td>
+<td><p>Average win / average loss</p></td>
+<td><p>Expression metric</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">avg_trade_pnl(pnl)</span></code></p></td>
+<td><p>Mean trade PnL</p></td>
+<td><p>Expression metric</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">trade_duration_stats(duration)</span></code></p></td>
+<td><p>Holding-period summary</p></td>
+<td><p>Returns mean, median, and max duration</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">mae_mfe(trades,</span> <span class="pre">prices)</span></code></p></td>
+<td><p>Maximum adverse/favorable move</p></td>
+<td><p>Adds <code class="docutils literal notranslate"><span class="pre">mae</span></code> and <code class="docutils literal notranslate"><span class="pre">mfe</span></code> to round trips</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">consecutive_wins_losses(pnl)</span></code></p></td>
+<td><p>Win/loss streaks</p></td>
+<td><p>Returns max consecutive wins and losses</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">exit_reason_stats(trades)</span></code></p></td>
+<td><p>PnL by exit reason</p></td>
+<td><p>Groups counts and PnL by exit-reason label</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">trade_size_return_correlation(size,</span> <span class="pre">returns)</span></code></p></td>
+<td><p>Size/return relationship</p></td>
+<td><p>Correlation of absolute trade size with trade return</p></td>
 </tr>
 </tbody>
 </table>
@@ -2665,6 +2790,12 @@ kernels, so they can run per row, inside groups, or inside lazy pipelines.</p>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="finance_calcs.transaction_volume">
+<span class="sig-prename descclassname"><span class="pre">finance_calcs.</span></span><span class="sig-name descname"><span class="pre">transaction_volume</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">quantity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">price</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">period</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Frequency</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Expr</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">date</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Expr</span></span></span><a class="reference internal" href="../../_modules/finance_calcs/post_trade.html#transaction_volume"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#finance_calcs.transaction_volume" title="Link to this definition">¶</a></dt>
+<dd><p>Absolute traded notional, summed over the full sample or period.</p>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="finance_calcs.slippage_bps">
 <span class="sig-prename descclassname"><span class="pre">finance_calcs.</span></span><span class="sig-name descname"><span class="pre">slippage_bps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">execution_price</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">benchmark_price</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">side</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Expr</span></span></span><a class="reference internal" href="../../_modules/finance_calcs/post_trade.html#slippage_bps"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#finance_calcs.slippage_bps" title="Link to this definition">¶</a></dt>
 <dd><p>Execution slippage in basis points.</p>
@@ -2674,11 +2805,113 @@ for buy/cover and sell/short transactions.</p>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="finance_calcs.implementation_shortfall">
+<span class="sig-prename descclassname"><span class="pre">finance_calcs.</span></span><span class="sig-name descname"><span class="pre">implementation_shortfall</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">execution_price</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">decision_price</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">side</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Expr</span></span></span><a class="reference internal" href="../../_modules/finance_calcs/post_trade.html#implementation_shortfall"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#finance_calcs.implementation_shortfall" title="Link to this definition">¶</a></dt>
+<dd><p>Side-aware execution slippage versus the decision price.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="finance_calcs.vwap_slippage">
+<span class="sig-prename descclassname"><span class="pre">finance_calcs.</span></span><span class="sig-name descname"><span class="pre">vwap_slippage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">execution_price</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vwap</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">side</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Expr</span></span></span><a class="reference internal" href="../../_modules/finance_calcs/post_trade.html#vwap_slippage"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#finance_calcs.vwap_slippage" title="Link to this definition">¶</a></dt>
+<dd><p>Side-aware execution slippage versus VWAP.</p>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="finance_calcs.turnover">
 <span class="sig-prename descclassname"><span class="pre">finance_calcs.</span></span><span class="sig-name descname"><span class="pre">turnover</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">window</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Expr</span></span></span><a class="reference internal" href="../../_modules/finance_calcs/post_trade.html#turnover"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#finance_calcs.turnover" title="Link to this definition">¶</a></dt>
 <dd><p>Portfolio turnover contribution from position-weight changes.</p>
 <p>Apply over a symbol/security partition, then aggregate by rebalance
 date. The contribution is <code class="docutils literal notranslate"><span class="pre">0.5</span> <span class="pre">*</span> <span class="pre">abs(weight</span> <span class="pre">-</span> <span class="pre">prior_weight)</span></code>.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="finance_calcs.cost_per_trade">
+<span class="sig-prename descclassname"><span class="pre">finance_calcs.</span></span><span class="sig-name descname"><span class="pre">cost_per_trade</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">quantity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">price</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">commission</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Expr</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fees</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Expr</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Expr</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Expr</span></span></span><a class="reference internal" href="../../_modules/finance_calcs/post_trade.html#cost_per_trade"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#finance_calcs.cost_per_trade" title="Link to this definition">¶</a></dt>
+<dd><p>Alias for per-trade transaction cost.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="finance_calcs.cost_attribution">
+<span class="sig-prename descclassname"><span class="pre">finance_calcs.</span></span><span class="sig-name descname"><span class="pre">cost_attribution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">transactions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">quantity_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'amount'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">price_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'price'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">commission_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'commission'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fees_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'fees'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bps_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'bps'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spread_bps_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'spread_bps'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">market_impact_bps_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'market_impact_bps'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slippage_component</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'slippage'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="../../_modules/finance_calcs/post_trade.html#cost_attribution"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#finance_calcs.cost_attribution" title="Link to this definition">¶</a></dt>
+<dd><p>Summarize transaction costs by component.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="finance_calcs.extract_round_trips">
+<span class="sig-prename descclassname"><span class="pre">finance_calcs.</span></span><span class="sig-name descname"><span class="pre">extract_round_trips</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">transactions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestamp_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'timestamp'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symbol_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'symbol'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quantity_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'amount'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">price_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'price'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="../../_modules/finance_calcs/post_trade.html#extract_round_trips"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#finance_calcs.extract_round_trips" title="Link to this definition">¶</a></dt>
+<dd><p>Extract FIFO round trips from signed transaction quantities.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="finance_calcs.round_trip_stats">
+<span class="sig-prename descclassname"><span class="pre">finance_calcs.</span></span><span class="sig-name descname"><span class="pre">round_trip_stats</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">round_trips</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">pnl_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'pnl'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/finance_calcs/post_trade.html#round_trip_stats"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#finance_calcs.round_trip_stats" title="Link to this definition">¶</a></dt>
+<dd><p>Summary statistics for extracted round trips.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="finance_calcs.long_short_round_trip_stats">
+<span class="sig-prename descclassname"><span class="pre">finance_calcs.</span></span><span class="sig-name descname"><span class="pre">long_short_round_trip_stats</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">round_trips</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">side_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'side'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pnl_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'pnl'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="../../_modules/finance_calcs/post_trade.html#long_short_round_trip_stats"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#finance_calcs.long_short_round_trip_stats" title="Link to this definition">¶</a></dt>
+<dd><p>Round-trip statistics split by long and short trades.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="finance_calcs.sector_round_trip_stats">
+<span class="sig-prename descclassname"><span class="pre">finance_calcs.</span></span><span class="sig-name descname"><span class="pre">sector_round_trip_stats</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">round_trips</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sector_map</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">symbol_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'symbol'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pnl_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'pnl'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="../../_modules/finance_calcs/post_trade.html#sector_round_trip_stats"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#finance_calcs.sector_round_trip_stats" title="Link to this definition">¶</a></dt>
+<dd><p>Round-trip statistics by sector.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="finance_calcs.win_rate">
+<span class="sig-prename descclassname"><span class="pre">finance_calcs.</span></span><span class="sig-name descname"><span class="pre">win_rate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pnl</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Expr</span></span></span><a class="reference internal" href="../../_modules/finance_calcs/post_trade.html#win_rate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#finance_calcs.win_rate" title="Link to this definition">¶</a></dt>
+<dd><p>Fraction of profitable trades.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="finance_calcs.profit_factor">
+<span class="sig-prename descclassname"><span class="pre">finance_calcs.</span></span><span class="sig-name descname"><span class="pre">profit_factor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pnl</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Expr</span></span></span><a class="reference internal" href="../../_modules/finance_calcs/post_trade.html#profit_factor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#finance_calcs.profit_factor" title="Link to this definition">¶</a></dt>
+<dd><p>Gross profit divided by absolute gross loss.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="finance_calcs.payoff_ratio">
+<span class="sig-prename descclassname"><span class="pre">finance_calcs.</span></span><span class="sig-name descname"><span class="pre">payoff_ratio</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pnl</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Expr</span></span></span><a class="reference internal" href="../../_modules/finance_calcs/post_trade.html#payoff_ratio"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#finance_calcs.payoff_ratio" title="Link to this definition">¶</a></dt>
+<dd><p>Average winning trade divided by absolute average losing trade.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="finance_calcs.avg_trade_pnl">
+<span class="sig-prename descclassname"><span class="pre">finance_calcs.</span></span><span class="sig-name descname"><span class="pre">avg_trade_pnl</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pnl</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Expr</span></span></span><a class="reference internal" href="../../_modules/finance_calcs/post_trade.html#avg_trade_pnl"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#finance_calcs.avg_trade_pnl" title="Link to this definition">¶</a></dt>
+<dd><p>Mean trade PnL.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="finance_calcs.trade_duration_stats">
+<span class="sig-prename descclassname"><span class="pre">finance_calcs.</span></span><span class="sig-name descname"><span class="pre">trade_duration_stats</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">duration</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/finance_calcs/post_trade.html#trade_duration_stats"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#finance_calcs.trade_duration_stats" title="Link to this definition">¶</a></dt>
+<dd><p>Mean, median, and maximum holding duration.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="finance_calcs.mae_mfe">
+<span class="sig-prename descclassname"><span class="pre">finance_calcs.</span></span><span class="sig-name descname"><span class="pre">mae_mfe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trades</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prices</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestamp_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'timestamp'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symbol_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'symbol'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">price_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'price'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="../../_modules/finance_calcs/post_trade.html#mae_mfe"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#finance_calcs.mae_mfe" title="Link to this definition">¶</a></dt>
+<dd><p>Attach maximum adverse and favorable excursion to round trips.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="finance_calcs.consecutive_wins_losses">
+<span class="sig-prename descclassname"><span class="pre">finance_calcs.</span></span><span class="sig-name descname"><span class="pre">consecutive_wins_losses</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pnl</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/finance_calcs/post_trade.html#consecutive_wins_losses"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#finance_calcs.consecutive_wins_losses" title="Link to this definition">¶</a></dt>
+<dd><p>Maximum consecutive winning and losing trade counts.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="finance_calcs.exit_reason_stats">
+<span class="sig-prename descclassname"><span class="pre">finance_calcs.</span></span><span class="sig-name descname"><span class="pre">exit_reason_stats</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trades</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">reason_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'exit_reason'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pnl_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'pnl'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="../../_modules/finance_calcs/post_trade.html#exit_reason_stats"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#finance_calcs.exit_reason_stats" title="Link to this definition">¶</a></dt>
+<dd><p>PnL and counts grouped by exit reason.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="finance_calcs.trade_size_return_correlation">
+<span class="sig-prename descclassname"><span class="pre">finance_calcs.</span></span><span class="sig-name descname"><span class="pre">trade_size_return_correlation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">returns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Expr</span></span></span><a class="reference internal" href="../../_modules/finance_calcs/post_trade.html#trade_size_return_correlation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#finance_calcs.trade_size_return_correlation" title="Link to this definition">¶</a></dt>
+<dd><p>Correlation between absolute trade size and trade return.</p>
 </dd></dl>
 
 </section>
@@ -2822,6 +3055,9 @@ date. The contribution is <code class="docutils literal notranslate"><span class
 <li><a class="reference internal" href="#finance_calcs.pearson_ic"><code class="docutils literal notranslate"><span class="pre">pearson_ic()</span></code></a></li>
 <li><a class="reference internal" href="#finance_calcs.spearman_ic"><code class="docutils literal notranslate"><span class="pre">spearman_ic()</span></code></a></li>
 <li><a class="reference internal" href="#finance_calcs.information_coefficient"><code class="docutils literal notranslate"><span class="pre">information_coefficient()</span></code></a></li>
+<li><a class="reference internal" href="#finance_calcs.conditional_ic"><code class="docutils literal notranslate"><span class="pre">conditional_ic()</span></code></a></li>
+<li><a class="reference internal" href="#finance_calcs.horizon_ic"><code class="docutils literal notranslate"><span class="pre">horizon_ic()</span></code></a></li>
+<li><a class="reference internal" href="#finance_calcs.ic_decay"><code class="docutils literal notranslate"><span class="pre">ic_decay()</span></code></a></li>
 <li><a class="reference internal" href="#finance_calcs.ic_ir"><code class="docutils literal notranslate"><span class="pre">ic_ir()</span></code></a></li>
 <li><a class="reference internal" href="#finance_calcs.hit_rate"><code class="docutils literal notranslate"><span class="pre">hit_rate()</span></code></a></li>
 <li><a class="reference internal" href="#finance_calcs.ic_summary_stats"><code class="docutils literal notranslate"><span class="pre">ic_summary_stats()</span></code></a></li>
@@ -2833,7 +3069,9 @@ date. The contribution is <code class="docutils literal notranslate"><span class
 <li><a class="reference internal" href="#finance_calcs.zscore"><code class="docutils literal notranslate"><span class="pre">zscore()</span></code></a></li>
 <li><a class="reference internal" href="#finance_calcs.winsorize"><code class="docutils literal notranslate"><span class="pre">winsorize()</span></code></a></li>
 <li><a class="reference internal" href="#finance_calcs.long_short_spread"><code class="docutils literal notranslate"><span class="pre">long_short_spread()</span></code></a></li>
+<li><a class="reference internal" href="#finance_calcs.mean_return_by_quantile"><code class="docutils literal notranslate"><span class="pre">mean_return_by_quantile()</span></code></a></li>
 <li><a class="reference internal" href="#finance_calcs.quantile_changed"><code class="docutils literal notranslate"><span class="pre">quantile_changed()</span></code></a></li>
+<li><a class="reference internal" href="#finance_calcs.quantile_turnover"><code class="docutils literal notranslate"><span class="pre">quantile_turnover()</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#factor-and-benchmark-metrics">Factor and Benchmark Metrics</a><ul>
@@ -2886,8 +3124,26 @@ date. The contribution is <code class="docutils literal notranslate"><span class
 <li><a class="reference internal" href="#post-trade">Post-Trade</a><ul>
 <li><a class="reference internal" href="#finance_calcs.transaction_notional"><code class="docutils literal notranslate"><span class="pre">transaction_notional()</span></code></a></li>
 <li><a class="reference internal" href="#finance_calcs.transaction_cost"><code class="docutils literal notranslate"><span class="pre">transaction_cost()</span></code></a></li>
+<li><a class="reference internal" href="#finance_calcs.transaction_volume"><code class="docutils literal notranslate"><span class="pre">transaction_volume()</span></code></a></li>
 <li><a class="reference internal" href="#finance_calcs.slippage_bps"><code class="docutils literal notranslate"><span class="pre">slippage_bps()</span></code></a></li>
+<li><a class="reference internal" href="#finance_calcs.implementation_shortfall"><code class="docutils literal notranslate"><span class="pre">implementation_shortfall()</span></code></a></li>
+<li><a class="reference internal" href="#finance_calcs.vwap_slippage"><code class="docutils literal notranslate"><span class="pre">vwap_slippage()</span></code></a></li>
 <li><a class="reference internal" href="#finance_calcs.turnover"><code class="docutils literal notranslate"><span class="pre">turnover()</span></code></a></li>
+<li><a class="reference internal" href="#finance_calcs.cost_per_trade"><code class="docutils literal notranslate"><span class="pre">cost_per_trade()</span></code></a></li>
+<li><a class="reference internal" href="#finance_calcs.cost_attribution"><code class="docutils literal notranslate"><span class="pre">cost_attribution()</span></code></a></li>
+<li><a class="reference internal" href="#finance_calcs.extract_round_trips"><code class="docutils literal notranslate"><span class="pre">extract_round_trips()</span></code></a></li>
+<li><a class="reference internal" href="#finance_calcs.round_trip_stats"><code class="docutils literal notranslate"><span class="pre">round_trip_stats()</span></code></a></li>
+<li><a class="reference internal" href="#finance_calcs.long_short_round_trip_stats"><code class="docutils literal notranslate"><span class="pre">long_short_round_trip_stats()</span></code></a></li>
+<li><a class="reference internal" href="#finance_calcs.sector_round_trip_stats"><code class="docutils literal notranslate"><span class="pre">sector_round_trip_stats()</span></code></a></li>
+<li><a class="reference internal" href="#finance_calcs.win_rate"><code class="docutils literal notranslate"><span class="pre">win_rate()</span></code></a></li>
+<li><a class="reference internal" href="#finance_calcs.profit_factor"><code class="docutils literal notranslate"><span class="pre">profit_factor()</span></code></a></li>
+<li><a class="reference internal" href="#finance_calcs.payoff_ratio"><code class="docutils literal notranslate"><span class="pre">payoff_ratio()</span></code></a></li>
+<li><a class="reference internal" href="#finance_calcs.avg_trade_pnl"><code class="docutils literal notranslate"><span class="pre">avg_trade_pnl()</span></code></a></li>
+<li><a class="reference internal" href="#finance_calcs.trade_duration_stats"><code class="docutils literal notranslate"><span class="pre">trade_duration_stats()</span></code></a></li>
+<li><a class="reference internal" href="#finance_calcs.mae_mfe"><code class="docutils literal notranslate"><span class="pre">mae_mfe()</span></code></a></li>
+<li><a class="reference internal" href="#finance_calcs.consecutive_wins_losses"><code class="docutils literal notranslate"><span class="pre">consecutive_wins_losses()</span></code></a></li>
+<li><a class="reference internal" href="#finance_calcs.exit_reason_stats"><code class="docutils literal notranslate"><span class="pre">exit_reason_stats()</span></code></a></li>
+<li><a class="reference internal" href="#finance_calcs.trade_size_return_correlation"><code class="docutils literal notranslate"><span class="pre">trade_size_return_correlation()</span></code></a></li>
 </ul>
 </li>
 </ul>

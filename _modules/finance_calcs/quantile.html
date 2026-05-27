@@ -247,7 +247,9 @@
     <span class="s2">&quot;zscore&quot;</span><span class="p">,</span>
     <span class="s2">&quot;winsorize&quot;</span><span class="p">,</span>
     <span class="s2">&quot;long_short_spread&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;mean_return_by_quantile&quot;</span><span class="p">,</span>
     <span class="s2">&quot;quantile_changed&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;quantile_turnover&quot;</span><span class="p">,</span>
 <span class="p">]</span>
 
 
@@ -352,6 +354,20 @@
 
 
 
+<div class="viewcode-block" id="mean_return_by_quantile">
+<a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.mean_return_by_quantile">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">mean_return_by_quantile</span><span class="p">(</span>
+    <span class="n">returns</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span>
+    <span class="n">quantile</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">n_quantiles</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span>
+    <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;q&quot;</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Build mean-return expressions for quantile labels ``0..n-1``.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">returns</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">quantile</span> <span class="o">==</span> <span class="n">label</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}{</span><span class="n">label</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_quantiles</span><span class="p">)]</span></div>
+
+
+
 <div class="viewcode-block" id="quantile_changed">
 <a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.quantile_changed">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">quantile_changed</span><span class="p">(</span><span class="n">quantile</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
@@ -368,6 +384,14 @@
 <span class="sd">        Boolean expression. The first observation is null/false.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">quantile</span> <span class="o">!=</span> <span class="n">quantile</span><span class="o">.</span><span class="n">shift</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="quantile_turnover">
+<a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.quantile_turnover">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">quantile_turnover</span><span class="p">(</span><span class="n">changed</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Fraction of names whose quantile assignment changed.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">changed</span><span class="o">.</span><span class="n">fill_null</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">Float64</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span></div>
 
 </pre></div>
         </article>

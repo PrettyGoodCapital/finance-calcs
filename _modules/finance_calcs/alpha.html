@@ -240,6 +240,8 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Mapping</span>
+
 <span class="kn">import</span><span class="w"> </span><span class="nn">polars</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pl</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">._periods</span><span class="w"> </span><span class="kn">import</span> <span class="n">PeriodLike</span><span class="p">,</span> <span class="n">_bucket_or_none</span><span class="p">,</span> <span class="n">_check_window_period</span>
@@ -249,6 +251,9 @@
     <span class="s2">&quot;pearson_ic&quot;</span><span class="p">,</span>
     <span class="s2">&quot;spearman_ic&quot;</span><span class="p">,</span>
     <span class="s2">&quot;information_coefficient&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;conditional_ic&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;horizon_ic&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ic_decay&quot;</span><span class="p">,</span>
     <span class="s2">&quot;ic_ir&quot;</span><span class="p">,</span>
     <span class="s2">&quot;hit_rate&quot;</span><span class="p">,</span>
     <span class="s2">&quot;ic_summary_stats&quot;</span><span class="p">,</span>
@@ -304,6 +309,47 @@
 
 
 <span class="n">information_coefficient</span> <span class="o">=</span> <span class="n">spearman_ic</span>
+
+
+<div class="viewcode-block" id="conditional_ic">
+<a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.conditional_ic">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">conditional_ic</span><span class="p">(</span>
+    <span class="n">signal</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span>
+    <span class="n">fwd</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span>
+    <span class="n">condition</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;spearman&quot;</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Information coefficient on observations matching ``condition``.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">pl</span><span class="o">.</span><span class="n">corr</span><span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">condition</span><span class="p">),</span> <span class="n">fwd</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">condition</span><span class="p">),</span> <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="horizon_ic">
+<a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.horizon_ic">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">horizon_ic</span><span class="p">(</span>
+    <span class="n">signal</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span>
+    <span class="n">fwd</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;spearman&quot;</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Information coefficient for one forward-return horizon.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">pl</span><span class="o">.</span><span class="n">corr</span><span class="p">(</span><span class="n">signal</span><span class="p">,</span> <span class="n">fwd</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="ic_decay">
+<a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.ic_decay">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">ic_decay</span><span class="p">(</span>
+    <span class="n">signal</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span>
+    <span class="n">forward_returns_by_horizon</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">],</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;spearman&quot;</span><span class="p">,</span>
+    <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;ic_&quot;</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Build one horizon IC expression per forward-return horizon.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">horizon_ic</span><span class="p">(</span><span class="n">signal</span><span class="p">,</span> <span class="n">fwd</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">)</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}{</span><span class="n">horizon</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">horizon</span><span class="p">,</span> <span class="n">fwd</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">forward_returns_by_horizon</span><span class="o">.</span><span class="n">items</span><span class="p">())]</span></div>
+
 
 
 <div class="viewcode-block" id="ic_ir">

@@ -45,10 +45,10 @@ The public API follows a few rules:
 | Returns and periods          | `period_bucket`, `simple_returns`, `log_returns`, `cum_returns`, `cum_returns_final`, `returns`, `aggregate_returns`, `annualized_return`, `annualized_volatility`                                         |
 | Risk and drawdown            | `volatility`, `sharpe`, `sortino`, `calmar`, `downside_deviation`, `downside_risk`, `drawdown_series`, `underwater_series`, `max_drawdown`, `value_at_risk`, `conditional_value_at_risk`, `parametric_var` |
 | Technical indicators         | Moving averages, Bollinger/Donchian channels, momentum oscillators, range volatility, and volume indicators                                                                                                |
-| Alpha and quantiles          | Forward returns, IC metrics, IC summaries, quantile assignment, signal normalization, and long/short spreads                                                                                               |
+| Alpha and quantiles          | Forward returns, conditional/horizon IC, IC decay, IC summaries, quantile assignment, signal normalization, quantile returns, turnover, and long/short spreads                                             |
 | Factor and benchmark metrics | Alpha, beta, up/down capture, batting average, tracking error, and information ratio                                                                                                                       |
 | Distribution and tail risk   | Higher moments, Sharpe significance helpers, tail ratio, ulcer index, omega ratio, GPD VaR, and GPD CVaR                                                                                                   |
-| Portfolio and post-trade     | Exposure, concentration, active share, transaction notional, transaction cost, slippage, and turnover                                                                                                      |
+| Portfolio and post-trade     | Exposure, concentration, active share, transaction costs/volume/attribution, slippage, turnover, round trips, MAE/MFE, and trade-quality metrics                                                           |
 
 See the [Examples](docs/src/EXAMPLES.md) page for workflows with generated data
 and the [API](docs/src/API.md) page for a complete grouped reference for every
