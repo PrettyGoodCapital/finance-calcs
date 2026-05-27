@@ -196,35 +196,8 @@
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <ul>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../../autoapi/index.html">API Reference</a><input aria-label="Toggle navigation of API Reference" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../autoapi/test_tail/index.html">test_tail</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../autoapi/test_alpha/index.html">test_alpha</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../autoapi/test_stats/index.html">test_stats</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../autoapi/test_factor/index.html">test_factor</a></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../../autoapi/finance_calcs/index.html">finance_calcs</a><input aria-label="Toggle navigation of finance_calcs" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../autoapi/finance_calcs/_namespace/index.html">finance_calcs._namespace</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../autoapi/finance_calcs/_periods/index.html">finance_calcs._periods</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../autoapi/finance_calcs/alpha/index.html">finance_calcs.alpha</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../autoapi/finance_calcs/factor/index.html">finance_calcs.factor</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../autoapi/finance_calcs/momentum/index.html">finance_calcs.momentum</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../autoapi/finance_calcs/overlap/index.html">finance_calcs.overlap</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../autoapi/finance_calcs/portfolio/index.html">finance_calcs.portfolio</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../autoapi/finance_calcs/post_trade/index.html">finance_calcs.post_trade</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../autoapi/finance_calcs/quantile/index.html">finance_calcs.quantile</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../autoapi/finance_calcs/returns/index.html">finance_calcs.returns</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../autoapi/finance_calcs/risk/index.html">finance_calcs.risk</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../autoapi/finance_calcs/stats/index.html">finance_calcs.stats</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../autoapi/finance_calcs/tail/index.html">finance_calcs.tail</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../autoapi/finance_calcs/volatility/index.html">finance_calcs.volatility</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../autoapi/finance_calcs/volume/index.html">finance_calcs.volume</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../../autoapi/test_portfolio/index.html">test_portfolio</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../autoapi/test_indicators/index.html">test_indicators</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../autoapi/test_post_trade/index.html">test_post_trade</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../autoapi/test_returns_risk/index.html">test_returns_risk</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="../../docs/src/EXAMPLES.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../docs/src/API.html">API</a></li>
 </ul>
 
 </div>
@@ -270,8 +243,6 @@
 <span class="n">PeriodLike</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">Frequency</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span>
 
 
-<div class="viewcode-block" id="_period_rule">
-<a class="viewcode-back" href="../../autoapi/finance_calcs/_periods/index.html#finance_calcs._periods._period_rule">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_period_rule</span><span class="p">(</span><span class="n">period</span><span class="p">:</span> <span class="n">Frequency</span> <span class="o">|</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">period</span><span class="p">,</span> <span class="n">Frequency</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">period</span><span class="o">.</span><span class="n">polars_truncate</span>
@@ -283,12 +254,11 @@
             <span class="k">return</span> <span class="n">to_frequency</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="n">polars_truncate</span>
         <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">value</span>
-    <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;period must be a Frequency, string, or expression; got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">period</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
-
+    <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;period must be a Frequency, string, or expression; got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">period</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="period_bucket">
-<a class="viewcode-back" href="../../autoapi/finance_calcs/returns/index.html#finance_calcs._periods.period_bucket">[docs]</a>
+<a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.period_bucket">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">period_bucket</span><span class="p">(</span><span class="n">date</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span> <span class="n">period</span><span class="p">:</span> <span class="n">PeriodLike</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a period bucket expression for ``date``.</span>
 
@@ -303,16 +273,11 @@
 
 
 
-<div class="viewcode-block" id="_check_window_period">
-<a class="viewcode-back" href="../../autoapi/finance_calcs/_periods/index.html#finance_calcs._periods._check_window_period">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_check_window_period</span><span class="p">(</span><span class="n">window</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">period</span><span class="p">:</span> <span class="n">PeriodLike</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="k">if</span> <span class="n">window</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">period</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;window and period are mutually exclusive&quot;</span><span class="p">)</span></div>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;window and period are mutually exclusive&quot;</span><span class="p">)</span>
 
 
-
-<div class="viewcode-block" id="_bucket_or_none">
-<a class="viewcode-back" href="../../autoapi/finance_calcs/_periods/index.html#finance_calcs._periods._bucket_or_none">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_bucket_or_none</span><span class="p">(</span><span class="n">date</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">period</span><span class="p">:</span> <span class="n">PeriodLike</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
     <span class="k">if</span> <span class="n">period</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">None</span>
@@ -320,8 +285,7 @@
         <span class="k">return</span> <span class="n">period</span>
     <span class="k">if</span> <span class="n">date</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;date is required when period is a Frequency or duration string&quot;</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">period_bucket</span><span class="p">(</span><span class="n">date</span><span class="p">,</span> <span class="n">period</span><span class="p">)</span></div>
-
+    <span class="k">return</span> <span class="n">period_bucket</span><span class="p">(</span><span class="n">date</span><span class="p">,</span> <span class="n">period</span><span class="p">)</span>
 </pre></div>
         </article>
       </div>
