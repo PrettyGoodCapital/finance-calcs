@@ -55,6 +55,7 @@ develop = [
     "ty",
     "uv",
     "wheel",
+    "yardang",
 ]
 
 [project.scripts]
@@ -200,6 +201,9 @@ section-order = [
 [tool.yardang]
 title = "finance calcs"
 root = "README.md"
-pages = []
-use-autoapi = true
+pages = [
+    "docs/src/EXAMPLES.md",
+    "docs/src/API.md",
+]
+use-autoapi = false
 
