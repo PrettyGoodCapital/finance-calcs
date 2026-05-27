@@ -31,7 +31,7 @@ _volume = importlib.import_module(".volume", __package__)
 def _bind(target_register, modules):
     funcs: dict[str, callable] = {}
     for module in modules:
-        for name in module.__all__:
+        for name in getattr(module, "__finance_namespace__", module.__all__):
             funcs[name] = getattr(module, name)
 
     @target_register("finance")
