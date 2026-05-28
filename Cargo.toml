@@ -1,6 +1,6 @@
 [package]
 name = "finance_calcs_py"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 publish = false
 
@@ -10,7 +10,7 @@ path = "rust/python/lib.rs"
 crate-type = ["cdylib"]
 
 [dependencies]
-finance_calcs = { path = "./rust", version = "0.1.0" }
+finance_calcs = { path = "./rust", version = "0.1.1" }
 pyo3 = { version = "0.28.2", features = ["abi3", "abi3-py310", "extension-module", "multiple-pymethods"] }
 
 [profile.release]

@@ -17,7 +17,7 @@ and ``pl.Series``::
 
 from __future__ import annotations
 
-__version__ = "0.1.0"
+__version__ = "0.1.1"
 
 from . import _namespace  # noqa: F401  — side-effect: register polars namespace
 from .alpha import (  # noqa: F401
