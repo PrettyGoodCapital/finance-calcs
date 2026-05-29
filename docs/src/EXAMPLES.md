@@ -21,7 +21,7 @@ import finance_calcs as fc
 prices = generate_prices(symbol="ACME", seed=7)
 
 metrics = prices.with_columns(
-    pl.col("price").finance.simple_returns().alias("ret"),
+    pl.col("price").fcalcs.simple_returns().alias("ret"),
 ).select(
     fc.returns(pl.col("ret")).alias("total_return"),
     fc.annualized_return(pl.col("ret")).alias("ann_return"),
@@ -52,13 +52,13 @@ import finance_calcs as fc
 
 prices = generate_prices(symbol="ACME", seed=11)
 returns = prices.with_columns(
-    pl.col("price").finance.simple_returns().alias("ret"),
+    pl.col("price").fcalcs.simple_returns().alias("ret"),
 )
 
 monthly = returns.with_columns(
     fc.period_bucket(pl.col("timestamp"), Frequency.Month).alias("month"),
-    pl.col("ret").finance.returns(period=Frequency.Month, date=pl.col("timestamp")).alias("month_return"),
-    pl.col("ret").finance.sharpe(period="1q", date=pl.col("timestamp")).alias("quarter_sharpe"),
+    pl.col("ret").fcalcs.returns(period=Frequency.Month, date=pl.col("timestamp")).alias("month_return"),
+    pl.col("ret").fcalcs.sharpe(period="1q", date=pl.col("timestamp")).alias("quarter_sharpe"),
 )
 ```
 
@@ -93,10 +93,10 @@ prices = generate_prices(symbol="ACME", seed=5)
 bars = ohlc_from_close(prices["price"], symbol="ACME", seed=5)
 
 features = bars.with_columns(
-    pl.col("close").finance.sma(20).alias("sma_20"),
-    pl.col("close").finance.ema(20).alias("ema_20"),
-    pl.col("close").finance.rsi(14).alias("rsi_14"),
-    pl.col("close").finance.macd_line().alias("macd"),
+    pl.col("close").fcalcs.sma(20).alias("sma_20"),
+    pl.col("close").fcalcs.ema(20).alias("ema_20"),
+    pl.col("close").fcalcs.rsi(14).alias("rsi_14"),
+    pl.col("close").fcalcs.macd_line().alias("macd"),
     fc.atr(pl.col("high"), pl.col("low"), pl.col("close"), period=14).alias("atr_14"),
     fc.natr(pl.col("high"), pl.col("low"), pl.col("close"), period=14).alias("natr_14"),
     fc.obv(pl.col("close"), pl.col("volume")).alias("obv"),
@@ -192,7 +192,7 @@ panel = generate_multi_asset_gbm(
     rho=0.35,
     seed=9,
 ).with_columns(
-    pl.col("price").finance.simple_returns().over("symbol").alias("ret"),
+    pl.col("price").fcalcs.simple_returns().over("symbol").alias("ret"),
 ).with_columns(
     pl.col("ret").mean().over("timestamp").alias("benchmark"),
 )
@@ -361,7 +361,7 @@ from finance_datagen import generate_prices
 import finance_calcs as fc
 
 prices = generate_prices(n_steps=756, sigma=0.25, seed=12)
-returns = prices.select(pl.col("price").finance.simple_returns().alias("ret"))["ret"].drop_nulls()
+returns = prices.select(pl.col("price").fcalcs.simple_returns().alias("ret"))["ret"].drop_nulls()
 
 psr = fc.probabilistic_sharpe(returns, benchmark_sr=0.0)
 ds = fc.deflated_sharpe(returns, n_trials=20)

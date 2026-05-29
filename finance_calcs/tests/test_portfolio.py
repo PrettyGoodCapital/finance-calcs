@@ -43,5 +43,5 @@ def test_active_share():
 
 def test_namespace_portfolio():
     weights = pl.DataFrame({"w": [0.3, -0.2, 0.5]})
-    g = weights.select(pl.col("w").finance.gross_leverage().alias("g")).item()
+    g = weights.select(pl.col("w").fcalcs.gross_leverage().alias("g")).item()
     assert g == pytest.approx(1.0)

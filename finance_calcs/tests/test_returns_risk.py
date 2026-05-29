@@ -189,7 +189,7 @@ def test_namespace_period_returns():
         }
     )
 
-    out = df.with_columns(pl.col("r").finance.returns(period="month", date=pl.col("date")).alias("period_return"))
+    out = df.with_columns(pl.col("r").fcalcs.returns(period="month", date=pl.col("date")).alias("period_return"))
 
     assert out["period_return"].to_list() == pytest.approx([1.10 * 0.95 - 1.0] * 2 + [1.02 * 1.03 - 1.0] * 2)
 
@@ -294,29 +294,29 @@ def test_sortino_accepts_expr_required_return():
 
 def test_namespace_on_expr(prices):
     df = pl.DataFrame({"p": prices})
-    out = df.select(pl.col("p").finance.log_returns().alias("ret"))["ret"]
+    out = df.select(pl.col("p").fcalcs.log_returns().alias("ret"))["ret"]
     assert out[0] is None
     assert out[1] == pytest.approx(math.log(101 / 100))
 
 
 def test_namespace_on_series(constant_returns):
-    val = constant_returns.finance.sharpe()
+    val = constant_returns.fcalcs.sharpe()
     assert val is None or math.isnan(val) or math.isinf(val) or abs(val) > 1e6
 
 
 def test_namespace_sharpe_handles_exact_zero_variance_series():
     rets = pl.Series("r", [1.0] * 252)
-    val = rets.finance.sharpe()
+    val = rets.fcalcs.sharpe()
     assert math.isinf(val)
 
 
 def test_namespace_pipeline(prices):
     df = pl.DataFrame({"p": prices})
     out = df.with_columns(
-        pl.col("p").finance.simple_returns().alias("r"),
+        pl.col("p").fcalcs.simple_returns().alias("r"),
     ).select(
-        pl.col("r").finance.max_drawdown().alias("mdd"),
-        pl.col("r").finance.cum_returns_final().alias("total"),
+        pl.col("r").fcalcs.max_drawdown().alias("mdd"),
+        pl.col("r").fcalcs.cum_returns_final().alias("total"),
     )
     assert out["total"][0] == pytest.approx(prices[-1] / prices[0] - 1.0)
     assert out["mdd"][0] <= 0.0

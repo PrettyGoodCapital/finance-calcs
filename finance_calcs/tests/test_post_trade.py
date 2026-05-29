@@ -239,8 +239,8 @@ def test_namespace_post_trade_metrics() -> None:
     trades = pl.DataFrame({"qty": [100.0], "price": [10.0], "arrival": [9.95], "side": ["Buy"]})
 
     out = trades.select(
-        pl.col("qty").finance.transaction_notional(pl.col("price")).alias("notional"),
-        pl.col("price").finance.slippage_bps(pl.col("arrival"), side=pl.col("side")).alias("slip"),
+        pl.col("qty").fcalcs.transaction_notional(pl.col("price")).alias("notional"),
+        pl.col("price").fcalcs.slippage_bps(pl.col("arrival"), side=pl.col("side")).alias("slip"),
     )
 
     assert out["notional"][0] == pytest.approx(1000.0)
