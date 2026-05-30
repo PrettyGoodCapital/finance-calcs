@@ -1,5 +1,5 @@
 [package]
-name = "finance_calcs"
+name = "finance-calcs"
 version = "0.2.0"
 authors = ["PrettyGoodCapital <prettygoodcapital@gmail.com>"]
 edition = "2021"
