@@ -34,7 +34,7 @@ The public API follows a few rules:
 - every expression metric accepts and returns `pl.Expr`
 - metrics are exposed once, with optional `window=` and `period=` controls
   rather than separate rolling, monthly, and annual variants
-- functions are also available through the `.finance` namespace on both
+- functions are also available through the `.fcalcs` namespace on both
   `pl.Expr` and `pl.Series`
 - examples use synthetic but realistic fixtures from `finance-datagen`
 
@@ -68,13 +68,13 @@ import finance_calcs as fc
 prices = generate_prices(symbol="ACME", seed=7)
 
 out = prices.with_columns(
-    pl.col("price").finance.simple_returns().alias("ret"),
+    pl.col("price").fcalcs.simple_returns().alias("ret"),
 ).select(
     fc.returns(pl.col("ret")).alias("total_return"),
-    pl.col("ret").finance.annualized_return().alias("ann_return"),
-    pl.col("ret").finance.volatility().alias("ann_vol"),
-    pl.col("ret").finance.sharpe().alias("sharpe"),
-    pl.col("ret").finance.max_drawdown().alias("max_drawdown"),
+    pl.col("ret").fcalcs.annualized_return().alias("ann_return"),
+    pl.col("ret").fcalcs.volatility().alias("ann_vol"),
+    pl.col("ret").fcalcs.sharpe().alias("sharpe"),
+    pl.col("ret").fcalcs.max_drawdown().alias("max_drawdown"),
 )
 ```
 
@@ -86,8 +86,8 @@ from finance_datagen import ohlc_from_close
 bars = ohlc_from_close(prices["price"], symbol="ACME", seed=7)
 
 features = bars.with_columns(
-    pl.col("close").finance.sma(20).alias("sma_20"),
-    pl.col("close").finance.rsi(14).alias("rsi_14"),
+    pl.col("close").fcalcs.sma(20).alias("sma_20"),
+    pl.col("close").fcalcs.rsi(14).alias("rsi_14"),
     fc.atr(pl.col("high"), pl.col("low"), pl.col("close")).alias("atr_14"),
     fc.obv(pl.col("close"), pl.col("volume")).alias("obv"),
 )
@@ -105,11 +105,11 @@ import polars as pl
 from finance_enums import Frequency
 
 monthly = prices.with_columns(
-    pl.col("price").finance.simple_returns().alias("ret"),
+    pl.col("price").fcalcs.simple_returns().alias("ret"),
 ).with_columns(
     fc.period_bucket(pl.col("timestamp"), Frequency.Month).alias("month"),
-    pl.col("ret").finance.returns(period="month", date=pl.col("timestamp")).alias("month_return"),
-    pl.col("ret").finance.sharpe(period="1q", date=pl.col("timestamp")).alias("quarter_sharpe"),
+    pl.col("ret").fcalcs.returns(period="month", date=pl.col("timestamp")).alias("month_return"),
+    pl.col("ret").fcalcs.sharpe(period="1q", date=pl.col("timestamp")).alias("quarter_sharpe"),
 )
 ```
 
@@ -118,7 +118,7 @@ pass the bucket expression directly:
 
 ```python
 bucketed = prices.with_columns(
-    pl.col("price").finance.simple_returns().alias("ret"),
+    pl.col("price").fcalcs.simple_returns().alias("ret"),
     pl.col("timestamp").dt.year().alias("fiscal_year"),
 ).with_columns(
     fc.returns(pl.col("ret"), period=pl.col("fiscal_year")).alias("fiscal_return"),

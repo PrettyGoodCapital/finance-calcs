@@ -1,7 +1,7 @@
 # API
 
 `finance-calcs` exposes calculation functions at the top level and through the
-`.finance` namespace on both `polars.Expr` and `polars.Series`. Most functions
+`.fcalcs` namespace on both `polars.Expr` and `polars.Series`. Most functions
 return `pl.Expr` so they compose naturally inside `select`, `with_columns`, and
 lazy pipelines. A small number of statistical and post-trade helpers take
 concrete `pl.Series` or `pl.DataFrame` inputs because they compute sample-level
@@ -28,13 +28,13 @@ out = df.select(fc.sharpe(pl.col("ret")).alias("sharpe"))
 or through the namespace:
 
 ```python
-out = df.select(pl.col("ret").finance.sharpe().alias("sharpe"))
+out = df.select(pl.col("ret").fcalcs.sharpe().alias("sharpe"))
 ```
 
 The same namespace exists on `pl.Series` for eager one-off checks:
 
 ```python
-value = returns.finance.sharpe()
+value = returns.fcalcs.sharpe()
 ```
 
 Across return, risk, alpha, factor, and tail metrics, `window=` means a rolling
