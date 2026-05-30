@@ -67,7 +67,7 @@ Homepage = "https://github.com/prettygoodcapital/finance-calcs"
 [tool.bumpversion]
 current_version = "0.1.1"
 commit = true
-tag = true
+tag = false
 commit_args = "-s"
 
 [[tool.bumpversion.files]]
