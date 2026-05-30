@@ -1,17 +1,17 @@
 """finance-calcs — financial calculations as polars expressions.
 
 Every public function accepts and returns ``pl.Expr``. Functions are
-also exposed on a ``.finance`` custom namespace bound to ``pl.Expr``
+also exposed on a ``.fcalcs`` custom namespace bound to ``pl.Expr``
 and ``pl.Series``::
 
     import finance_calcs  # noqa: F401  — registers the namespace
     import polars as pl
 
     df.with_columns(
-        pl.col("close").finance.log_returns().alias("ret"),
+        pl.col("close").fcalcs.log_returns().alias("ret"),
     ).select(
-        pl.col("ret").finance.sharpe().alias("sharpe"),
-        pl.col("ret").finance.max_drawdown().alias("mdd"),
+        pl.col("ret").fcalcs.sharpe().alias("sharpe"),
+        pl.col("ret").fcalcs.max_drawdown().alias("mdd"),
     )
 """
 
@@ -45,6 +45,14 @@ from .factor import (  # noqa: F401
     up_beta,
     up_capture,
     up_down_capture,
+)
+from .microstructure import (  # noqa: F401
+    amihud_illiquidity,
+    effective_spread_bps,
+    kyle_lambda,
+    order_imbalance,
+    quoted_spread_bps,
+    realized_spread_bps,
 )
 from .momentum import (  # noqa: F401
     adx,
@@ -117,6 +125,7 @@ from .post_trade import (  # noqa: F401
     vwap_slippage,
     win_rate,
 )
+from .preprocessing import neutralize, orthogonalize  # noqa: F401
 from .quantile import (  # noqa: F401
     assign_quantile,
     long_short_spread,
@@ -127,6 +136,7 @@ from .quantile import (  # noqa: F401
     winsorize,
     zscore,
 )
+from .regime import fractional_difference, hurst_exponent, regime_signal  # noqa: F401
 from .returns import (  # noqa: F401
     aggregate_returns,
     annualized_return,
@@ -257,6 +267,13 @@ __all__ = [
     "obv",
     "ad",
     "adosc",
+    # microstructure
+    "quoted_spread_bps",
+    "effective_spread_bps",
+    "realized_spread_bps",
+    "order_imbalance",
+    "amihud_illiquidity",
+    "kyle_lambda",
     # alpha
     "forward_returns",
     "pearson_ic",
@@ -277,6 +294,9 @@ __all__ = [
     "mean_return_by_quantile",
     "quantile_changed",
     "quantile_turnover",
+    # signal preprocessing
+    "neutralize",
+    "orthogonalize",
     # factor / capture
     "alpha",
     "beta",
@@ -290,6 +310,10 @@ __all__ = [
     "batting_average",
     "tracking_error",
     "information_ratio",
+    # regime
+    "regime_signal",
+    "hurst_exponent",
+    "fractional_difference",
     # stats / validity
     "skewness",
     "kurtosis",

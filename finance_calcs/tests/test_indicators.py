@@ -233,7 +233,7 @@ def test_adosc_runs(ohlcv):
 
 def test_namespace_single_input(ohlcv):
     out = ohlcv.select(
-        pl.col("close").finance.rsi(14).alias("rsi"),
-        pl.col("close").finance.sma(20).alias("sma"),
+        pl.col("close").fcalcs.rsi(14).alias("rsi"),
+        pl.col("close").fcalcs.sma(20).alias("sma"),
     )
     assert out.height == ohlcv.height

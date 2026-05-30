@@ -214,5 +214,5 @@ def test_quantile_turnover_aggregates_changed_flags():
 
 def test_namespace_alpha():
     df = pl.DataFrame({"p": [100.0, 101.0, 102.0, 100.0]})
-    out = df.select(pl.col("p").finance.forward_returns(1).alias("f"))
+    out = df.select(pl.col("p").fcalcs.forward_returns(1).alias("f"))
     assert out.height == 4
