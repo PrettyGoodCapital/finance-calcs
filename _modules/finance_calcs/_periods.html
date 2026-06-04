@@ -240,21 +240,25 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">polars</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pl</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">finance_enums</span><span class="w"> </span><span class="kn">import</span> <span class="n">Frequency</span><span class="p">,</span> <span class="n">to_frequency</span>
 
-<span class="n">PeriodLike</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">Frequency</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">finance_dates</span><span class="w"> </span><span class="kn">import</span> <span class="n">period_grid</span> <span class="k">as</span> <span class="n">dates_period_grid</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>  <span class="c1"># pragma: no cover - compatibility with older finance-dates</span>
 
-
-<span class="k">def</span><span class="w"> </span><span class="nf">_period_rule</span><span class="p">(</span><span class="n">period</span><span class="p">:</span> <span class="n">Frequency</span> <span class="o">|</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">period</span><span class="p">,</span> <span class="n">Frequency</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">period</span><span class="o">.</span><span class="n">polars_truncate</span>
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">period</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">dates_period_grid</span><span class="p">(</span><span class="n">date</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span> <span class="n">period</span><span class="p">:</span> <span class="n">Frequency</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">period</span><span class="p">,</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">period</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">period</span><span class="p">,</span> <span class="n">Frequency</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">date</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">truncate</span><span class="p">(</span><span class="n">period</span><span class="o">.</span><span class="n">polars_truncate</span><span class="p">)</span>
         <span class="n">value</span> <span class="o">=</span> <span class="n">period</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">value</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;period must not be empty&quot;</span><span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">to_frequency</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="n">polars_truncate</span>
+            <span class="k">return</span> <span class="n">date</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">truncate</span><span class="p">(</span><span class="n">to_frequency</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="n">polars_truncate</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">value</span>
-    <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;period must be a Frequency, string, or expression; got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">period</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">date</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">truncate</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+
+<span class="n">PeriodLike</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">Frequency</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span>
 
 
 <div class="viewcode-block" id="period_bucket">
@@ -267,9 +271,7 @@
 <span class="sd">    string accepted by ``dt.truncate()``, or a precomputed bucket</span>
 <span class="sd">    expression.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">period</span><span class="p">,</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">period</span>
-    <span class="k">return</span> <span class="n">date</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">truncate</span><span class="p">(</span><span class="n">_period_rule</span><span class="p">(</span><span class="n">period</span><span class="p">))</span></div>
+    <span class="k">return</span> <span class="n">dates_period_grid</span><span class="p">(</span><span class="n">date</span><span class="p">,</span> <span class="n">period</span><span class="p">)</span></div>
 
 
 
