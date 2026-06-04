@@ -76,6 +76,7 @@ from .momentum import (  # noqa: F401
     trix,
     willr,
 )
+from .native_kernels import native_adx, native_garch11_variance, native_parabolic_sar  # noqa: F401
 from .overlap import (  # noqa: F401
     bbands_lower,
     bbands_middle,
@@ -253,6 +254,9 @@ __all__ = [
     "plus_di",
     "minus_di",
     "adx",
+    "native_adx",
+    "native_parabolic_sar",
+    "native_garch11_variance",
     # volatility
     "true_range",
     "atr",

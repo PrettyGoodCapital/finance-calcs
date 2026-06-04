@@ -5,6 +5,7 @@ from __future__ import annotations
 import math
 from datetime import date
 
+import finance_dates as fd
 import polars as pl
 import pytest
 from finance_enums import Frequency
@@ -117,6 +118,24 @@ def test_period_bucket_accepts_frequency_aliases_and_polars_windows():
     assert out["enum_month"].to_list() == [date(2024, 1, 1), date(2024, 1, 1), date(2024, 2, 1), date(2024, 2, 1)]
     assert out["alias_month"].to_list() == out["enum_month"].to_list()
     assert out["two_day"].null_count() == 0
+
+
+def test_period_bucket_matches_finance_dates_period_grid():
+    df = pl.DataFrame(
+        {
+            "date": [date(2024, 1, 2), date(2024, 1, 31), date(2024, 2, 1)],
+        }
+    )
+
+    out = df.select(fc.period_bucket(pl.col("date"), "month").alias("calcs"))
+
+    dates_period_grid = getattr(fd, "period_grid", None)
+    if dates_period_grid is None:
+        assert out["calcs"].to_list() == [date(2024, 1, 1), date(2024, 1, 1), date(2024, 2, 1)]
+        return
+
+    dates_out = df.select(dates_period_grid(pl.col("date"), "month").alias("dates"))
+    assert out["calcs"].to_list() == dates_out["dates"].to_list()
 
 
 def test_period_returns_repeat_bucket_compound_return():

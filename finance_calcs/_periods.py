@@ -7,21 +7,25 @@ from typing import TypeAlias
 import polars as pl
 from finance_enums import Frequency, to_frequency
 
-PeriodLike: TypeAlias = Frequency | str | pl.Expr
+try:
+    from finance_dates import period_grid as dates_period_grid
+except ImportError:  # pragma: no cover - compatibility with older finance-dates
 
-
-def _period_rule(period: Frequency | str) -> str:
-    if isinstance(period, Frequency):
-        return period.polars_truncate
-    if isinstance(period, str):
+    def dates_period_grid(date: pl.Expr, period: Frequency | str | pl.Expr) -> pl.Expr:
+        if isinstance(period, pl.Expr):
+            return period
+        if isinstance(period, Frequency):
+            return date.dt.truncate(period.polars_truncate)
         value = period.strip()
         if not value:
             raise ValueError("period must not be empty")
         try:
-            return to_frequency(value).polars_truncate
+            return date.dt.truncate(to_frequency(value).polars_truncate)
         except ValueError:
-            return value
-    raise TypeError(f"period must be a Frequency, string, or expression; got {type(period).__name__}")
+            return date.dt.truncate(value)
+
+
+PeriodLike: TypeAlias = Frequency | str | pl.Expr
 
 
 def period_bucket(date: pl.Expr, period: PeriodLike) -> pl.Expr:
@@ -32,9 +36,7 @@ def period_bucket(date: pl.Expr, period: PeriodLike) -> pl.Expr:
     string accepted by ``dt.truncate()``, or a precomputed bucket
     expression.
     """
-    if isinstance(period, pl.Expr):
-        return period
-    return date.dt.truncate(_period_rule(period))
+    return dates_period_grid(date, period)
 
 
 def _check_window_period(window: int | None, period: PeriodLike | None) -> None:
