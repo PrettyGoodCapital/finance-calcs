@@ -92,6 +92,7 @@ replace = 'version = "{new_version}"'
 
 [tool.cibuildwheel]
 build = "cp311-*"
+skip = "*i686* *musllinux* *win32 *arm_64"
 test-command = "pytest -vvv {project}/finance_calcs/tests"
 test-extras = "develop"
 
