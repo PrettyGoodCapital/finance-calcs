@@ -6,13 +6,13 @@ before full Polars plugin-kernel migration.
 
 from __future__ import annotations
 
-from typing import Sequence
+from collections.abc import Sequence
 
 import numpy as np
 
 from . import finance_calcs as _native
 
-__all__ = ["native_adx", "native_parabolic_sar", "native_garch11_variance"]
+__all__ = ["native_adx", "native_garch11_variance", "native_parabolic_sar"]
 
 
 def _vec(values: Sequence[float]) -> list[float]:

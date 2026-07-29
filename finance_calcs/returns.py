@@ -18,15 +18,15 @@ import polars as pl
 from ._periods import PeriodLike, _bucket_or_none, _check_window_period, period_bucket
 
 __all__ = [
-    "period_bucket",
-    "simple_returns",
-    "log_returns",
-    "cum_returns",
-    "cum_returns_final",
-    "returns",
     "aggregate_returns",
     "annualized_return",
     "annualized_volatility",
+    "cum_returns",
+    "cum_returns_final",
+    "log_returns",
+    "period_bucket",
+    "returns",
+    "simple_returns",
 ]
 
 

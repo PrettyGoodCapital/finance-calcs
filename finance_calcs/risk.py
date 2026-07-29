@@ -20,18 +20,18 @@ from ._periods import PeriodLike, _bucket_or_none, _check_window_period
 from .returns import annualized_return, annualized_volatility
 
 __all__ = [
-    "volatility",
+    "calmar",
+    "conditional_value_at_risk",
+    "downside_deviation",
+    "downside_risk",
+    "drawdown_series",
+    "max_drawdown",
+    "parametric_var",
     "sharpe",
     "sortino",
-    "calmar",
-    "downside_risk",
-    "downside_deviation",
-    "drawdown_series",
     "underwater_series",
-    "max_drawdown",
     "value_at_risk",
-    "conditional_value_at_risk",
-    "parametric_var",
+    "volatility",
 ]
 
 

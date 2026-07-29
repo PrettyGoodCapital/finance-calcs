@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import itertools
 import math
 
 import numpy as np
@@ -206,7 +207,7 @@ def test_realized_vol_matches_rolling_std(ohlcv):
 def test_obv_monotone_up_for_uptrend(monotone_close):
     df = monotone_close.with_columns(pl.lit(1000.0).alias("volume"))
     out = _select(df, fc.obv(pl.col("close"), pl.col("volume"))).to_list()
-    diffs = [b - a for a, b in zip(out, out[1:])]
+    diffs = [b - a for a, b in itertools.pairwise(out)]
     assert all(d >= 0 for d in diffs)
 
 

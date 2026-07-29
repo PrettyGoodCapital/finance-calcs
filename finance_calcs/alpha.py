@@ -14,16 +14,16 @@ import polars as pl
 from ._periods import PeriodLike, _bucket_or_none, _check_window_period
 
 __all__ = [
-    "forward_returns",
-    "pearson_ic",
-    "spearman_ic",
-    "information_coefficient",
     "conditional_ic",
+    "forward_returns",
+    "hit_rate",
     "horizon_ic",
     "ic_decay",
     "ic_ir",
-    "hit_rate",
     "ic_summary_stats",
+    "information_coefficient",
+    "pearson_ic",
+    "spearman_ic",
 ]
 
 

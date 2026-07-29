@@ -20,18 +20,18 @@ import polars as pl
 from ._periods import PeriodLike, _bucket_or_none, _check_window_period
 
 __all__ = [
-    "beta",
     "alpha",
-    "up_beta",
-    "down_beta",
-    "up_alpha",
-    "down_alpha",
-    "up_capture",
-    "down_capture",
-    "up_down_capture",
     "batting_average",
-    "tracking_error",
+    "beta",
+    "down_alpha",
+    "down_beta",
+    "down_capture",
     "information_ratio",
+    "tracking_error",
+    "up_alpha",
+    "up_beta",
+    "up_capture",
+    "up_down_capture",
 ]
 
 

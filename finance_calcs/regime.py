@@ -7,7 +7,7 @@ from collections.abc import Sequence
 import numpy as np
 import polars as pl
 
-__all__ = ["regime_signal", "hurst_exponent", "fractional_difference"]
+__all__ = ["fractional_difference", "hurst_exponent", "regime_signal"]
 __finance_namespace__ = ["regime_signal"]
 
 

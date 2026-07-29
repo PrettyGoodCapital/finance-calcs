@@ -8,17 +8,16 @@ analyses that need numerical work outside the expression engine.
 from __future__ import annotations
 
 import math
-from typing import Tuple
 
 import numpy as np
 import polars as pl
 
 __all__ = [
-    "skewness",
-    "kurtosis",
-    "higher_moments",
-    "stability_of_timeseries",
     "common_sense_ratio",
+    "higher_moments",
+    "kurtosis",
+    "skewness",
+    "stability_of_timeseries",
 ]
 
 
@@ -241,7 +240,7 @@ def sharpe_ci_bootstrap(
     confidence: float = 0.95,
     periods_per_year: int = 252,
     seed: int | None = None,
-) -> Tuple[float, float, float]:
+) -> tuple[float, float, float]:
     """Bootstrap confidence interval for the Sharpe ratio.
 
     Args:
@@ -273,7 +272,7 @@ def sharpe_with_ci(
     risk_free: float | pl.Series | np.ndarray = 0.0,
     periods_per_year: int = 252,
     confidence: float = 0.95,
-) -> Tuple[float, float, float]:
+) -> tuple[float, float, float]:
     """Sharpe with HAC-style asymptotic confidence interval.
 
     Args:
