@@ -248,9 +248,11 @@
 <a class="reference external" href="https://pypi.python.org/pypi/finance-calcs"><img alt="PyPI" src="https://img.shields.io/pypi/v/finance-calcs.svg" /></a></p>
 <section id="overview">
 <h2>Overview<a class="headerlink" href="#overview" title="Link to this heading">¶</a></h2>
-<p><code class="docutils literal notranslate"><span class="pre">finance-calcs</span></code> provides financial calculations as composable Polars
-expressions. It is designed for lazy execution, namespace-style ergonomics, and
-direct interoperability with the rest of the <code class="docutils literal notranslate"><span class="pre">finance-*</span></code> stack.</p>
+<p><code class="docutils literal notranslate"><span class="pre">finance-calcs</span></code> provides composable Polars expression metrics plus a smaller
+set of explicitly eager statistical, preprocessing, post-trade, and native
+kernel helpers. It is designed for lazy execution where the algorithm permits
+it, namespace-style ergonomics, and direct interoperability with the rest of
+the <code class="docutils literal notranslate"><span class="pre">finance-*</span></code> stack.</p>
 <p>The public API follows a few rules:</p>
 <ul class="simple">
 <li><p>every expression metric accepts and returns <code class="docutils literal notranslate"><span class="pre">pl.Expr</span></code></p></li>
@@ -260,6 +262,15 @@ rather than separate rolling, monthly, and annual variants</p></li>
 <code class="docutils literal notranslate"><span class="pre">pl.Expr</span></code> and <code class="docutils literal notranslate"><span class="pre">pl.Series</span></code></p></li>
 <li><p>examples use synthetic but realistic fixtures from <code class="docutils literal notranslate"><span class="pre">finance-datagen</span></code></p></li>
 </ul>
+<p>Return, risk, and tail expression metrics accept periodic returns rather than
+prices. Convert prices first with <code class="docutils literal notranslate"><span class="pre">simple_returns</span></code> or <code class="docutils literal notranslate"><span class="pre">log_returns</span></code>. These
+metrics treat floating-point <code class="docutils literal notranslate"><span class="pre">NaN</span></code> and Polars null values as missing. Compound
+returns treat missing observations as neutral, while statistical aggregations
+exclude them.</p>
+<p>Materializing helpers are not available through <code class="docutils literal notranslate"><span class="pre">.fcalcs</span></code>: native ADX, SAR,
+and GARCH kernels accept numeric sequences and return NumPy arrays; GPD fits
+and several statistical helpers accept <code class="docutils literal notranslate"><span class="pre">pl.Series</span></code>; preprocessing and
+post-trade summaries accept concrete <code class="docutils literal notranslate"><span class="pre">pl.DataFrame</span></code> inputs.</p>
 </section>
 <section id="implemented-coverage">
 <h2>Implemented coverage<a class="headerlink" href="#implemented-coverage" title="Link to this heading">¶</a></h2>

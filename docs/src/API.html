@@ -267,6 +267,28 @@ rendered by yardang/Sphinx from the live docstrings.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">value</span> <span class="o">=</span> <span class="n">returns</span><span class="o">.</span><span class="n">fcalcs</span><span class="o">.</span><span class="n">sharpe</span><span class="p">()</span>
 </pre></div>
 </div>
+</section>
+<section id="execution-and-input-contracts">
+<h2>Execution and Input Contracts<a class="headerlink" href="#execution-and-input-contracts" title="Link to this heading">¶</a></h2>
+<p>Expression metrics compose inside <code class="docutils literal notranslate"><span class="pre">select</span></code>, <code class="docutils literal notranslate"><span class="pre">with_columns</span></code>, and lazy queries.
+Return, risk, and tail metrics consume <strong>periodic returns</strong>, not price levels;
+use <code class="docutils literal notranslate"><span class="pre">simple_returns</span></code> or <code class="docutils literal notranslate"><span class="pre">log_returns</span></code> to derive them from prices. In these
+metrics, floating-point <code class="docutils literal notranslate"><span class="pre">NaN</span></code> and Polars null values are equivalent missing
+observations. Compounding treats missing returns as neutral and statistical
+aggregations exclude them.</p>
+<p>APIs that require sample-level algorithms are deliberately eager:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">native_adx</span></code>, <code class="docutils literal notranslate"><span class="pre">native_parabolic_sar</span></code>, and <code class="docutils literal notranslate"><span class="pre">native_garch11_variance</span></code> accept
+numeric sequences and return NumPy arrays. They are native bridges, not
+Polars expression plugins.</p></li>
+<li><p>GPD fits and bootstrap/regime helpers accept concrete <code class="docutils literal notranslate"><span class="pre">pl.Series</span></code> values and
+return scalars, tuples, or materialized series.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">neutralize</span></code>, <code class="docutils literal notranslate"><span class="pre">orthogonalize</span></code>, round-trip extraction, and related post-trade
+helpers accept concrete <code class="docutils literal notranslate"><span class="pre">pl.DataFrame</span></code> values.</p></li>
+</ul>
+<p>Keep eager helpers outside lazy-query plans. A future expression-plugin layer
+must preserve existing results and null semantics before replacing the native
+bridges.</p>
 <p>Across return, risk, alpha, factor, and tail metrics, <code class="docutils literal notranslate"><span class="pre">window=</span></code> means a rolling
 row-count window. <code class="docutils literal notranslate"><span class="pre">period=</span></code> means bucketed calculations over a calendar or
 custom period. <code class="docutils literal notranslate"><span class="pre">period=</span></code> accepts:</p>
@@ -323,7 +345,7 @@ period returns. They are the base layer for most risk and factor metrics.</p>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">annualized_return(returns,</span> <span class="pre">periods_per_year=252,</span> <span class="pre">*,</span> <span class="pre">window=None,</span> <span class="pre">period=None,</span> <span class="pre">date=None)</span></code></p></td>
 <td><p>Annualized geometric return</p></td>
-<td><p>Uses compound return and observation count</p></td>
+<td><p>Uses compound return and non-missing observation count, not elapsed dates</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">annualized_volatility(returns,</span> <span class="pre">periods_per_year=252,</span> <span class="pre">*,</span> <span class="pre">window=None,</span> <span class="pre">period=None,</span> <span class="pre">date=None)</span></code></p></td>
 <td><p>Annualized standard deviation</p></td>
@@ -361,7 +383,8 @@ expression.</p>
 <p>With <code class="docutils literal notranslate"><span class="pre">window=None</span></code> returns the cumulative path
 <code class="docutils literal notranslate"><span class="pre">(1</span> <span class="pre">+</span> <span class="pre">r).cumprod()</span> <span class="pre">-</span> <span class="pre">1</span></code>. With <code class="docutils literal notranslate"><span class="pre">window=N</span></code> returns the compounded
 return over each trailing <code class="docutils literal notranslate"><span class="pre">N</span></code>-bar window. With <code class="docutils literal notranslate"><span class="pre">period=...</span></code>, the
-cumulative path resets inside each period bucket.</p>
+cumulative path resets inside each period bucket. Missing observations are
+neutral for compounding.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -391,10 +414,12 @@ rolling compounded return over each trailing <code class="docutils literal notra
 <dl class="py function">
 <dt class="sig sig-object py" id="finance_calcs.annualized_return">
 <span class="sig-prename descclassname"><span class="pre">finance_calcs.</span></span><span class="sig-name descname"><span class="pre">annualized_return</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">returns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">periods_per_year</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">252</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">window</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">period</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Frequency</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Expr</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">date</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Expr</span></span></span><a class="reference internal" href="../../_modules/finance_calcs/returns.html#annualized_return"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#finance_calcs.annualized_return" title="Link to this definition">¶</a></dt>
-<dd><p>Annualised geometric return (CAGR).</p>
+<dd><p>Annualised geometric return.</p>
 <p><code class="docutils literal notranslate"><span class="pre">window=None</span></code> → scalar lifetime CAGR. <code class="docutils literal notranslate"><span class="pre">window=N</span></code> → rolling
 CAGR annualised by <code class="docutils literal notranslate"><span class="pre">periods_per_year</span> <span class="pre">/</span> <span class="pre">window</span></code>. <code class="docutils literal notranslate"><span class="pre">period=...</span></code> →
-CAGR for each period bucket.</p>
+CAGR for each period bucket. Annualisation uses the count of non-missing
+observations, not elapsed calendar time; <code class="docutils literal notranslate"><span class="pre">date</span></code> is used only to build a
+period bucket.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -448,7 +473,7 @@ rates and are converted to per-period rates where appropriate; expression
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">drawdown_series(returns,</span> <span class="pre">*,</span> <span class="pre">period=None,</span> <span class="pre">date=None)</span></code></p></td>
 <td><p>Running drawdown path</p></td>
-<td><p>Equity curve divided by running peak minus one</p></td>
+<td><p>Equity curve divided by running peak, including initial 1.0 baseline</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">underwater_series(returns,</span> <span class="pre">*,</span> <span class="pre">period=None,</span> <span class="pre">date=None)</span></code></p></td>
 <td><p>Drawdown path alias</p></td>
@@ -527,6 +552,7 @@ Sharpe; <code class="docutils literal notranslate"><span class="pre">window=N</s
 <dt class="sig sig-object py" id="finance_calcs.drawdown_series">
 <span class="sig-prename descclassname"><span class="pre">finance_calcs.</span></span><span class="sig-name descname"><span class="pre">drawdown_series</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">returns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">period</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Frequency</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Expr</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">date</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Expr</span></span></span><a class="reference internal" href="../../_modules/finance_calcs/risk.html#drawdown_series"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#finance_calcs.drawdown_series" title="Link to this definition">¶</a></dt>
 <dd><p>Per-period drawdown series <code class="docutils literal notranslate"><span class="pre">equity</span> <span class="pre">/</span> <span class="pre">running_peak</span> <span class="pre">-</span> <span class="pre">1</span></code>.</p>
+<p>The running peak includes an initial equity baseline of <code class="docutils literal notranslate"><span class="pre">1.0</span></code>.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -2405,7 +2431,7 @@ model to tail losses.</p>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ulcer_index(returns,</span> <span class="pre">*,</span> <span class="pre">window=None,</span> <span class="pre">period=None,</span> <span class="pre">date=None)</span></code></p></td>
 <td><p>Drawdown depth persistence</p></td>
-<td><p>RMS of drawdown sequence</p></td>
+<td><p>Decimal RMS from initial 1.0 equity baseline</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">omega_ratio(returns,</span> <span class="pre">required_return=0.0,</span> <span class="pre">*,</span> <span class="pre">window=None,</span> <span class="pre">period=None,</span> <span class="pre">date=None)</span></code></p></td>
 <td><p>Gain/loss balance around threshold</p></td>
@@ -2433,11 +2459,12 @@ model to tail losses.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="finance_calcs.ulcer_index">
 <span class="sig-prename descclassname"><span class="pre">finance_calcs.</span></span><span class="sig-name descname"><span class="pre">ulcer_index</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">returns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">window</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">period</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Frequency</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Expr</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">date</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Expr</span></span></span><a class="reference internal" href="../../_modules/finance_calcs/tail.html#ulcer_index"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#finance_calcs.ulcer_index" title="Link to this definition">¶</a></dt>
-<dd><p>RMS of the drawdown sequence.</p>
+<dd><p>RMS of the drawdown sequence, expressed as a decimal.</p>
 <p><code class="docutils literal notranslate"><span class="pre">UI</span> <span class="pre">=</span> <span class="pre">sqrt(mean(dd_t^2))</span></code> where <code class="docutils literal notranslate"><span class="pre">dd_t</span></code> is the percentage
 drawdown at time <code class="docutils literal notranslate"><span class="pre">t</span></code>. <code class="docutils literal notranslate"><span class="pre">window=None</span></code> → scalar; <code class="docutils literal notranslate"><span class="pre">window=N</span></code> →
 rolling RMS over each trailing <code class="docutils literal notranslate"><span class="pre">N</span></code>-bar window. <code class="docutils literal notranslate"><span class="pre">period=...</span></code> →
-per-bucket RMS drawdown.</p>
+per-bucket RMS drawdown. The equity path starts from a <code class="docutils literal notranslate"><span class="pre">1.0</span></code> baseline;
+multiply the result by 100 for percentage-point units.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -2966,6 +2993,7 @@ date. The contribution is <code class="docutils literal notranslate"><span class
             <ul>
 <li><a class="reference internal" href="#">API</a><ul>
 <li><a class="reference internal" href="#namespace-and-windowing">Namespace and Windowing</a></li>
+<li><a class="reference internal" href="#execution-and-input-contracts">Execution and Input Contracts</a></li>
 <li><a class="reference internal" href="#returns-and-periods">Returns and Periods</a><ul>
 <li><a class="reference internal" href="#finance_calcs.period_bucket"><code class="docutils literal notranslate"><span class="pre">period_bucket()</span></code></a></li>
 <li><a class="reference internal" href="#finance_calcs.simple_returns"><code class="docutils literal notranslate"><span class="pre">simple_returns()</span></code></a></li>

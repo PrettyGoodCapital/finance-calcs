@@ -37,6 +37,29 @@ The same namespace exists on `pl.Series` for eager one-off checks:
 value = returns.fcalcs.sharpe()
 ```
 
+## Execution and Input Contracts
+
+Expression metrics compose inside `select`, `with_columns`, and lazy queries.
+Return, risk, and tail metrics consume **periodic returns**, not price levels;
+use `simple_returns` or `log_returns` to derive them from prices. In these
+metrics, floating-point `NaN` and Polars null values are equivalent missing
+observations. Compounding treats missing returns as neutral and statistical
+aggregations exclude them.
+
+APIs that require sample-level algorithms are deliberately eager:
+
+- `native_adx`, `native_parabolic_sar`, and `native_garch11_variance` accept
+  numeric sequences and return NumPy arrays. They are native bridges, not
+  Polars expression plugins.
+- GPD fits and bootstrap/regime helpers accept concrete `pl.Series` values and
+  return scalars, tuples, or materialized series.
+- `neutralize`, `orthogonalize`, round-trip extraction, and related post-trade
+  helpers accept concrete `pl.DataFrame` values.
+
+Keep eager helpers outside lazy-query plans. A future expression-plugin layer
+must preserve existing results and null semantics before replacing the native
+bridges.
+
 Across return, risk, alpha, factor, and tail metrics, `window=` means a rolling
 row-count window. `period=` means bucketed calculations over a calendar or
 custom period. `period=` accepts:
@@ -65,7 +88,7 @@ period returns. They are the base layer for most risk and factor metrics.
 | `cum_returns_final(returns, *, window=None, period=None, date=None)`                           | Terminal compounded return                | Produces the final compound return for the sample, window, or bucket             |
 | `returns(returns, *, window=None, period=None, date=None)`                                     | Alias-style aggregate return              | Same aggregation as `cum_returns_final`                                          |
 | `aggregate_returns(returns, date, period)`                                                     | Calendar/custom period compound return    | Convenience wrapper around `returns(..., period=..., date=...)`                  |
-| `annualized_return(returns, periods_per_year=252, *, window=None, period=None, date=None)`     | Annualized geometric return               | Uses compound return and observation count                                       |
+| `annualized_return(returns, periods_per_year=252, *, window=None, period=None, date=None)`     | Annualized geometric return               | Uses compound return and non-missing observation count, not elapsed dates        |
 | `annualized_volatility(returns, periods_per_year=252, *, window=None, period=None, date=None)` | Annualized standard deviation             | `std * sqrt(periods_per_year)`                                                   |
 
 ```{eval-rst}
@@ -90,20 +113,20 @@ Risk metrics operate on return expressions. Scalar `risk_free` inputs are annual
 rates and are converted to per-period rates where appropriate; expression
 `risk_free` inputs are treated as already per-period.
 
-| Function                                                                                                         | Use it for                            | Notes                                                            |
-| ---------------------------------------------------------------------------------------------------------------- | ------------------------------------- | ---------------------------------------------------------------- |
-| `volatility(returns, periods_per_year=252, *, window=None, period=None, date=None)`                              | Annualized volatility                 | Alias for `annualized_volatility`                                |
-| `sharpe(returns, risk_free=0.0, periods_per_year=252, *, window=None, period=None, date=None)`                   | Annualized Sharpe ratio               | Supports scalar annual risk-free rates or per-period expressions |
-| `sortino(returns, required_return=0.0, periods_per_year=252, *, window=None, period=None, date=None)`            | Annualized Sortino ratio              | Uses downside deviation below `required_return`                  |
-| `calmar(returns, periods_per_year=252, *, window=None, period=None, date=None)`                                  | Annualized return / abs(max drawdown) | Uses the same sample/window/period controls                      |
-| `downside_deviation(returns, required_return=0.0, periods_per_year=252, *, window=None, period=None, date=None)` | Annualized semi-deviation             | Squares only observations below the threshold                    |
-| `downside_risk(...)`                                                                                             | Naming alias for downside deviation   | Same arguments and result as `downside_deviation`                |
-| `drawdown_series(returns, *, period=None, date=None)`                                                            | Running drawdown path                 | Equity curve divided by running peak minus one                   |
-| `underwater_series(returns, *, period=None, date=None)`                                                          | Drawdown path alias                   | Same result as `drawdown_series`                                 |
-| `max_drawdown(returns, *, window=None, period=None, date=None)`                                                  | Most negative drawdown                | Supports lifetime, rolling, or period-bucketed drawdown          |
-| `value_at_risk(returns, cutoff=0.05, *, window=None, period=None, date=None)`                                    | Historical VaR quantile               | Returns the lower-tail return quantile                           |
-| `conditional_value_at_risk(returns, cutoff=0.05, *, window=None, period=None, date=None)`                        | Expected shortfall                    | Mean return of observations at or below VaR                      |
-| `parametric_var(returns, cutoff=0.05, *, period=None, date=None)`                                                | Gaussian VaR                          | Supports common cutoffs from the built-in z-score table          |
+| Function                                                                                                         | Use it for                            | Notes                                                                |
+| ---------------------------------------------------------------------------------------------------------------- | ------------------------------------- | -------------------------------------------------------------------- |
+| `volatility(returns, periods_per_year=252, *, window=None, period=None, date=None)`                              | Annualized volatility                 | Alias for `annualized_volatility`                                    |
+| `sharpe(returns, risk_free=0.0, periods_per_year=252, *, window=None, period=None, date=None)`                   | Annualized Sharpe ratio               | Supports scalar annual risk-free rates or per-period expressions     |
+| `sortino(returns, required_return=0.0, periods_per_year=252, *, window=None, period=None, date=None)`            | Annualized Sortino ratio              | Uses downside deviation below `required_return`                      |
+| `calmar(returns, periods_per_year=252, *, window=None, period=None, date=None)`                                  | Annualized return / abs(max drawdown) | Uses the same sample/window/period controls                          |
+| `downside_deviation(returns, required_return=0.0, periods_per_year=252, *, window=None, period=None, date=None)` | Annualized semi-deviation             | Squares only observations below the threshold                        |
+| `downside_risk(...)`                                                                                             | Naming alias for downside deviation   | Same arguments and result as `downside_deviation`                    |
+| `drawdown_series(returns, *, period=None, date=None)`                                                            | Running drawdown path                 | Equity curve divided by running peak, including initial 1.0 baseline |
+| `underwater_series(returns, *, period=None, date=None)`                                                          | Drawdown path alias                   | Same result as `drawdown_series`                                     |
+| `max_drawdown(returns, *, window=None, period=None, date=None)`                                                  | Most negative drawdown                | Supports lifetime, rolling, or period-bucketed drawdown              |
+| `value_at_risk(returns, cutoff=0.05, *, window=None, period=None, date=None)`                                    | Historical VaR quantile               | Returns the lower-tail return quantile                               |
+| `conditional_value_at_risk(returns, cutoff=0.05, *, window=None, period=None, date=None)`                        | Expected shortfall                    | Mean return of observations at or below VaR                          |
+| `parametric_var(returns, cutoff=0.05, *, period=None, date=None)`                                                | Gaussian VaR                          | Supports common cutoffs from the built-in z-score table              |
 
 ```{eval-rst}
 .. currentmodule:: finance_calcs
@@ -425,13 +448,13 @@ Tail-risk expression metrics support lifetime, rolling, and period-bucketed
 calculations. The GPD helpers consume `pl.Series` and fit a Peaks-over-Threshold
 model to tail losses.
 
-| Function                                                                            | Use it for                         | Notes                                    |
-| ----------------------------------------------------------------------------------- | ---------------------------------- | ---------------------------------------- |
-| `tail_ratio(returns, *, window=None, period=None, date=None)`                       | Right-tail / left-tail balance     | `abs(p95) / abs(p05)`                    |
-| `ulcer_index(returns, *, window=None, period=None, date=None)`                      | Drawdown depth persistence         | RMS of drawdown sequence                 |
-| `omega_ratio(returns, required_return=0.0, *, window=None, period=None, date=None)` | Gain/loss balance around threshold | Sum gains divided by absolute sum losses |
-| `gpd_var(returns, var_p=0.01, threshold_p=0.10)`                                    | Extreme VaR from GPD fit           | Returns positive loss magnitude          |
-| `gpd_cvar(returns, var_p=0.01, threshold_p=0.10)`                                   | Extreme CVaR from GPD fit          | Expected shortfall beyond `var_p`        |
+| Function                                                                            | Use it for                         | Notes                                        |
+| ----------------------------------------------------------------------------------- | ---------------------------------- | -------------------------------------------- |
+| `tail_ratio(returns, *, window=None, period=None, date=None)`                       | Right-tail / left-tail balance     | `abs(p95) / abs(p05)`                        |
+| `ulcer_index(returns, *, window=None, period=None, date=None)`                      | Drawdown depth persistence         | Decimal RMS from initial 1.0 equity baseline |
+| `omega_ratio(returns, required_return=0.0, *, window=None, period=None, date=None)` | Gain/loss balance around threshold | Sum gains divided by absolute sum losses     |
+| `gpd_var(returns, var_p=0.01, threshold_p=0.10)`                                    | Extreme VaR from GPD fit           | Returns positive loss magnitude              |
+| `gpd_cvar(returns, var_p=0.01, threshold_p=0.10)`                                   | Extreme CVaR from GPD fit          | Expected shortfall beyond `var_p`            |
 
 ```{eval-rst}
 .. currentmodule:: finance_calcs
