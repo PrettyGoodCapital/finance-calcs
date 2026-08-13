@@ -1,4 +1,8 @@
-"""Signal preprocessing helpers that operate on concrete Polars DataFrames."""
+"""Eager signal preprocessing over concrete Polars DataFrames.
+
+``orthogonalize`` materializes selected columns as NumPy arrays for least
+squares and therefore does not participate in lazy Polars optimization.
+"""
 
 from __future__ import annotations
 

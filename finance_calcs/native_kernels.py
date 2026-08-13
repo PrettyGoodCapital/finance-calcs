@@ -1,7 +1,9 @@
-"""Native Rust-backed indicator kernels.
+"""Eager native Rust-backed indicator kernels.
 
 These helpers are the phase-8.7 bridge for high-cost computations
-before full Polars plugin-kernel migration.
+before full Polars plugin-kernel migration. They accept materialized numeric
+sequences, cross the Python/native boundary, and return NumPy arrays; they are
+not Polars expressions and do not participate in lazy query optimization.
 """
 
 from __future__ import annotations

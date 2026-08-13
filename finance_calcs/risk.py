@@ -1,6 +1,7 @@
-"""Basic risk metrics as polars expressions.
+"""Basic risk metrics as Polars expressions.
 
-Every function returns a ``pl.Expr``. Risk-adjusted-return metrics
+Every public function returns a ``pl.Expr``. Floating-point NaN and Polars null
+values are both treated as missing observations. Risk-adjusted-return metrics
 (:func:`sharpe`, :func:`sortino`, :func:`calmar`) and tail-statistic
 metrics (:func:`value_at_risk`, :func:`conditional_value_at_risk`)
 take a ``window=None`` keyword: ``None`` collapses to a scalar lifetime
@@ -17,7 +18,7 @@ from __future__ import annotations
 import polars as pl
 
 from ._periods import PeriodLike, _bucket_or_none, _check_window_period
-from .returns import annualized_return, annualized_volatility
+from .returns import _clean_returns, annualized_return, annualized_volatility
 
 __all__ = [
     "calmar",
@@ -97,7 +98,8 @@ def sharpe(
     """
     _check_window_period(window, period)
     bucket = _bucket_or_none(date, period)
-    excess = returns - _rf_per_period(risk_free, periods_per_year)
+    excess = _clean_returns(returns) - _rf_per_period(risk_free, periods_per_year)
+    excess = excess.fill_nan(None)
     scale = periods_per_year**0.5
     if bucket is not None:
         return excess.mean().over(bucket) / excess.std().over(bucket) * scale
@@ -128,14 +130,15 @@ def downside_deviation(
     """
     _check_window_period(window, period)
     bucket = _bucket_or_none(date, period)
-    diff = returns - required_return
-    neg_sq = pl.when(diff < 0).then(diff.pow(2)).otherwise(0.0)
+    clean_returns = _clean_returns(returns)
+    diff = (clean_returns - required_return).fill_nan(None)
+    neg_sq = pl.when(diff.is_null()).then(None).when(diff < 0).then(diff.pow(2)).otherwise(0.0)
     scale = periods_per_year**0.5
     if bucket is not None:
-        observation_count = returns.is_not_null().sum().over(bucket)
+        observation_count = clean_returns.is_not_null().sum().over(bucket)
         return (neg_sq.sum().over(bucket) / observation_count).sqrt() * scale
     if window is None:
-        n = returns.is_not_null().sum()
+        n = clean_returns.is_not_null().sum()
         return (neg_sq.sum() / n).sqrt() * scale
     return neg_sq.rolling_mean(window).sqrt() * scale
 
@@ -170,8 +173,9 @@ def sortino(
     """
     _check_window_period(window, period)
     bucket = _bucket_or_none(date, period)
-    excess = returns - required_return
-    dd = downside_deviation(returns, required_return, periods_per_year, window=window, period=period, date=date)
+    clean_returns = _clean_returns(returns)
+    excess = (clean_returns - required_return).fill_nan(None)
+    dd = downside_deviation(clean_returns, required_return, periods_per_year, window=window, period=period, date=date)
     if bucket is not None:
         return excess.mean().over(bucket) * periods_per_year / dd
     if window is None:
@@ -185,13 +189,17 @@ def drawdown_series(
     period: PeriodLike | None = None,
     date: pl.Expr | None = None,
 ) -> pl.Expr:
-    """Per-period drawdown series ``equity / running_peak - 1``."""
+    """Per-period drawdown series ``equity / running_peak - 1``.
+
+    The running peak includes an initial equity baseline of ``1.0``.
+    """
     bucket = _bucket_or_none(date, period)
-    equity = (1.0 + returns.fill_null(0.0)).cum_prod()
+    equity = (1.0 + _clean_returns(returns).fill_null(0.0)).cum_prod()
     if bucket is not None:
         equity = equity.over(bucket)
-        return equity / equity.cum_max().over(bucket) - 1.0
-    return equity / equity.cum_max() - 1.0
+        peak = equity.cum_max().over(bucket).clip(lower_bound=1.0)
+        return equity / peak - 1.0
+    return equity / equity.cum_max().clip(lower_bound=1.0) - 1.0
 
 
 def underwater_series(
@@ -260,11 +268,12 @@ def value_at_risk(
     """
     _check_window_period(window, period)
     bucket = _bucket_or_none(date, period)
+    clean_returns = _clean_returns(returns)
     if bucket is not None:
-        return returns.quantile(cutoff).over(bucket)
+        return clean_returns.quantile(cutoff).over(bucket)
     if window is None:
-        return returns.quantile(cutoff)
-    return returns.rolling_quantile(quantile=cutoff, window_size=window)
+        return clean_returns.quantile(cutoff)
+    return clean_returns.rolling_quantile(quantile=cutoff, window_size=window)
 
 
 def conditional_value_at_risk(
@@ -282,16 +291,17 @@ def conditional_value_at_risk(
     """
     _check_window_period(window, period)
     bucket = _bucket_or_none(date, period)
+    clean_returns = _clean_returns(returns)
     if bucket is not None:
-        threshold = returns.quantile(cutoff).over(bucket)
-        tail = pl.when(returns <= threshold).then(returns).otherwise(None)
+        threshold = clean_returns.quantile(cutoff).over(bucket)
+        tail = pl.when(clean_returns <= threshold).then(clean_returns).otherwise(None)
         return tail.mean().over(bucket)
     if window is None:
-        threshold = returns.quantile(cutoff)
-        tail = pl.when(returns <= threshold).then(returns).otherwise(None)
+        threshold = clean_returns.quantile(cutoff)
+        tail = pl.when(clean_returns <= threshold).then(clean_returns).otherwise(None)
         return tail.mean()
-    var = returns.rolling_quantile(quantile=cutoff, window_size=window)
-    masked = pl.when(returns <= var).then(returns).otherwise(None)
+    var = clean_returns.rolling_quantile(quantile=cutoff, window_size=window)
+    masked = pl.when(clean_returns <= var).then(clean_returns).otherwise(None)
     return masked.rolling_mean(window_size=window, min_samples=1)
 
 
@@ -310,6 +320,7 @@ def parametric_var(
         raise ValueError(f"parametric_var: cutoff={cutoff} not in {sorted(_Z_TABLE)}")
     z = _Z_TABLE[cutoff]
     bucket = _bucket_or_none(date, period)
+    clean_returns = _clean_returns(returns)
     if bucket is not None:
-        return returns.mean().over(bucket) + returns.std().over(bucket) * z
-    return returns.mean() + returns.std() * z
+        return clean_returns.mean().over(bucket) + clean_returns.std().over(bucket) * z
+    return clean_returns.mean() + clean_returns.std() * z

@@ -19,6 +19,7 @@ import numpy as np
 import polars as pl
 
 from ._periods import PeriodLike, _bucket_or_none, _check_window_period
+from .returns import _clean_returns
 
 __all__ = [
     "gpd_cvar",
@@ -43,12 +44,13 @@ def tail_ratio(
     """
     _check_window_period(window, period)
     bucket = _bucket_or_none(date, period)
+    clean_returns = _clean_returns(returns)
     if bucket is not None:
-        return returns.quantile(0.95).abs().over(bucket) / returns.quantile(0.05).abs().over(bucket)
+        return clean_returns.quantile(0.95).abs().over(bucket) / clean_returns.quantile(0.05).abs().over(bucket)
     if window is None:
-        return returns.quantile(0.95).abs() / returns.quantile(0.05).abs()
-    p95 = returns.rolling_quantile(quantile=0.95, window_size=window).abs()
-    p05 = returns.rolling_quantile(quantile=0.05, window_size=window).abs()
+        return clean_returns.quantile(0.95).abs() / clean_returns.quantile(0.05).abs()
+    p95 = clean_returns.rolling_quantile(quantile=0.95, window_size=window).abs()
+    p05 = clean_returns.rolling_quantile(quantile=0.05, window_size=window).abs()
     return p95 / p05
 
 
@@ -59,22 +61,23 @@ def ulcer_index(
     period: PeriodLike | None = None,
     date: pl.Expr | None = None,
 ) -> pl.Expr:
-    """RMS of the drawdown sequence.
+    """RMS of the drawdown sequence, expressed as a decimal.
 
     ``UI = sqrt(mean(dd_t^2))`` where ``dd_t`` is the percentage
     drawdown at time ``t``. ``window=None`` → scalar; ``window=N`` →
     rolling RMS over each trailing ``N``-bar window. ``period=...`` →
-    per-bucket RMS drawdown.
+    per-bucket RMS drawdown. The equity path starts from a ``1.0`` baseline;
+    multiply the result by 100 for percentage-point units.
     """
     _check_window_period(window, period)
     bucket = _bucket_or_none(date, period)
-    equity = (1.0 + returns).cum_prod()
+    equity = (1.0 + _clean_returns(returns).fill_null(0.0)).cum_prod()
     if bucket is not None:
         equity = equity.over(bucket)
-        peak = equity.cum_max().over(bucket)
+        peak = equity.cum_max().over(bucket).clip(lower_bound=1.0)
         dd = (equity / peak) - 1.0
         return dd.pow(2).mean().over(bucket).sqrt()
-    peak = equity.cum_max()
+    peak = equity.cum_max().clip(lower_bound=1.0)
     dd = (equity / peak) - 1.0
     if window is None:
         return dd.pow(2).mean().sqrt()
@@ -96,7 +99,7 @@ def omega_ratio(
     """
     _check_window_period(window, period)
     bucket = _bucket_or_none(date, period)
-    excess = returns - required_return
+    excess = (_clean_returns(returns) - required_return).fill_nan(None)
     gains = pl.when(excess > 0).then(excess).otherwise(0.0)
     losses = pl.when(excess < 0).then(-excess).otherwise(0.0)
     if bucket is not None:
@@ -151,6 +154,7 @@ def gpd_var(returns: pl.Series, var_p: float = 0.01, threshold_p: float = 0.10) 
         VaR magnitude as a positive float.
     """
     arr = returns.drop_nulls().to_numpy().astype(float)
+    arr = arr[np.isfinite(arr)]
     if arr.size < 20:
         return float("nan")
     losses = -arr
@@ -184,6 +188,7 @@ def gpd_cvar(returns: pl.Series, var_p: float = 0.01, threshold_p: float = 0.10)
         CVaR magnitude as a positive float.
     """
     arr = returns.drop_nulls().to_numpy().astype(float)
+    arr = arr[np.isfinite(arr)]
     if arr.size < 20:
         return float("nan")
     losses = -arr

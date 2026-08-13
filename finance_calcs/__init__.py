@@ -1,8 +1,9 @@
-"""finance-calcs — financial calculations as polars expressions.
+"""finance-calcs — financial calculations for Polars workflows.
 
-Every public function accepts and returns ``pl.Expr``. Functions are
-also exposed on a ``.fcalcs`` custom namespace bound to ``pl.Expr``
-and ``pl.Series``::
+Expression metrics accept and return ``pl.Expr`` and are also exposed on a
+``.fcalcs`` custom namespace bound to ``pl.Expr`` and ``pl.Series``. Native
+indicator kernels, fitted statistics, preprocessing, and post-trade summaries
+are explicitly eager APIs over sequences, ``pl.Series``, or ``pl.DataFrame``::
 
     import finance_calcs  # noqa: F401  — registers the namespace
     import polars as pl

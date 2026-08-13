@@ -9,9 +9,11 @@ Standard financial calculations
 
 ## Overview
 
-`finance-calcs` provides financial calculations as composable Polars
-expressions. It is designed for lazy execution, namespace-style ergonomics, and
-direct interoperability with the rest of the `finance-*` stack.
+`finance-calcs` provides composable Polars expression metrics plus a smaller
+set of explicitly eager statistical, preprocessing, post-trade, and native
+kernel helpers. It is designed for lazy execution where the algorithm permits
+it, namespace-style ergonomics, and direct interoperability with the rest of
+the `finance-*` stack.
 
 The public API follows a few rules:
 
@@ -21,6 +23,17 @@ The public API follows a few rules:
 - functions are also available through the `.fcalcs` namespace on both
   `pl.Expr` and `pl.Series`
 - examples use synthetic but realistic fixtures from `finance-datagen`
+
+Return, risk, and tail expression metrics accept periodic returns rather than
+prices. Convert prices first with `simple_returns` or `log_returns`. These
+metrics treat floating-point `NaN` and Polars null values as missing. Compound
+returns treat missing observations as neutral, while statistical aggregations
+exclude them.
+
+Materializing helpers are not available through `.fcalcs`: native ADX, SAR,
+and GARCH kernels accept numeric sequences and return NumPy arrays; GPD fits
+and several statistical helpers accept `pl.Series`; preprocessing and
+post-trade summaries accept concrete `pl.DataFrame` inputs.
 
 ## Implemented coverage
 

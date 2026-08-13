@@ -1,6 +1,7 @@
-"""Core return calculations as polars expressions.
+"""Core return calculations as Polars expressions.
 
-Every function accepts and returns ``pl.Expr``. Functions with a natural
+Every public function accepts and returns ``pl.Expr``. Floating-point NaN and
+Polars null values are both treated as missing observations. Functions with a natural
 rolling form take a ``window=None`` keyword: ``None`` means full-sample
 (a scalar), an integer means a trailing rolling window of that many
 observations. Calendar or custom slices use ``period=`` with either a
@@ -30,6 +31,20 @@ __all__ = [
 ]
 
 
+def _clean_returns(returns: pl.Expr) -> pl.Expr:
+    """Treat floating-point NaN values as missing observations."""
+    return returns.fill_nan(None)
+
+
+def _rolling_product(values: pl.Expr, window: int) -> pl.Expr:
+    """Compute a rolling product using native Polars expressions."""
+    zero_count = (values == 0.0).cast(pl.UInt32).rolling_sum(window)
+    negative_count = (values < 0.0).cast(pl.UInt32).rolling_sum(window)
+    log_sum = pl.when(values == 0.0).then(0.0).otherwise(values.abs().log()).rolling_sum(window)
+    sign = pl.when((negative_count % 2) == 0).then(1.0).otherwise(-1.0)
+    return pl.when(zero_count > 0).then(0.0).otherwise(log_sum.exp() * sign)
+
+
 def simple_returns(price: pl.Expr) -> pl.Expr:
     r"""Per-period simple return :math:`p_t / p_{t-1} - 1`."""
     return (price / price.shift(1)) - 1.0
@@ -53,17 +68,18 @@ def cum_returns(
     With ``window=None`` returns the cumulative path
     ``(1 + r).cumprod() - 1``. With ``window=N`` returns the compounded
     return over each trailing ``N``-bar window. With ``period=...``, the
-    cumulative path resets inside each period bucket.
+    cumulative path resets inside each period bucket. Missing observations are
+    neutral for compounding.
     """
     _check_window_period(window, period)
     bucket = _bucket_or_none(date, period)
-    one_plus = 1.0 + returns.fill_null(0.0)
+    one_plus = 1.0 + _clean_returns(returns).fill_null(0.0)
     if bucket is not None:
         growth = one_plus.cum_prod().over(bucket)
     elif window is None:
         growth = one_plus.cum_prod()
     else:
-        growth = one_plus.rolling_map(lambda s: s.product(), window_size=window)
+        growth = _rolling_product(one_plus, window)
     if starting_value == 0.0:
         return growth - 1.0
     return growth * starting_value
@@ -84,12 +100,12 @@ def cum_returns_final(
     """
     _check_window_period(window, period)
     bucket = _bucket_or_none(date, period)
-    one_plus = 1.0 + returns.fill_null(0.0)
+    one_plus = 1.0 + _clean_returns(returns).fill_null(0.0)
     if bucket is not None:
         return (one_plus.product() - 1.0).over(bucket)
     if window is None:
         return one_plus.product() - 1.0
-    return one_plus.rolling_map(lambda s: s.product() - 1.0, window_size=window)
+    return _rolling_product(one_plus, window) - 1.0
 
 
 def returns(
@@ -121,25 +137,29 @@ def annualized_return(
     period: PeriodLike | None = None,
     date: pl.Expr | None = None,
 ) -> pl.Expr:
-    """Annualised geometric return (CAGR).
+    """Annualised geometric return.
 
     ``window=None`` → scalar lifetime CAGR. ``window=N`` → rolling
     CAGR annualised by ``periods_per_year / window``. ``period=...`` →
-    CAGR for each period bucket.
+    CAGR for each period bucket. Annualisation uses the count of non-missing
+    observations, not elapsed calendar time; ``date`` is used only to build a
+    period bucket.
     """
     _check_window_period(window, period)
     bucket = _bucket_or_none(date, period)
-    one_plus = 1.0 + returns.fill_null(0.0)
+    clean_returns = _clean_returns(returns)
+    one_plus = 1.0 + clean_returns.fill_null(0.0)
     if bucket is not None:
-        observation_count = returns.is_not_null().sum().over(bucket)
+        observation_count = clean_returns.is_not_null().sum().over(bucket)
         total_growth = one_plus.product().over(bucket)
         return total_growth.pow(pl.lit(periods_per_year) / observation_count) - 1.0
     if window is None:
-        n = returns.is_not_null().sum()
+        n = clean_returns.is_not_null().sum()
         total_growth = one_plus.product()
         return total_growth.pow(pl.lit(periods_per_year) / n) - 1.0
-    growth = one_plus.rolling_map(lambda s: s.product(), window_size=window)
-    return growth.pow(periods_per_year / window) - 1.0
+    growth = _rolling_product(one_plus, window)
+    observation_count = clean_returns.is_not_null().cast(pl.UInt32).rolling_sum(window)
+    return growth.pow(periods_per_year / observation_count) - 1.0
 
 
 def annualized_volatility(
@@ -158,8 +178,9 @@ def annualized_volatility(
     """
     _check_window_period(window, period)
     bucket = _bucket_or_none(date, period)
+    clean_returns = _clean_returns(returns)
     if bucket is not None:
-        return returns.std().over(bucket) * (periods_per_year**0.5)
+        return clean_returns.std().over(bucket) * (periods_per_year**0.5)
     if window is None:
-        return returns.std() * (periods_per_year**0.5)
-    return returns.rolling_std(window) * (periods_per_year**0.5)
+        return clean_returns.std() * (periods_per_year**0.5)
+    return clean_returns.rolling_std(window) * (periods_per_year**0.5)
