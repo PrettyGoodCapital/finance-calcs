@@ -18,6 +18,7 @@ import math
 import polars as pl
 
 from ._periods import PeriodLike, _bucket_or_none, _check_window_period
+from .returns import _clean_returns
 
 __all__ = [
     "alpha",
@@ -27,6 +28,7 @@ __all__ = [
     "down_beta",
     "down_capture",
     "information_ratio",
+    "r_squared",
     "tracking_error",
     "up_alpha",
     "up_beta",
@@ -67,6 +69,31 @@ def beta(
         return pl.cov(returns, benchmark) / benchmark.var()
     cov = pl.rolling_cov(returns, benchmark, window_size=window)
     return cov / benchmark.rolling_var(window)
+
+
+def r_squared(
+    returns: pl.Expr,
+    benchmark: pl.Expr,
+    *,
+    window: int | None = None,
+    period: PeriodLike | None = None,
+    date: pl.Expr | None = None,
+) -> pl.Expr:
+    """Coefficient of determination against benchmark returns.
+
+    This is squared Pearson correlation. ``window=None`` returns a scalar,
+    ``window=N`` returns a rolling expression, and ``period=...`` computes
+    inside each bucket.
+    """
+    _check_window_period(window, period)
+    bucket = _bucket_or_none(date, period)
+    clean_returns = _clean_returns(returns)
+    clean_benchmark = _clean_returns(benchmark)
+    if bucket is not None:
+        return pl.corr(clean_returns, clean_benchmark).over(bucket).pow(2)
+    if window is None:
+        return pl.corr(clean_returns, clean_benchmark).pow(2)
+    return pl.rolling_corr(clean_returns, clean_benchmark, window_size=window).pow(2)
 
 
 def alpha(

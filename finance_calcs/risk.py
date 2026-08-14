@@ -26,10 +26,12 @@ __all__ = [
     "downside_deviation",
     "downside_risk",
     "drawdown_series",
+    "expected_shortfall",
     "max_drawdown",
     "parametric_var",
     "sharpe",
     "sortino",
+    "to_drawdown_series",
     "underwater_series",
     "value_at_risk",
     "volatility",
@@ -212,6 +214,27 @@ def underwater_series(
     return drawdown_series(returns, period=period, date=date)
 
 
+def to_drawdown_series(
+    returns: pl.Expr,
+    *,
+    period: PeriodLike | None = None,
+    date: pl.Expr | None = None,
+) -> pl.Expr:
+    """Compatibility alias for :func:`drawdown_series`."""
+    return drawdown_series(returns, period=period, date=date)
+
+
+def _rolling_max_drawdown(returns: pl.Expr, window: int) -> pl.Expr:
+    if window < 1:
+        raise ValueError("window must be positive")
+    clean_returns = _clean_returns(returns).fill_null(0.0)
+    windows = pl.concat_list([clean_returns.shift(offset) for offset in reversed(range(window))])
+    equity = (1.0 + pl.element()).cum_prod()
+    drawdown = equity / equity.cum_max().clip(lower_bound=1.0) - 1.0
+    result = windows.list.eval(drawdown).list.min()
+    return pl.when(pl.int_range(0, pl.len()) >= window - 1).then(result)
+
+
 def max_drawdown(
     returns: pl.Expr,
     *,
@@ -221,18 +244,17 @@ def max_drawdown(
 ) -> pl.Expr:
     """Maximum (most negative) drawdown.
 
-    ``window=None`` → lifetime; ``window=N`` → rolling minimum of the
-    drawdown series over each trailing ``N``-bar window. ``period=...``
-    → maximum drawdown inside each period bucket.
+    ``window=None`` → lifetime; ``window=N`` → maximum drawdown rebased
+    inside each trailing ``N``-bar window. ``period=...`` → maximum
+    drawdown inside each period bucket.
     """
     _check_window_period(window, period)
     bucket = _bucket_or_none(date, period)
-    dd = drawdown_series(returns, period=period, date=date)
     if bucket is not None:
-        return dd.min().over(bucket)
+        return drawdown_series(returns, period=period, date=date).min().over(bucket)
     if window is None:
-        return dd.min()
-    return dd.rolling_min(window)
+        return drawdown_series(returns).min()
+    return _rolling_max_drawdown(returns, window)
 
 
 def calmar(
@@ -303,6 +325,18 @@ def conditional_value_at_risk(
     var = clean_returns.rolling_quantile(quantile=cutoff, window_size=window)
     masked = pl.when(clean_returns <= var).then(clean_returns).otherwise(None)
     return masked.rolling_mean(window_size=window, min_samples=1)
+
+
+def expected_shortfall(
+    returns: pl.Expr,
+    cutoff: float = 0.05,
+    *,
+    window: int | None = None,
+    period: PeriodLike | None = None,
+    date: pl.Expr | None = None,
+) -> pl.Expr:
+    """Compatibility alias for :func:`conditional_value_at_risk`."""
+    return conditional_value_at_risk(returns, cutoff, window=window, period=period, date=date)
 
 
 def parametric_var(

@@ -22,6 +22,7 @@ __all__ = [
     "aggregate_returns",
     "annualized_return",
     "annualized_volatility",
+    "cagr",
     "cum_returns",
     "cum_returns_final",
     "log_returns",
@@ -160,6 +161,18 @@ def annualized_return(
     growth = _rolling_product(one_plus, window)
     observation_count = clean_returns.is_not_null().cast(pl.UInt32).rolling_sum(window)
     return growth.pow(periods_per_year / observation_count) - 1.0
+
+
+def cagr(
+    returns: pl.Expr,
+    periods_per_year: int = 252,
+    *,
+    window: int | None = None,
+    period: PeriodLike | None = None,
+    date: pl.Expr | None = None,
+) -> pl.Expr:
+    """Compatibility alias for :func:`annualized_return`."""
+    return annualized_return(returns, periods_per_year, window=window, period=period, date=date)
 
 
 def annualized_volatility(

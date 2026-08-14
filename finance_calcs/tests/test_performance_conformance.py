@@ -93,6 +93,34 @@ def test_drawdown_and_ulcer_index_include_initial_equity_baseline() -> None:
     assert out["ulcer"][0] == pytest.approx(expected_ulcer)
 
 
+def test_rolling_max_drawdown_rebases_each_window() -> None:
+    frame = pl.DataFrame({"r": [1.0, -0.5, 0.0, 0.0]})
+
+    out = frame.select(fc.max_drawdown(pl.col("r"), window=2).alias("max_drawdown"))
+
+    assert out["max_drawdown"].to_list() == pytest.approx([None, -0.5, -0.5, 0.0])
+
+
+def test_rolling_max_drawdown_uses_native_expression() -> None:
+    plan = pl.DataFrame({"r": [0.01, -0.02, 0.03]}).lazy().select(fc.max_drawdown(pl.col("r"), window=2)).explain()
+
+    assert "rolling_map" not in plan
+    assert "python_udf" not in plan
+
+
+def test_rolling_max_drawdown_handles_missing_returns_and_total_loss() -> None:
+    frame = pl.DataFrame({"r": [0.10, None, -1.0, 0.25, 0.10]})
+
+    out = frame.select(fc.max_drawdown(pl.col("r"), window=2).alias("max_drawdown"))
+
+    assert out["max_drawdown"].to_list() == pytest.approx([None, 0.0, -1.0, -1.0, 0.0])
+
+
+def test_rolling_max_drawdown_rejects_nonpositive_window() -> None:
+    with pytest.raises(ValueError, match="window must be positive"):
+        fc.max_drawdown(pl.col("r"), window=0)
+
+
 def test_expression_metrics_compose_in_lazy_queries(missing_returns: pl.DataFrame) -> None:
     out = (
         missing_returns.lazy()

@@ -206,5 +206,6 @@ root = "README.md"
 pages = [
     "docs/src/EXAMPLES.md",
     "docs/src/API.md",
+    "docs/src/COMPATIBILITY.md",
 ]
 use-autoapi = false

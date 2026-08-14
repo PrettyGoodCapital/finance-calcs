@@ -89,6 +89,7 @@ period returns. They are the base layer for most risk and factor metrics.
 | `returns(returns, *, window=None, period=None, date=None)`                                     | Alias-style aggregate return              | Same aggregation as `cum_returns_final`                                          |
 | `aggregate_returns(returns, date, period)`                                                     | Calendar/custom period compound return    | Convenience wrapper around `returns(..., period=..., date=...)`                  |
 | `annualized_return(returns, periods_per_year=252, *, window=None, period=None, date=None)`     | Annualized geometric return               | Uses compound return and non-missing observation count, not elapsed dates        |
+| `cagr(...)`                                                                                    | QuantStats-compatible CAGR name           | Alias for `annualized_return`                                                    |
 | `annualized_volatility(returns, periods_per_year=252, *, window=None, period=None, date=None)` | Annualized standard deviation             | `std * sqrt(periods_per_year)`                                                   |
 
 ```{eval-rst}
@@ -102,6 +103,7 @@ period returns. They are the base layer for most risk and factor metrics.
 .. autofunction:: returns
 .. autofunction:: aggregate_returns
 .. autofunction:: annualized_return
+.. autofunction:: cagr
 .. autofunction:: annualized_volatility
 ```
 
@@ -113,20 +115,22 @@ Risk metrics operate on return expressions. Scalar `risk_free` inputs are annual
 rates and are converted to per-period rates where appropriate; expression
 `risk_free` inputs are treated as already per-period.
 
-| Function                                                                                                         | Use it for                            | Notes                                                                |
-| ---------------------------------------------------------------------------------------------------------------- | ------------------------------------- | -------------------------------------------------------------------- |
-| `volatility(returns, periods_per_year=252, *, window=None, period=None, date=None)`                              | Annualized volatility                 | Alias for `annualized_volatility`                                    |
-| `sharpe(returns, risk_free=0.0, periods_per_year=252, *, window=None, period=None, date=None)`                   | Annualized Sharpe ratio               | Supports scalar annual risk-free rates or per-period expressions     |
-| `sortino(returns, required_return=0.0, periods_per_year=252, *, window=None, period=None, date=None)`            | Annualized Sortino ratio              | Uses downside deviation below `required_return`                      |
-| `calmar(returns, periods_per_year=252, *, window=None, period=None, date=None)`                                  | Annualized return / abs(max drawdown) | Uses the same sample/window/period controls                          |
-| `downside_deviation(returns, required_return=0.0, periods_per_year=252, *, window=None, period=None, date=None)` | Annualized semi-deviation             | Squares only observations below the threshold                        |
-| `downside_risk(...)`                                                                                             | Naming alias for downside deviation   | Same arguments and result as `downside_deviation`                    |
-| `drawdown_series(returns, *, period=None, date=None)`                                                            | Running drawdown path                 | Equity curve divided by running peak, including initial 1.0 baseline |
-| `underwater_series(returns, *, period=None, date=None)`                                                          | Drawdown path alias                   | Same result as `drawdown_series`                                     |
-| `max_drawdown(returns, *, window=None, period=None, date=None)`                                                  | Most negative drawdown                | Supports lifetime, rolling, or period-bucketed drawdown              |
-| `value_at_risk(returns, cutoff=0.05, *, window=None, period=None, date=None)`                                    | Historical VaR quantile               | Returns the lower-tail return quantile                               |
-| `conditional_value_at_risk(returns, cutoff=0.05, *, window=None, period=None, date=None)`                        | Expected shortfall                    | Mean return of observations at or below VaR                          |
-| `parametric_var(returns, cutoff=0.05, *, period=None, date=None)`                                                | Gaussian VaR                          | Supports common cutoffs from the built-in z-score table              |
+| Function                                                                                                         | Use it for                                    | Notes                                                                |
+| ---------------------------------------------------------------------------------------------------------------- | --------------------------------------------- | -------------------------------------------------------------------- |
+| `volatility(returns, periods_per_year=252, *, window=None, period=None, date=None)`                              | Annualized volatility                         | Alias for `annualized_volatility`                                    |
+| `sharpe(returns, risk_free=0.0, periods_per_year=252, *, window=None, period=None, date=None)`                   | Annualized Sharpe ratio                       | Supports scalar annual risk-free rates or per-period expressions     |
+| `sortino(returns, required_return=0.0, periods_per_year=252, *, window=None, period=None, date=None)`            | Annualized Sortino ratio                      | Uses downside deviation below `required_return`                      |
+| `calmar(returns, periods_per_year=252, *, window=None, period=None, date=None)`                                  | Annualized return / abs(max drawdown)         | Uses the same sample/window/period controls                          |
+| `downside_deviation(returns, required_return=0.0, periods_per_year=252, *, window=None, period=None, date=None)` | Annualized semi-deviation                     | Squares only observations below the threshold                        |
+| `downside_risk(...)`                                                                                             | Naming alias for downside deviation           | Same arguments and result as `downside_deviation`                    |
+| `drawdown_series(returns, *, period=None, date=None)`                                                            | Running drawdown path                         | Equity curve divided by running peak, including initial 1.0 baseline |
+| `to_drawdown_series(...)`                                                                                        | QuantStats-compatible drawdown name           | Alias for `drawdown_series`                                          |
+| `underwater_series(returns, *, period=None, date=None)`                                                          | Drawdown path alias                           | Same result as `drawdown_series`                                     |
+| `max_drawdown(returns, *, window=None, period=None, date=None)`                                                  | Most negative drawdown                        | Rolling windows rebase their equity and peak inside each window      |
+| `value_at_risk(returns, cutoff=0.05, *, window=None, period=None, date=None)`                                    | Historical VaR quantile                       | Returns the lower-tail return quantile                               |
+| `conditional_value_at_risk(returns, cutoff=0.05, *, window=None, period=None, date=None)`                        | Expected shortfall                            | Mean return of observations at or below VaR                          |
+| `expected_shortfall(...)`                                                                                        | QuantStats-compatible expected shortfall name | Alias for `conditional_value_at_risk`                                |
+| `parametric_var(returns, cutoff=0.05, *, period=None, date=None)`                                                | Gaussian VaR                                  | Supports common cutoffs from the built-in z-score table              |
 
 ```{eval-rst}
 .. currentmodule:: finance_calcs
@@ -138,11 +142,49 @@ rates and are converted to per-period rates where appropriate; expression
 .. autofunction:: downside_deviation
 .. autofunction:: downside_risk
 .. autofunction:: drawdown_series
+.. autofunction:: to_drawdown_series
 .. autofunction:: underwater_series
 .. autofunction:: max_drawdown
 .. autofunction:: value_at_risk
 .. autofunction:: conditional_value_at_risk
+.. autofunction:: expected_shortfall
 .. autofunction:: parametric_var
+```
+
+______________________________________________________________________
+
+## Report Metrics
+
+These metrics provide the calculation layer for static, terminal, and notebook
+reports. Expression metrics remain lazy-query compatible. `drawdown_details`
+is eager because it returns one row per variable-length drawdown episode.
+
+| Function                                           | Use it for                              | Notes                                                     |
+| -------------------------------------------------- | --------------------------------------- | --------------------------------------------------------- |
+| `best_return(returns, *, period=None, date=None)`  | Highest raw or compounded period return | `best` is the QuantStats-compatible alias                 |
+| `worst_return(returns, *, period=None, date=None)` | Lowest raw or compounded period return  | `worst` is the QuantStats-compatible alias                |
+| `average_win(returns)`                             | Mean positive return                    | `avg_win` is the QuantStats-compatible alias              |
+| `average_loss(returns)`                            | Mean negative return                    | `avg_loss` is the QuantStats-compatible alias             |
+| `gain_to_pain_ratio(returns)`                      | Net return per unit of summed loss      | Uses arithmetic return sums                               |
+| `recovery_factor(returns)`                         | Net return relative to maximum drawdown | Uses absolute arithmetic net return and drawdown          |
+| `kelly_criterion(returns)`                         | Estimated Kelly allocation fraction     | Zero returns are excluded from active-period win rate     |
+| `drawdown_details(returns, *, date=None)`          | Materialized drawdown episodes          | Returns start, valley, end, duration, depth, and recovery |
+
+```{eval-rst}
+.. currentmodule:: finance_calcs
+
+.. autofunction:: best_return
+.. autofunction:: best
+.. autofunction:: worst_return
+.. autofunction:: worst
+.. autofunction:: average_win
+.. autofunction:: avg_win
+.. autofunction:: average_loss
+.. autofunction:: avg_loss
+.. autofunction:: gain_to_pain_ratio
+.. autofunction:: recovery_factor
+.. autofunction:: kelly_criterion
+.. autofunction:: drawdown_details
 ```
 
 ______________________________________________________________________
@@ -376,6 +418,7 @@ signature includes `window`, `period`, and `date`.
 | -------------------------------------------------------------------------------------------------------- | ---------------------------------------- | -------------------------------------------------------------------------------- |
 | `alpha(returns, benchmark, risk_free=0.0, periods_per_year=252, *, window=None, period=None, date=None)` | Annualized Jensen alpha                  | Return unexplained by benchmark beta                                             |
 | `beta(returns, benchmark, *, window=None, period=None, date=None)`                                       | Market beta                              | `cov(returns, benchmark) / var(benchmark)`                                       |
+| `r_squared(returns, benchmark, *, window=None, period=None, date=None)`                                  | Benchmark coefficient of determination   | Squared Pearson correlation                                                      |
 | `up_alpha(...)`                                                                                          | Alpha in up markets                      | Restricts observations to `benchmark > 0`                                        |
 | `down_alpha(...)`                                                                                        | Alpha in down markets                    | Restricts observations to `benchmark < 0`                                        |
 | `up_beta(...)`                                                                                           | Beta in up markets                       | Restricts observations to `benchmark > 0`                                        |
@@ -392,6 +435,7 @@ signature includes `window`, `period`, and `date`.
 
 .. autofunction:: alpha
 .. autofunction:: beta
+.. autofunction:: r_squared
 .. autofunction:: up_alpha
 .. autofunction:: down_alpha
 .. autofunction:: up_beta

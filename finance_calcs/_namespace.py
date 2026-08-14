@@ -18,6 +18,7 @@ _factor = importlib.import_module(".factor", __package__)
 _microstructure = importlib.import_module(".microstructure", __package__)
 _momentum = importlib.import_module(".momentum", __package__)
 _overlap = importlib.import_module(".overlap", __package__)
+_performance = importlib.import_module(".performance", __package__)
 _portfolio = importlib.import_module(".portfolio", __package__)
 _post_trade = importlib.import_module(".post_trade", __package__)
 _quantile = importlib.import_module(".quantile", __package__)
@@ -71,6 +72,7 @@ _MODULES = [
     _regime,
     _portfolio,
     _post_trade,
+    _performance,
 ]
 
 ExprFinanceCalcs = _bind(pl.api.register_expr_namespace, _MODULES)
