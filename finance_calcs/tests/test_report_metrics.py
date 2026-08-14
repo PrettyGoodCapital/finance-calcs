@@ -1,4 +1,4 @@
-"""Report-oriented metric and compatibility tests."""
+"""Report-oriented metric tests."""
 
 from __future__ import annotations
 
@@ -21,8 +21,8 @@ def test_report_return_metrics_match_reference_definitions() -> None:
         fc.gain_to_pain_ratio(pl.col("r")).alias("gain_to_pain"),
         fc.recovery_factor(pl.col("r")).alias("recovery"),
         fc.kelly_criterion(pl.col("r")).alias("kelly"),
-        fc.cagr(pl.col("r")).alias("cagr"),
-        fc.expected_shortfall(pl.col("r"), cutoff=0.25).alias("expected_shortfall"),
+        fc.annualized_return(pl.col("r")).alias("annualized_return"),
+        fc.expected_shortfall(pl.col("r"), tail_probability=0.25).alias("expected_shortfall"),
     ).row(0, named=True)
 
     assert out == pytest.approx(
@@ -34,7 +34,7 @@ def test_report_return_metrics_match_reference_definitions() -> None:
             "gain_to_pain": 2.0 / 3.0,
             "recovery": 1.0,
             "kelly": 0.2,
-            "cagr": 1.619707506713151,
+            "annualized_return": 1.619707506713151,
             "expected_shortfall": -0.015,
         }
     )
@@ -56,21 +56,15 @@ def test_best_and_worst_return_support_period_buckets() -> None:
     assert out == pytest.approx({"best": 1.10 * 0.95 - 1.0, "worst": 0.80 * 1.10 - 1.0})
 
 
-def test_compatibility_aliases_preserve_finance_calcs_semantics() -> None:
+def test_expected_shortfall_matches_conditional_value_at_risk() -> None:
     frame = pl.DataFrame({"r": [0.01, -0.02, 0.03, -0.01]})
 
     out = frame.select(
-        fc.cagr(pl.col("r")).alias("cagr"),
-        fc.annualized_return(pl.col("r")).alias("annualized_return"),
-        fc.expected_shortfall(pl.col("r"), cutoff=0.25).alias("expected_shortfall"),
-        fc.conditional_value_at_risk(pl.col("r"), cutoff=0.25).alias("cvar"),
-        fc.to_drawdown_series(pl.col("r")).alias("to_drawdown"),
-        fc.drawdown_series(pl.col("r")).alias("drawdown"),
+        fc.expected_shortfall(pl.col("r"), tail_probability=0.25).alias("expected_shortfall"),
+        fc.conditional_value_at_risk(pl.col("r"), tail_probability=0.25).alias("conditional_value_at_risk"),
     )
 
-    assert out["cagr"][0] == pytest.approx(out["annualized_return"][0])
-    assert out["expected_shortfall"][0] == pytest.approx(out["cvar"][0])
-    assert out["to_drawdown"].to_list() == pytest.approx(out["drawdown"].to_list())
+    assert out["expected_shortfall"][0] == pytest.approx(out["conditional_value_at_risk"][0])
 
 
 def test_r_squared_is_correlation_squared_against_benchmark() -> None:
@@ -98,8 +92,8 @@ def test_report_metrics_are_available_through_namespace() -> None:
     frame = pl.DataFrame({"r": [0.01, -0.02, 0.03]})
 
     out = frame.select(
-        pl.col("r").fcalcs.best().alias("best"),
-        pl.col("r").fcalcs.avg_loss().alias("average_loss"),
+        pl.col("r").fcalcs.best_return().alias("best"),
+        pl.col("r").fcalcs.average_loss().alias("average_loss"),
         pl.col("r").fcalcs.kelly_criterion().alias("kelly"),
     ).row(0, named=True)
 

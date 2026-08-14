@@ -13,10 +13,9 @@ import polars as pl
 from ._periods import PeriodLike, _bucket_or_none
 
 __all__ = [
-    "avg_trade_pnl",
+    "average_trade_pnl",
     "consecutive_wins_losses",
     "cost_attribution",
-    "cost_per_trade",
     "exit_reason_stats",
     "extract_round_trips",
     "implementation_shortfall",
@@ -45,11 +44,10 @@ __finance_namespace__ = [
     "implementation_shortfall",
     "vwap_slippage",
     "turnover",
-    "cost_per_trade",
     "win_rate",
     "profit_factor",
     "payoff_ratio",
-    "avg_trade_pnl",
+    "average_trade_pnl",
     "trade_size_return_correlation",
 ]
 
@@ -147,18 +145,6 @@ def turnover(weights: pl.Expr, *, window: int | None = None) -> pl.Expr:
     if window is None:
         return contribution
     return contribution.rolling_sum(window)
-
-
-def cost_per_trade(
-    quantity: pl.Expr,
-    price: pl.Expr,
-    *,
-    commission: float | pl.Expr = 0.0,
-    fees: float | pl.Expr = 0.0,
-    bps: float | pl.Expr = 0.0,
-) -> pl.Expr:
-    """Alias for per-trade transaction cost."""
-    return transaction_cost(quantity, price, commission=commission, fees=fees, bps=bps)
 
 
 def _optional_col(frame: pl.DataFrame, name: str, default: float = 0.0) -> pl.Expr:
@@ -295,12 +281,12 @@ def profit_factor(pnl: pl.Expr) -> pl.Expr:
 
 def payoff_ratio(pnl: pl.Expr) -> pl.Expr:
     """Average winning trade divided by absolute average losing trade."""
-    avg_win = pnl.filter(pnl > 0).mean()
-    avg_loss = -pnl.filter(pnl < 0).mean()
-    return avg_win / avg_loss
+    average_win = pnl.filter(pnl > 0).mean()
+    average_loss = -pnl.filter(pnl < 0).mean()
+    return average_win / average_loss
 
 
-def avg_trade_pnl(pnl: pl.Expr) -> pl.Expr:
+def average_trade_pnl(pnl: pl.Expr) -> pl.Expr:
     """Mean trade PnL."""
     return pnl.mean()
 
@@ -309,33 +295,33 @@ def round_trip_stats(round_trips: pl.DataFrame, *, pnl_col: str = "pnl") -> dict
     """Summary statistics for extracted round trips."""
     if round_trips.is_empty():
         return {
-            "n_trades": 0,
+            "trade_count": 0,
             "win_rate": float("nan"),
-            "avg_pnl": float("nan"),
+            "average_pnl": float("nan"),
             "total_pnl": 0.0,
             "profit_factor": float("nan"),
             "payoff_ratio": float("nan"),
         }
     out = round_trips.select(
-        pl.len().alias("n_trades"),
+        pl.len().alias("trade_count"),
         win_rate(pl.col(pnl_col)).alias("win_rate"),
-        avg_trade_pnl(pl.col(pnl_col)).alias("avg_pnl"),
+        average_trade_pnl(pl.col(pnl_col)).alias("average_pnl"),
         pl.col(pnl_col).sum().alias("total_pnl"),
         profit_factor(pl.col(pnl_col)).alias("profit_factor"),
         payoff_ratio(pl.col(pnl_col)).alias("payoff_ratio"),
     ).row(0, named=True)
-    return {key: int(value) if key == "n_trades" else float(value) for key, value in out.items()}
+    return {key: int(value) if key == "trade_count" else float(value) for key, value in out.items()}
 
 
 def long_short_round_trip_stats(round_trips: pl.DataFrame, *, side_col: str = "side", pnl_col: str = "pnl") -> pl.DataFrame:
     """Round-trip statistics split by long and short trades."""
     if round_trips.is_empty():
-        return pl.DataFrame({side_col: [], "n_trades": [], "total_pnl": [], "win_rate": [], "avg_pnl": []})
+        return pl.DataFrame({side_col: [], "trade_count": [], "total_pnl": [], "win_rate": [], "average_pnl": []})
     return round_trips.group_by(side_col).agg(
-        pl.len().alias("n_trades"),
+        pl.len().alias("trade_count"),
         pl.col(pnl_col).sum().alias("total_pnl"),
         win_rate(pl.col(pnl_col)).alias("win_rate"),
-        avg_trade_pnl(pl.col(pnl_col)).alias("avg_pnl"),
+        average_trade_pnl(pl.col(pnl_col)).alias("average_pnl"),
     )
 
 
@@ -348,14 +334,14 @@ def sector_round_trip_stats(
 ) -> pl.DataFrame:
     """Round-trip statistics by sector."""
     if round_trips.is_empty():
-        return pl.DataFrame({"sector": [], "n_trades": [], "total_pnl": [], "win_rate": [], "avg_pnl": []})
+        return pl.DataFrame({"sector": [], "trade_count": [], "total_pnl": [], "win_rate": [], "average_pnl": []})
     sectors = [sector_map.get(symbol, "Unknown") for symbol in round_trips[symbol_col].to_list()]
     frame = round_trips.with_columns(pl.Series("sector", sectors))
     return frame.group_by("sector").agg(
-        pl.len().alias("n_trades"),
+        pl.len().alias("trade_count"),
         pl.col(pnl_col).sum().alias("total_pnl"),
         win_rate(pl.col(pnl_col)).alias("win_rate"),
-        avg_trade_pnl(pl.col(pnl_col)).alias("avg_pnl"),
+        average_trade_pnl(pl.col(pnl_col)).alias("average_pnl"),
     )
 
 
@@ -430,7 +416,7 @@ def exit_reason_stats(
     """PnL and counts grouped by exit reason."""
     aggregations = [pl.len().alias("count")]
     if pnl_col in trades.columns:
-        aggregations.extend([pl.col(pnl_col).sum().alias("total_pnl"), pl.col(pnl_col).mean().alias("avg_pnl")])
+        aggregations.extend([pl.col(pnl_col).sum().alias("total_pnl"), pl.col(pnl_col).mean().alias("average_pnl")])
     return trades.group_by(reason_col).agg(*aggregations).sort(reason_col)
 
 

@@ -16,25 +16,23 @@ siblings; one function per metric.
 from __future__ import annotations
 
 import polars as pl
+from finance_enums import Frequency
 
-from ._periods import PeriodLike, _bucket_or_none, _check_window_period
-from .returns import _clean_returns, annualized_return, annualized_volatility
+from ._periods import FrequencyLike, PeriodLike, _annual_rate_to_observation_rate, _bucket_or_none, _check_window_period, _observations_per_year
+from ._validation import _validate_probability
+from .returns import _clean_returns, annualized_return
 
 __all__ = [
     "calmar",
     "conditional_value_at_risk",
     "downside_deviation",
-    "downside_risk",
     "drawdown_series",
     "expected_shortfall",
     "max_drawdown",
-    "parametric_var",
     "sharpe",
     "sortino",
-    "to_drawdown_series",
-    "underwater_series",
     "value_at_risk",
-    "volatility",
+    "value_at_risk_parametric",
 ]
 
 
@@ -44,32 +42,6 @@ _Z_TABLE = {
     0.05: -1.6448536269514722,
     0.1: -1.2815515655446004,
 }
-
-
-def volatility(
-    returns: pl.Expr,
-    periods_per_year: int = 252,
-    *,
-    window: int | None = None,
-    period: PeriodLike | None = None,
-    date: pl.Expr | None = None,
-) -> pl.Expr:
-    """Annualised volatility alias for :func:`annualized_volatility`."""
-    return annualized_volatility(returns, periods_per_year, window=window, period=period, date=date)
-
-
-def _rf_per_period(risk_free: float | pl.Expr, periods_per_year: int) -> float | pl.Expr:
-    """Convert an annual scalar ``risk_free`` to a per-period rate.
-
-    If ``risk_free`` is a :class:`pl.Expr` it is assumed to already be a
-    per-period rate column (sampled at the same frequency as returns)
-    and is returned unchanged.
-    """
-    if isinstance(risk_free, pl.Expr):
-        return risk_free
-    if risk_free == 0.0:
-        return 0.0
-    return (1.0 + risk_free) ** (1.0 / periods_per_year) - 1.0
 
 
 def _safe_scalar_ratio(numerator: float, denominator: float) -> float:
@@ -82,27 +54,29 @@ def _safe_scalar_ratio(numerator: float, denominator: float) -> float:
 
 def sharpe(
     returns: pl.Expr,
-    risk_free: float | pl.Expr = 0.0,
-    periods_per_year: int = 252,
     *,
+    risk_free: float | pl.Expr = 0.0,
+    frequency: FrequencyLike = Frequency.Day,
     window: int | None = None,
     period: PeriodLike | None = None,
     date: pl.Expr | None = None,
 ) -> pl.Expr:
     r"""Annualised Sharpe ratio.
 
-    :math:`\sqrt{\mathrm{ppy}}\,\mathrm{mean}(r - r_f) / \mathrm{std}(r - r_f)`.
+    Mean excess return divided by its standard deviation, scaled by the
+    square root of observations per year implied by ``frequency``.
 
     ``risk_free`` may be a scalar annual rate (converted to per-period
     geometrically) or a :class:`pl.Expr` per-period rate column for a
     time-varying risk-free rate. ``window=None`` → scalar lifetime
     Sharpe; ``window=N`` → rolling; ``period=...`` → per-bucket.
     """
+    observations_per_year = _observations_per_year(frequency)
     _check_window_period(window, period)
     bucket = _bucket_or_none(date, period)
-    excess = _clean_returns(returns) - _rf_per_period(risk_free, periods_per_year)
+    excess = _clean_returns(returns) - _annual_rate_to_observation_rate(risk_free, observations_per_year)
     excess = excess.fill_nan(None)
-    scale = periods_per_year**0.5
+    scale = observations_per_year**0.5
     if bucket is not None:
         return excess.mean().over(bucket) / excess.std().over(bucket) * scale
     if window is None:
@@ -116,26 +90,29 @@ def sharpe(
 
 def downside_deviation(
     returns: pl.Expr,
-    required_return: float | pl.Expr = 0.0,
-    periods_per_year: int = 252,
     *,
+    required_return: float | pl.Expr = 0.0,
+    frequency: FrequencyLike = Frequency.Day,
     window: int | None = None,
     period: PeriodLike | None = None,
     date: pl.Expr | None = None,
 ) -> pl.Expr:
     """Annualised semi-deviation below ``required_return``.
 
-    ``required_return`` may be a scalar per-period threshold or a
-    :class:`pl.Expr` per-period column for a time-varying threshold.
+    ``required_return`` may be a scalar annual threshold (converted to
+    per-observation geometrically) or a :class:`pl.Expr` per-observation
+    column for a time-varying threshold.
     ``window=None`` → scalar; ``window=N`` → rolling;
     ``period=...`` → per-bucket.
     """
+    observations_per_year = _observations_per_year(frequency)
     _check_window_period(window, period)
     bucket = _bucket_or_none(date, period)
     clean_returns = _clean_returns(returns)
-    diff = (clean_returns - required_return).fill_nan(None)
+    threshold = _annual_rate_to_observation_rate(required_return, observations_per_year)
+    diff = (clean_returns - threshold).fill_nan(None)
     neg_sq = pl.when(diff.is_null()).then(None).when(diff < 0).then(diff.pow(2)).otherwise(0.0)
-    scale = periods_per_year**0.5
+    scale = observations_per_year**0.5
     if bucket is not None:
         observation_count = clean_returns.is_not_null().sum().over(bucket)
         return (neg_sq.sum().over(bucket) / observation_count).sqrt() * scale
@@ -145,44 +122,33 @@ def downside_deviation(
     return neg_sq.rolling_mean(window).sqrt() * scale
 
 
-def downside_risk(
-    returns: pl.Expr,
-    required_return: float | pl.Expr = 0.0,
-    periods_per_year: int = 252,
-    *,
-    window: int | None = None,
-    period: PeriodLike | None = None,
-    date: pl.Expr | None = None,
-) -> pl.Expr:
-    """Annualised downside-risk alias for :func:`downside_deviation`."""
-    return downside_deviation(returns, required_return, periods_per_year, window=window, period=period, date=date)
-
-
 def sortino(
     returns: pl.Expr,
-    required_return: float | pl.Expr = 0.0,
-    periods_per_year: int = 252,
     *,
+    required_return: float | pl.Expr = 0.0,
+    frequency: FrequencyLike = Frequency.Day,
     window: int | None = None,
     period: PeriodLike | None = None,
     date: pl.Expr | None = None,
 ) -> pl.Expr:
     """Annualised Sortino ratio.
 
-    ``required_return`` may be a scalar per-period threshold or a
-    :class:`pl.Expr` per-period column. ``window=None`` → scalar;
+    ``required_return`` may be a scalar annual threshold or a
+    :class:`pl.Expr` per-observation column. ``window=None`` → scalar;
     ``window=N`` → rolling; ``period=...`` → per-bucket.
     """
+    observations_per_year = _observations_per_year(frequency)
     _check_window_period(window, period)
     bucket = _bucket_or_none(date, period)
     clean_returns = _clean_returns(returns)
-    excess = (clean_returns - required_return).fill_nan(None)
-    dd = downside_deviation(clean_returns, required_return, periods_per_year, window=window, period=period, date=date)
+    threshold = _annual_rate_to_observation_rate(required_return, observations_per_year)
+    excess = (clean_returns - threshold).fill_nan(None)
+    dd = downside_deviation(clean_returns, required_return=required_return, frequency=frequency, window=window, period=period, date=date)
     if bucket is not None:
-        return excess.mean().over(bucket) * periods_per_year / dd
+        return excess.mean().over(bucket) * observations_per_year / dd
     if window is None:
-        return excess.mean() * periods_per_year / dd
-    return excess.rolling_mean(window) * periods_per_year / dd
+        return excess.mean() * observations_per_year / dd
+    return excess.rolling_mean(window) * observations_per_year / dd
 
 
 def drawdown_series(
@@ -202,26 +168,6 @@ def drawdown_series(
         peak = equity.cum_max().over(bucket).clip(lower_bound=1.0)
         return equity / peak - 1.0
     return equity / equity.cum_max().clip(lower_bound=1.0) - 1.0
-
-
-def underwater_series(
-    returns: pl.Expr,
-    *,
-    period: PeriodLike | None = None,
-    date: pl.Expr | None = None,
-) -> pl.Expr:
-    """Alias of :func:`drawdown_series`."""
-    return drawdown_series(returns, period=period, date=date)
-
-
-def to_drawdown_series(
-    returns: pl.Expr,
-    *,
-    period: PeriodLike | None = None,
-    date: pl.Expr | None = None,
-) -> pl.Expr:
-    """Compatibility alias for :func:`drawdown_series`."""
-    return drawdown_series(returns, period=period, date=date)
 
 
 def _rolling_max_drawdown(returns: pl.Expr, window: int) -> pl.Expr:
@@ -259,8 +205,8 @@ def max_drawdown(
 
 def calmar(
     returns: pl.Expr,
-    periods_per_year: int = 252,
     *,
+    frequency: FrequencyLike = Frequency.Day,
     window: int | None = None,
     period: PeriodLike | None = None,
     date: pl.Expr | None = None,
@@ -270,15 +216,15 @@ def calmar(
     ``window=None`` → scalar; ``window=N`` → rolling;
     ``period=...`` → per-bucket.
     """
-    ar = annualized_return(returns, periods_per_year, window=window, period=period, date=date)
+    ar = annualized_return(returns, frequency=frequency, window=window, period=period, date=date)
     mdd = max_drawdown(returns, window=window, period=period, date=date)
     return ar / mdd.abs()
 
 
 def value_at_risk(
     returns: pl.Expr,
-    cutoff: float = 0.05,
     *,
+    tail_probability: float = 0.05,
     window: int | None = None,
     period: PeriodLike | None = None,
     date: pl.Expr | None = None,
@@ -288,20 +234,21 @@ def value_at_risk(
     ``window=None`` → scalar lower-tail quantile; ``window=N`` →
     rolling historical VaR. ``period=...`` → per-bucket VaR.
     """
+    _validate_probability(tail_probability, name="tail_probability")
     _check_window_period(window, period)
     bucket = _bucket_or_none(date, period)
     clean_returns = _clean_returns(returns)
     if bucket is not None:
-        return clean_returns.quantile(cutoff).over(bucket)
+        return clean_returns.quantile(tail_probability).over(bucket)
     if window is None:
-        return clean_returns.quantile(cutoff)
-    return clean_returns.rolling_quantile(quantile=cutoff, window_size=window)
+        return clean_returns.quantile(tail_probability)
+    return clean_returns.rolling_quantile(quantile=tail_probability, window_size=window)
 
 
 def conditional_value_at_risk(
     returns: pl.Expr,
-    cutoff: float = 0.05,
     *,
+    tail_probability: float = 0.05,
     window: int | None = None,
     period: PeriodLike | None = None,
     date: pl.Expr | None = None,
@@ -311,50 +258,56 @@ def conditional_value_at_risk(
     ``window=None`` → scalar; ``window=N`` → rolling mean of returns at
     or below the rolling VaR. ``period=...`` → per-bucket CVaR.
     """
+    _validate_probability(tail_probability, name="tail_probability")
     _check_window_period(window, period)
     bucket = _bucket_or_none(date, period)
     clean_returns = _clean_returns(returns)
     if bucket is not None:
-        threshold = clean_returns.quantile(cutoff).over(bucket)
+        threshold = clean_returns.quantile(tail_probability).over(bucket)
         tail = pl.when(clean_returns <= threshold).then(clean_returns).otherwise(None)
         return tail.mean().over(bucket)
     if window is None:
-        threshold = clean_returns.quantile(cutoff)
+        threshold = clean_returns.quantile(tail_probability)
         tail = pl.when(clean_returns <= threshold).then(clean_returns).otherwise(None)
         return tail.mean()
-    var = clean_returns.rolling_quantile(quantile=cutoff, window_size=window)
+    var = clean_returns.rolling_quantile(quantile=tail_probability, window_size=window)
     masked = pl.when(clean_returns <= var).then(clean_returns).otherwise(None)
     return masked.rolling_mean(window_size=window, min_samples=1)
 
 
 def expected_shortfall(
     returns: pl.Expr,
-    cutoff: float = 0.05,
     *,
+    tail_probability: float = 0.05,
     window: int | None = None,
     period: PeriodLike | None = None,
     date: pl.Expr | None = None,
 ) -> pl.Expr:
-    """Compatibility alias for :func:`conditional_value_at_risk`."""
-    return conditional_value_at_risk(returns, cutoff, window=window, period=period, date=date)
+    """Historical expected shortfall, also known as conditional VaR."""
+    return conditional_value_at_risk(returns, tail_probability=tail_probability, window=window, period=period, date=date)
 
 
-def parametric_var(
+def value_at_risk_parametric(
     returns: pl.Expr,
-    cutoff: float = 0.05,
     *,
+    tail_probability: float = 0.05,
+    window: int | None = None,
     period: PeriodLike | None = None,
     date: pl.Expr | None = None,
 ) -> pl.Expr:
     r"""Gaussian (parametric) VaR :math:`\mu + \sigma \Phi^{-1}(p)`.
 
-    ``cutoff`` must be one of ``{0.01, 0.025, 0.05, 0.1}``.
+    ``tail_probability`` must be one of ``{0.01, 0.025, 0.05, 0.1}``.
     """
-    if cutoff not in _Z_TABLE:
-        raise ValueError(f"parametric_var: cutoff={cutoff} not in {sorted(_Z_TABLE)}")
-    z = _Z_TABLE[cutoff]
+    _validate_probability(tail_probability, name="tail_probability")
+    if tail_probability not in _Z_TABLE:
+        raise ValueError(f"value_at_risk_parametric: tail_probability={tail_probability} not in {sorted(_Z_TABLE)}")
+    z = _Z_TABLE[tail_probability]
+    _check_window_period(window, period)
     bucket = _bucket_or_none(date, period)
     clean_returns = _clean_returns(returns)
     if bucket is not None:
         return clean_returns.mean().over(bucket) + clean_returns.std().over(bucket) * z
-    return clean_returns.mean() + clean_returns.std() * z
+    if window is None:
+        return clean_returns.mean() + clean_returns.std() * z
+    return clean_returns.rolling_mean(window) + clean_returns.rolling_std(window) * z

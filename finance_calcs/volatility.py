@@ -5,17 +5,20 @@ from __future__ import annotations
 import math
 
 import polars as pl
+from finance_enums import Frequency
+
+from ._periods import FrequencyLike, _observations_per_year
 
 __all__ = [
     "atr",
-    "ewma_vol",
-    "garman_klass_vol",
+    "exponentially_weighted_volatility",
+    "garman_klass_volatility",
     "natr",
-    "parkinson_vol",
-    "realized_vol",
-    "rogers_satchell_vol",
+    "parkinson_volatility",
+    "realized_volatility",
+    "rogers_satchell_volatility",
     "true_range",
-    "yang_zhang_vol",
+    "yang_zhang_volatility",
 ]
 
 
@@ -43,7 +46,7 @@ def atr(
     high: pl.Expr,
     low: pl.Expr,
     close: pl.Expr,
-    period: int = 14,
+    window: int = 14,
 ) -> pl.Expr:
     """Average True Range using Wilder smoothing.
 
@@ -51,19 +54,19 @@ def atr(
         high: Bar high.
         low: Bar low.
         close: Bar close.
-        period: Smoothing period.
+        window: Smoothing window.
 
     Returns:
         ATR expression.
     """
-    return true_range(high, low, close).ewm_mean(alpha=1.0 / period, adjust=False, ignore_nulls=True)
+    return true_range(high, low, close).ewm_mean(alpha=1.0 / window, adjust=False, ignore_nulls=True)
 
 
 def natr(
     high: pl.Expr,
     low: pl.Expr,
     close: pl.Expr,
-    period: int = 14,
+    window: int = 14,
 ) -> pl.Expr:
     """Normalised ATR — ``100 * ATR / close``.
 
@@ -71,15 +74,21 @@ def natr(
         high: Bar high.
         low: Bar low.
         close: Bar close.
-        period: Smoothing period.
+        window: Smoothing window.
 
     Returns:
         NATR expression in percent.
     """
-    return 100.0 * atr(high, low, close, period) / close
+    return 100.0 * atr(high, low, close, window) / close
 
 
-def parkinson_vol(high: pl.Expr, low: pl.Expr, period: int = 20) -> pl.Expr:
+def parkinson_volatility(
+    high: pl.Expr,
+    low: pl.Expr,
+    window: int = 20,
+    *,
+    frequency: FrequencyLike = Frequency.Day,
+) -> pl.Expr:
     r"""Parkinson high-low range volatility estimator.
 
     .. math::
@@ -88,21 +97,23 @@ def parkinson_vol(high: pl.Expr, low: pl.Expr, period: int = 20) -> pl.Expr:
     Args:
         high: Bar high.
         low: Bar low.
-        period: Window length.
+        window: Window length.
 
     Returns:
-        Per-period volatility expression (rolling).
+        Annualized rolling volatility expression.
     """
     log_hl = (high / low).log()
-    return (log_hl.pow(2).rolling_mean(period) / (4.0 * math.log(2.0))).sqrt()
+    return (log_hl.pow(2).rolling_mean(window) / (4.0 * math.log(2.0))).sqrt() * math.sqrt(_observations_per_year(frequency))
 
 
-def garman_klass_vol(
+def garman_klass_volatility(
     open_: pl.Expr,
     high: pl.Expr,
     low: pl.Expr,
     close: pl.Expr,
-    period: int = 20,
+    window: int = 20,
+    *,
+    frequency: FrequencyLike = Frequency.Day,
 ) -> pl.Expr:
     r"""Garman-Klass OHLC volatility estimator.
 
@@ -114,23 +125,33 @@ def garman_klass_vol(
         high: Bar high.
         low: Bar low.
         close: Bar close.
-        period: Window length.
+        window: Window length.
 
     Returns:
-        Per-period GK volatility expression (rolling).
+        Annualized rolling Garman-Klass volatility expression.
     """
     log_hl = (high / low).log()
     log_co = (close / open_).log()
     term = 0.5 * log_hl.pow(2) - (2.0 * math.log(2.0) - 1.0) * log_co.pow(2)
-    return term.rolling_mean(period).sqrt()
+    return term.rolling_mean(window).sqrt() * math.sqrt(_observations_per_year(frequency))
 
 
-def rogers_satchell_vol(
+def _rogers_satchell_variance(open_: pl.Expr, high: pl.Expr, low: pl.Expr, close: pl.Expr, window: int) -> pl.Expr:
+    log_hc = (high / close).log()
+    log_ho = (high / open_).log()
+    log_lc = (low / close).log()
+    log_lo = (low / open_).log()
+    return (log_hc * log_ho + log_lc * log_lo).rolling_mean(window)
+
+
+def rogers_satchell_volatility(
     open_: pl.Expr,
     high: pl.Expr,
     low: pl.Expr,
     close: pl.Expr,
-    period: int = 20,
+    window: int = 20,
+    *,
+    frequency: FrequencyLike = Frequency.Day,
 ) -> pl.Expr:
     r"""Rogers-Satchell drift-independent volatility.
 
@@ -142,25 +163,23 @@ def rogers_satchell_vol(
         high: Bar high.
         low: Bar low.
         close: Bar close.
-        period: Window length.
+        window: Window length.
 
     Returns:
-        RS volatility expression (rolling).
+        Annualized rolling Rogers-Satchell volatility expression.
     """
-    log_hc = (high / close).log()
-    log_ho = (high / open_).log()
-    log_lc = (low / close).log()
-    log_lo = (low / open_).log()
-    return (log_hc * log_ho + log_lc * log_lo).rolling_mean(period).sqrt()
+    return _rogers_satchell_variance(open_, high, low, close, window).sqrt() * math.sqrt(_observations_per_year(frequency))
 
 
-def yang_zhang_vol(
+def yang_zhang_volatility(
     open_: pl.Expr,
     high: pl.Expr,
     low: pl.Expr,
     close: pl.Expr,
-    period: int = 20,
-    k: float | None = None,
+    window: int = 20,
+    *,
+    weight: float | None = None,
+    frequency: FrequencyLike = Frequency.Day,
 ) -> pl.Expr:
     r"""Yang-Zhang volatility — minimum-variance combination of overnight,
     open-to-close, and Rogers-Satchell drift-independent components.
@@ -170,45 +189,55 @@ def yang_zhang_vol(
         high: Bar high.
         low: Bar low.
         close: Bar close.
-        period: Window length.
-        k: Weight on open-to-close variance. Defaults to
-            ``0.34 / (1.34 + (period+1)/(period-1))``.
+        window: Window length.
+        weight: Weight on open-to-close variance. Defaults to
+            ``0.34 / (1.34 + (window+1)/(window-1))``.
 
     Returns:
         YZ volatility expression (rolling).
     """
-    if k is None:
-        k = 0.34 / (1.34 + (period + 1) / (period - 1))
+    if weight is None:
+        weight = 0.34 / (1.34 + (window + 1) / (window - 1))
     prev_close = close.shift(1)
     overnight = (open_ / prev_close).log()
     oc = (close / open_).log()
-    sigma_on = overnight.rolling_var(period)
-    sigma_oc = oc.rolling_var(period)
-    sigma_rs = rogers_satchell_vol(open_, high, low, close, period).pow(2)
-    return (sigma_on + k * sigma_oc + (1.0 - k) * sigma_rs).sqrt()
+    sigma_on = overnight.rolling_var(window)
+    sigma_oc = oc.rolling_var(window)
+    sigma_rs = _rogers_satchell_variance(open_, high, low, close, window)
+    return (sigma_on + weight * sigma_oc + (1.0 - weight) * sigma_rs).sqrt() * math.sqrt(_observations_per_year(frequency))
 
 
-def ewma_vol(returns: pl.Expr, span: int = 20) -> pl.Expr:
+def exponentially_weighted_volatility(
+    returns: pl.Expr,
+    window: int = 20,
+    *,
+    frequency: FrequencyLike = Frequency.Day,
+) -> pl.Expr:
     """Exponentially weighted standard deviation.
 
     Args:
         returns: Return series.
-        span: EWMA span.
+        window: EWMA window.
 
     Returns:
         Square root of the EWMA variance of ``returns``.
     """
-    return returns.ewm_std(span=span, adjust=False, ignore_nulls=True)
+    return returns.ewm_std(span=window, adjust=False, ignore_nulls=True) * math.sqrt(_observations_per_year(frequency))
 
 
-def realized_vol(returns: pl.Expr, period: int = 20) -> pl.Expr:
+def realized_volatility(
+    returns: pl.Expr,
+    window: int = 20,
+    *,
+    frequency: FrequencyLike = Frequency.Day,
+) -> pl.Expr:
     """Rolling realised volatility (sample standard deviation).
 
     Args:
         returns: Return series.
-        period: Window length.
+        window: Window length.
 
     Returns:
-        Rolling standard deviation expression.
+        Annualized rolling standard deviation expression.
     """
-    return returns.rolling_std(period)
+    return returns.rolling_std(window) * math.sqrt(_observations_per_year(frequency))

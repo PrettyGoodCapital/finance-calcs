@@ -6,35 +6,27 @@ import numpy as np
 import polars as pl
 
 from ._periods import PeriodLike
-from .returns import _clean_returns, cum_returns_final
+from .returns import _clean_returns, cumulative_return
 from .risk import max_drawdown
 
 __all__ = [
     "average_loss",
     "average_win",
-    "avg_loss",
-    "avg_win",
-    "best",
     "best_return",
     "drawdown_details",
     "gain_to_pain_ratio",
     "kelly_criterion",
     "recovery_factor",
-    "worst",
     "worst_return",
 ]
 
 __finance_namespace__ = [
     "average_loss",
     "average_win",
-    "avg_loss",
-    "avg_win",
-    "best",
     "best_return",
     "gain_to_pain_ratio",
     "kelly_criterion",
     "recovery_factor",
-    "worst",
     "worst_return",
 ]
 
@@ -48,17 +40,7 @@ def best_return(
     """Highest raw or compounded period return."""
     if period is None:
         return _clean_returns(returns).max()
-    return cum_returns_final(returns, period=period, date=date).max()
-
-
-def best(
-    returns: pl.Expr,
-    *,
-    period: PeriodLike | None = None,
-    date: pl.Expr | None = None,
-) -> pl.Expr:
-    """Compatibility alias for :func:`best_return`."""
-    return best_return(returns, period=period, date=date)
+    return cumulative_return(returns, period=period, date=date).max()
 
 
 def worst_return(
@@ -70,17 +52,7 @@ def worst_return(
     """Lowest raw or compounded period return."""
     if period is None:
         return _clean_returns(returns).min()
-    return cum_returns_final(returns, period=period, date=date).min()
-
-
-def worst(
-    returns: pl.Expr,
-    *,
-    period: PeriodLike | None = None,
-    date: pl.Expr | None = None,
-) -> pl.Expr:
-    """Compatibility alias for :func:`worst_return`."""
-    return worst_return(returns, period=period, date=date)
+    return cumulative_return(returns, period=period, date=date).min()
 
 
 def average_win(returns: pl.Expr) -> pl.Expr:
@@ -89,20 +61,10 @@ def average_win(returns: pl.Expr) -> pl.Expr:
     return clean_returns.filter(clean_returns > 0.0).mean()
 
 
-def avg_win(returns: pl.Expr) -> pl.Expr:
-    """Compatibility alias for :func:`average_win`."""
-    return average_win(returns)
-
-
 def average_loss(returns: pl.Expr) -> pl.Expr:
     """Mean negative return, expressed as a negative value."""
     clean_returns = _clean_returns(returns)
     return clean_returns.filter(clean_returns < 0.0).mean()
-
-
-def avg_loss(returns: pl.Expr) -> pl.Expr:
-    """Compatibility alias for :func:`average_loss`."""
-    return average_loss(returns)
 
 
 def gain_to_pain_ratio(returns: pl.Expr) -> pl.Expr:

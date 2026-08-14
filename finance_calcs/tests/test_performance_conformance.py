@@ -20,25 +20,25 @@ def test_null_and_nan_are_equivalent_missing_returns(missing_returns: pl.DataFra
     clean = pl.DataFrame({"r": [0.01, -0.02]})
 
     actual = missing_returns.select(
-        fc.returns(pl.col("r")).alias("compound"),
-        fc.sharpe(pl.col("r"), periods_per_year=252).alias("sharpe"),
+        fc.cumulative_return(pl.col("r")).alias("compound"),
+        fc.sharpe(pl.col("r"), frequency="daily").alias("sharpe"),
     ).row(0)
     expected = clean.select(
-        fc.returns(pl.col("r")).alias("compound"),
-        fc.sharpe(pl.col("r"), periods_per_year=252).alias("sharpe"),
+        fc.cumulative_return(pl.col("r")).alias("compound"),
+        fc.sharpe(pl.col("r"), frequency=252).alias("sharpe"),
     ).row(0)
 
     assert actual == pytest.approx(expected)
 
 
 def test_rolling_compound_uses_native_expression() -> None:
-    plan = pl.DataFrame({"r": [0.01, 0.02, -0.01]}).lazy().select(fc.returns(pl.col("r"), window=2).alias("result")).explain()
+    plan = pl.DataFrame({"r": [0.01, 0.02, -0.01]}).lazy().select(fc.cumulative_return(pl.col("r"), window=2).alias("result")).explain()
 
     assert "rolling_map" not in plan
 
 
 def test_rolling_compound_handles_total_loss() -> None:
-    out = pl.DataFrame({"r": [0.10, -1.0, 0.25]}).select(fc.returns(pl.col("r"), window=2).alias("result"))
+    out = pl.DataFrame({"r": [0.10, -1.0, 0.25]}).select(fc.cumulative_return(pl.col("r"), window=2).alias("result"))
 
     assert out["result"].to_list() == pytest.approx([None, -1.0, -1.0], nan_ok=True)
 
@@ -51,7 +51,7 @@ def test_annualized_return_is_observation_based_for_irregular_dates() -> None:
         }
     )
 
-    actual = frame.select(fc.annualized_return(pl.col("r"), periods_per_year=252, date=pl.col("date"))).item()
+    actual = frame.select(fc.annualized_return(pl.col("r"), frequency="daily", date=pl.col("date"))).item()
     expected = (1.01 * 1.02 * 0.99) ** (252 / 3) - 1.0
 
     assert actual == pytest.approx(expected)
@@ -125,7 +125,7 @@ def test_expression_metrics_compose_in_lazy_queries(missing_returns: pl.DataFram
     out = (
         missing_returns.lazy()
         .select(
-            fc.returns(pl.col("r")).alias("compound"),
+            fc.cumulative_return(pl.col("r")).alias("compound"),
             fc.sharpe(pl.col("r")).alias("sharpe"),
             fc.ulcer_index(pl.col("r")).alias("ulcer"),
         )

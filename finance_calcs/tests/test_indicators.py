@@ -177,31 +177,39 @@ def test_atr_positive(ohlcv):
 
 
 def test_parkinson_positive(ohlcv):
-    out = _select(ohlcv, fc.parkinson_vol(pl.col("high"), pl.col("low"), 20)).drop_nulls().to_list()
+    out = _select(ohlcv, fc.parkinson_volatility(pl.col("high"), pl.col("low"), 20, frequency=1)).drop_nulls().to_list()
     assert all(v > 0.0 for v in out)
 
 
 def test_garman_klass_runs(ohlcv):
     out = _select(
         ohlcv,
-        fc.garman_klass_vol(
+        fc.garman_klass_volatility(
             pl.col("open"),
             pl.col("high"),
             pl.col("low"),
             pl.col("close"),
             20,
+            frequency=1,
         ),
     )
     assert out.len() == ohlcv.height
 
 
-def test_realized_vol_matches_rolling_std(ohlcv):
+def test_realized_volatility_matches_rolling_std(ohlcv):
     rets = ohlcv.select(
         fc.simple_returns(pl.col("close")).alias("r"),
     ).to_series()
-    a = _select(pl.DataFrame({"r": rets}), fc.realized_vol(pl.col("r"), 20))
+    a = _select(pl.DataFrame({"r": rets}), fc.realized_volatility(pl.col("r"), 20, frequency=1))
     b = pl.DataFrame({"r": rets}).select(pl.col("r").rolling_std(20).alias("v")).to_series()
     assert a.to_list() == b.to_list()
+
+
+def test_realized_volatility_annualizes_with_frequency(ohlcv):
+    rets = ohlcv.select(fc.simple_returns(pl.col("close")).alias("r")).to_series()
+    out = _select(pl.DataFrame({"r": rets}), fc.realized_volatility(pl.col("r"), 20, frequency=252))
+    expected = pl.DataFrame({"r": rets}).select((pl.col("r").rolling_std(20) * math.sqrt(252)).alias("v")).to_series()
+    assert out.to_list() == expected.to_list()
 
 
 def test_obv_monotone_up_for_uptrend(monotone_close):

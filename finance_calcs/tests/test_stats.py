@@ -25,8 +25,8 @@ def test_skew_kurt_higher_moments():
     hm = df.select(fc.higher_moments(pl.col("ret")).alias("hm")).item()
     assert abs(s) < 0.5
     assert abs(k) < 1.0
-    assert hm["skew"] == pytest.approx(s, rel=1e-9)
-    assert hm["kurt"] == pytest.approx(k, rel=1e-9)
+    assert hm["skewness"] == pytest.approx(s, rel=1e-9)
+    assert hm["kurtosis"] == pytest.approx(k, rel=1e-9)
 
 
 def test_stability_of_timeseries():
@@ -42,38 +42,38 @@ def test_common_sense_ratio_positive():
     assert csr > 0
 
 
-def test_probabilistic_sharpe_high_for_strong_track_record():
+def test_sharpe_probability_high_for_strong_track_record():
     n = 1000
     rng = np.random.default_rng(3)
     s = pl.Series("r", rng.normal(0.001, 0.005, n))
-    psr = fc.probabilistic_sharpe(s, benchmark_sr=0.0, periods_per_year=252)
+    psr = fc.sharpe_probability(s, benchmark_sharpe=0.0, frequency="daily")
     assert 0.99 < psr <= 1.0
 
 
-def test_deflated_sharpe_lower_than_psr():
+def test_sharpe_deflated_probability_lower_than_unadjusted_probability():
     rng = np.random.default_rng(5)
     s = pl.Series("r", rng.normal(0.0008, 0.01, 800))
-    psr = fc.probabilistic_sharpe(s, 0.0, 252)
-    dsr = fc.deflated_sharpe(s, n_trials=100, sr_variance=0.5, periods_per_year=252)
+    psr = fc.sharpe_probability(s, benchmark_sharpe=0.0, frequency="daily")
+    dsr = fc.sharpe_deflated_probability(s, trial_count=100, sharpe_variance=0.5, frequency=252)
     assert dsr <= psr + 1e-6
 
 
 def test_min_track_record_length_finite():
     rng = np.random.default_rng(7)
     s = pl.Series("r", rng.normal(0.001, 0.01, 2000))
-    n = fc.minimum_track_record_length(s, benchmark_sr=0.0, alpha=0.05)
+    n = fc.sharpe_minimum_track_record_length(s, benchmark_sharpe=0.0, significance_level=0.05)
     assert math.isfinite(n) and n > 0
 
 
-def test_sharpe_ci_bootstrap_brackets_point_estimate():
+def test_sharpe_bootstrap_confidence_interval_brackets_point_estimate():
     rng = np.random.default_rng(9)
     s = pl.Series("r", rng.normal(0.001, 0.01, 1000))
-    sr, lo, hi = fc.sharpe_ci_bootstrap(s, n_bootstrap=400, seed=1)
+    sr, lo, hi = fc.sharpe_bootstrap_confidence_interval(s, bootstrap_samples=400, seed=1)
     assert lo <= sr <= hi
 
 
-def test_sharpe_with_ci_brackets_point_estimate():
+def test_sharpe_confidence_interval_brackets_point_estimate():
     rng = np.random.default_rng(11)
     s = pl.Series("r", rng.normal(0.001, 0.01, 1000))
-    sr, lo, hi = fc.sharpe_with_ci(s)
+    sr, lo, hi = fc.sharpe_confidence_interval(s)
     assert lo <= sr <= hi

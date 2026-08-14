@@ -16,8 +16,9 @@ from __future__ import annotations
 import math
 
 import polars as pl
+from finance_enums import Frequency
 
-from ._periods import PeriodLike, _bucket_or_none, _check_window_period
+from ._periods import FrequencyLike, PeriodLike, _annual_rate_to_observation_rate, _bucket_or_none, _check_window_period, _observations_per_year
 from .returns import _clean_returns
 
 __all__ = [
@@ -35,17 +36,6 @@ __all__ = [
     "up_capture",
     "up_down_capture",
 ]
-
-
-def _rf_per_period(risk_free: float | pl.Expr, periods_per_year: int) -> float | pl.Expr:
-    """Convert annual scalar ``risk_free`` to per-period.
-
-    A :class:`pl.Expr` is assumed to already be a per-period rate
-    column and is returned unchanged.
-    """
-    if isinstance(risk_free, pl.Expr):
-        return risk_free
-    return risk_free / periods_per_year
 
 
 def beta(
@@ -99,9 +89,9 @@ def r_squared(
 def alpha(
     returns: pl.Expr,
     benchmark: pl.Expr,
-    risk_free: float | pl.Expr = 0.0,
-    periods_per_year: int = 252,
     *,
+    risk_free: float | pl.Expr = 0.0,
+    frequency: FrequencyLike = Frequency.Day,
     window: int | None = None,
     period: PeriodLike | None = None,
     date: pl.Expr | None = None,
@@ -113,17 +103,18 @@ def alpha(
     risk-free rate. ``window=None`` → scalar; ``window=N`` → rolling
     annualised alpha; ``period=...`` → per-bucket alpha.
     """
+    observations_per_year = _observations_per_year(frequency)
     _check_window_period(window, period)
     bucket = _bucket_or_none(date, period)
-    rf = _rf_per_period(risk_free, periods_per_year)
+    rf = _annual_rate_to_observation_rate(risk_free, observations_per_year)
     b = beta(returns, benchmark, window=window, period=period, date=date)
     if bucket is not None:
-        return ((returns - rf).mean().over(bucket) - b * (benchmark - rf).mean().over(bucket)) * periods_per_year
+        return ((returns - rf).mean().over(bucket) - b * (benchmark - rf).mean().over(bucket)) * observations_per_year
     if window is None:
-        return ((returns - rf).mean() - b * (benchmark - rf).mean()) * periods_per_year
+        return ((returns - rf).mean() - b * (benchmark - rf).mean()) * observations_per_year
     mean_r = (returns - rf).rolling_mean(window)
     mean_b = (benchmark - rf).rolling_mean(window)
-    return (mean_r - b * mean_b) * periods_per_year
+    return (mean_r - b * mean_b) * observations_per_year
 
 
 def _filter_capture(returns, benchmark, mask, window):
@@ -177,51 +168,53 @@ def down_beta(
 def up_alpha(
     returns: pl.Expr,
     benchmark: pl.Expr,
-    risk_free: float | pl.Expr = 0.0,
-    periods_per_year: int = 252,
     *,
+    risk_free: float | pl.Expr = 0.0,
+    frequency: FrequencyLike = Frequency.Day,
     window: int | None = None,
     period: PeriodLike | None = None,
     date: pl.Expr | None = None,
 ) -> pl.Expr:
     """Annualised alpha on up-market bars only."""
+    observations_per_year = _observations_per_year(frequency)
     _check_window_period(window, period)
     bucket = _bucket_or_none(date, period)
-    rf = _rf_per_period(risk_free, periods_per_year)
+    rf = _annual_rate_to_observation_rate(risk_free, observations_per_year)
     r_up, b_up = _filter_capture(returns, benchmark, benchmark > 0, window)
     if bucket is not None:
         bu = pl.cov(r_up, b_up).over(bucket) / b_up.var().over(bucket)
-        return ((r_up - rf).mean().over(bucket) - bu * (b_up - rf).mean().over(bucket)) * periods_per_year
+        return ((r_up - rf).mean().over(bucket) - bu * (b_up - rf).mean().over(bucket)) * observations_per_year
     if window is None:
         bu = pl.cov(r_up, b_up) / b_up.var()
-        return ((r_up - rf).mean() - bu * (b_up - rf).mean()) * periods_per_year
+        return ((r_up - rf).mean() - bu * (b_up - rf).mean()) * observations_per_year
     bu = pl.rolling_cov(r_up, b_up, window_size=window) / b_up.rolling_var(window)
-    return ((r_up - rf).rolling_mean(window) - bu * (b_up - rf).rolling_mean(window)) * periods_per_year
+    return ((r_up - rf).rolling_mean(window) - bu * (b_up - rf).rolling_mean(window)) * observations_per_year
 
 
 def down_alpha(
     returns: pl.Expr,
     benchmark: pl.Expr,
-    risk_free: float | pl.Expr = 0.0,
-    periods_per_year: int = 252,
     *,
+    risk_free: float | pl.Expr = 0.0,
+    frequency: FrequencyLike = Frequency.Day,
     window: int | None = None,
     period: PeriodLike | None = None,
     date: pl.Expr | None = None,
 ) -> pl.Expr:
     """Annualised alpha on down-market bars only."""
+    observations_per_year = _observations_per_year(frequency)
     _check_window_period(window, period)
     bucket = _bucket_or_none(date, period)
-    rf = _rf_per_period(risk_free, periods_per_year)
+    rf = _annual_rate_to_observation_rate(risk_free, observations_per_year)
     r_dn, b_dn = _filter_capture(returns, benchmark, benchmark < 0, window)
     if bucket is not None:
         bd = pl.cov(r_dn, b_dn).over(bucket) / b_dn.var().over(bucket)
-        return ((r_dn - rf).mean().over(bucket) - bd * (b_dn - rf).mean().over(bucket)) * periods_per_year
+        return ((r_dn - rf).mean().over(bucket) - bd * (b_dn - rf).mean().over(bucket)) * observations_per_year
     if window is None:
         bd = pl.cov(r_dn, b_dn) / b_dn.var()
-        return ((r_dn - rf).mean() - bd * (b_dn - rf).mean()) * periods_per_year
+        return ((r_dn - rf).mean() - bd * (b_dn - rf).mean()) * observations_per_year
     bd = pl.rolling_cov(r_dn, b_dn, window_size=window) / b_dn.rolling_var(window)
-    return ((r_dn - rf).rolling_mean(window) - bd * (b_dn - rf).rolling_mean(window)) * periods_per_year
+    return ((r_dn - rf).rolling_mean(window) - bd * (b_dn - rf).rolling_mean(window)) * observations_per_year
 
 
 def up_capture(
@@ -302,17 +295,17 @@ def batting_average(
 def tracking_error(
     returns: pl.Expr,
     benchmark: pl.Expr,
-    periods_per_year: int = 252,
     *,
+    frequency: FrequencyLike = Frequency.Day,
     window: int | None = None,
     period: PeriodLike | None = None,
     date: pl.Expr | None = None,
 ) -> pl.Expr:
-    """Annualised tracking error — ``std(r - b) * sqrt(ppy)``."""
+    """Annualised tracking error scaled by ``frequency``."""
     _check_window_period(window, period)
     bucket = _bucket_or_none(date, period)
     active = returns - benchmark
-    scale = math.sqrt(periods_per_year)
+    scale = math.sqrt(_observations_per_year(frequency))
     if bucket is not None:
         return active.std().over(bucket) * scale
     if window is None:
@@ -323,17 +316,17 @@ def tracking_error(
 def information_ratio(
     returns: pl.Expr,
     benchmark: pl.Expr,
-    periods_per_year: int = 252,
     *,
+    frequency: FrequencyLike = Frequency.Day,
     window: int | None = None,
     period: PeriodLike | None = None,
     date: pl.Expr | None = None,
 ) -> pl.Expr:
-    """Annualised information ratio — ``mean(r-b)/std(r-b) * sqrt(ppy)``."""
+    """Annualised information ratio scaled by ``frequency``."""
     _check_window_period(window, period)
     bucket = _bucket_or_none(date, period)
     active = returns - benchmark
-    scale = math.sqrt(periods_per_year)
+    scale = math.sqrt(_observations_per_year(frequency))
     if bucket is not None:
         return active.mean().over(bucket) / active.std().over(bucket) * scale
     if window is None:

@@ -10,7 +10,7 @@ def test_native_adx_shape_and_bounds() -> None:
     low = np.array([9.8, 10.1, 10.2, 10.0, 10.4, 10.6, 10.5, 10.9])
     close = np.array([9.9, 10.2, 10.5, 10.1, 10.7, 10.8, 10.6, 11.0])
 
-    out = fc.native_adx(high, low, close, period=3)
+    out = fc.native_adx(high, low, close, window=3)
 
     assert out.shape == high.shape
     assert np.all(np.isfinite(out))

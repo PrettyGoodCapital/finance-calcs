@@ -43,13 +43,13 @@ def test_log_returns(prices):
     assert out[5] == pytest.approx(math.log(103 / 100))
 
 
-def test_cum_returns_final(constant_returns):
-    out = pl.select(fc.cum_returns_final(pl.lit(constant_returns))).item()
+def test_cumulative_return(constant_returns):
+    out = pl.select(fc.cumulative_return(pl.lit(constant_returns))).item()
     assert out == pytest.approx((1.001) ** 252 - 1.0)
 
 
-def test_cum_returns_series(two_sided_returns):
-    out = pl.select(fc.cum_returns(pl.lit(two_sided_returns))).to_series()
+def test_cumulative_returns_series(two_sided_returns):
+    out = pl.select(fc.cumulative_returns(pl.lit(two_sided_returns))).to_series()
     expected = []
     g = 1.0
     for r in two_sided_returns:
@@ -70,36 +70,43 @@ def test_annualized_volatility():
     assert out == pytest.approx(rets.std() * math.sqrt(252))
 
 
-def test_volatility_alias():
+def test_frequency_accepts_alias_enum_and_raw_observations_per_year():
     rets = pl.Series("r", [0.01, -0.01] * 126)
-    out = pl.select(fc.volatility(pl.lit(rets))).item()
-    expected = pl.select(fc.annualized_volatility(pl.lit(rets))).item()
-    assert out == pytest.approx(expected)
+    alias = pl.select(fc.annualized_volatility(pl.lit(rets), frequency="daily")).item()
+    enum = pl.select(fc.annualized_volatility(pl.lit(rets), frequency=Frequency.Day)).item()
+    raw = pl.select(fc.annualized_volatility(pl.lit(rets), frequency=252)).item()
+    assert alias == pytest.approx(enum)
+    assert alias == pytest.approx(raw)
+
+
+@pytest.mark.parametrize("frequency", [0, -1, float("inf"), float("nan")])
+def test_frequency_rejects_invalid_raw_values(frequency):
+    with pytest.raises(ValueError):
+        fc.annualized_volatility(pl.col("r"), frequency=frequency)
+
+
+def test_frequency_rejects_boolean_values():
+    with pytest.raises(TypeError):
+        fc.annualized_volatility(pl.col("r"), frequency=True)
 
 
 def test_rolling_returns(two_sided_returns):
-    out = pl.select(fc.cum_returns_final(pl.lit(two_sided_returns), window=3)).to_series()
+    out = pl.select(fc.cumulative_return(pl.lit(two_sided_returns), window=3)).to_series()
     assert out[0] is None and out[1] is None
     expected_at_2 = (1.01) * (0.98) * (1.03) - 1.0
     assert out[2] == pytest.approx(expected_at_2)
 
 
-def test_returns_matches_cum_returns_final(two_sided_returns):
-    out = pl.select(fc.returns(pl.lit(two_sided_returns))).item()
-    expected = pl.select(fc.cum_returns_final(pl.lit(two_sided_returns))).item()
-    assert out == pytest.approx(expected)
-
-
-def test_returns_window(two_sided_returns):
-    out = pl.select(fc.returns(pl.lit(two_sided_returns), window=3)).to_series()
+def test_cumulative_return_window(two_sided_returns):
+    out = pl.select(fc.cumulative_return(pl.lit(two_sided_returns), window=3)).to_series()
     assert out[0] is None and out[1] is None
     expected_at_2 = (1.01) * (0.98) * (1.03) - 1.0
     assert out[2] == pytest.approx(expected_at_2)
 
 
-def test_returns_rejects_window_and_period(two_sided_returns):
+def test_cumulative_return_rejects_window_and_period(two_sided_returns):
     with pytest.raises(ValueError, match="mutually exclusive"):
-        pl.select(fc.returns(pl.lit(two_sided_returns), window=3, period="month"))
+        pl.select(fc.cumulative_return(pl.lit(two_sided_returns), window=3, period="month"))
 
 
 def test_period_bucket_accepts_frequency_aliases_and_polars_windows():
@@ -147,8 +154,8 @@ def test_period_returns_repeat_bucket_compound_return():
     )
 
     out = df.with_columns(
-        fc.returns(pl.col("r"), period=Frequency.Month, date=pl.col("date")).alias("period_return"),
-        fc.cum_returns(pl.col("r"), period="monthly", date=pl.col("date")).alias("period_path"),
+        fc.cumulative_return(pl.col("r"), period=Frequency.Month, date=pl.col("date")).alias("period_return"),
+        fc.cumulative_returns(pl.col("r"), period="monthly", date=pl.col("date")).alias("period_path"),
     )
 
     january = 1.10 * 0.95 - 1.0
@@ -159,7 +166,7 @@ def test_period_returns_repeat_bucket_compound_return():
 
 def test_period_metrics_require_date(two_sided_returns):
     with pytest.raises(ValueError, match="date is required"):
-        pl.select(fc.returns(pl.lit(two_sided_returns), period="month"))
+        pl.select(fc.cumulative_return(pl.lit(two_sided_returns), period="month"))
 
 
 def test_period_metrics_accept_explicit_bucket_expression():
@@ -170,7 +177,7 @@ def test_period_metrics_accept_explicit_bucket_expression():
         }
     )
 
-    out = df.with_columns(fc.returns(pl.col("r"), period=pl.col("bucket")).alias("period_return"))
+    out = df.with_columns(fc.cumulative_return(pl.col("r"), period=pl.col("bucket")).alias("period_return"))
 
     assert out["period_return"].to_list() == pytest.approx([1.10 * 0.95 - 1.0] * 2 + [1.02 * 1.03 - 1.0] * 2)
 
@@ -190,7 +197,7 @@ def test_period_sharpe_matches_grouped_monthly_result():
         }
     )
 
-    out = df.with_columns(fc.sharpe(pl.col("r"), periods_per_year=1, period="month", date=pl.col("date")).alias("period_sharpe"))
+    out = df.with_columns(fc.sharpe(pl.col("r"), frequency=1, period="month", date=pl.col("date")).alias("period_sharpe"))
     expected = (
         df.group_by(fc.period_bucket(pl.col("date"), "month").alias("bucket"))
         .agg((pl.col("r").mean() / pl.col("r").std()).alias("expected"))
@@ -208,7 +215,7 @@ def test_namespace_period_returns():
         }
     )
 
-    out = df.with_columns(pl.col("r").fcalcs.returns(period="month", date=pl.col("date")).alias("period_return"))
+    out = df.with_columns(pl.col("r").fcalcs.cumulative_return(period="month", date=pl.col("date")).alias("period_return"))
 
     assert out["period_return"].to_list() == pytest.approx([1.10 * 0.95 - 1.0] * 2 + [1.02 * 1.03 - 1.0] * 2)
 
@@ -229,12 +236,6 @@ def test_sortino_uses_only_downside(two_sided_returns):
     assert sortino is not None and sortino > 0
 
 
-def test_downside_risk_alias(two_sided_returns):
-    out = pl.select(fc.downside_risk(pl.lit(two_sided_returns))).item()
-    expected = pl.select(fc.downside_deviation(pl.lit(two_sided_returns))).item()
-    assert out == pytest.approx(expected)
-
-
 def test_max_drawdown_known():
     rets = pl.Series("r", [0.1, -0.1, 0.06060606])
     mdd = pl.select(fc.max_drawdown(pl.lit(rets))).item()
@@ -253,29 +254,29 @@ def test_calmar_finite():
 
 
 def test_value_at_risk_quantile(two_sided_returns):
-    var5 = pl.select(fc.value_at_risk(pl.lit(two_sided_returns), 0.05)).item()
+    var5 = pl.select(fc.value_at_risk(pl.lit(two_sided_returns), tail_probability=0.05)).item()
     expected = two_sided_returns.quantile(0.05)
     assert var5 == pytest.approx(expected)
 
 
 def test_cvar_tail_mean():
     rets = pl.Series("r", [-0.10, -0.05, -0.01, 0.00, 0.01, 0.02, 0.03, 0.04])
-    cvar = pl.select(fc.conditional_value_at_risk(pl.lit(rets), 0.25)).item()
+    cvar = pl.select(fc.conditional_value_at_risk(pl.lit(rets), tail_probability=0.25)).item()
     threshold = rets.quantile(0.25)
     tail = [r for r in rets if r <= threshold]
     assert cvar == pytest.approx(sum(tail) / len(tail))
 
 
-def test_parametric_var_known_z():
+def test_value_at_risk_parametric_known_z():
     rets = pl.Series("r", [0.001] * 1000)
-    val = pl.select(fc.parametric_var(pl.lit(rets), 0.05)).item()
+    val = pl.select(fc.value_at_risk_parametric(pl.lit(rets), tail_probability=0.05)).item()
     assert val == pytest.approx(0.001)
 
 
-def test_parametric_var_unsupported_cutoff():
+def test_value_at_risk_parametric_unsupported_probability():
     rets = pl.Series("r", [0.001] * 100)
     with pytest.raises(ValueError):
-        pl.select(fc.parametric_var(pl.lit(rets), 0.123))
+        pl.select(fc.value_at_risk_parametric(pl.lit(rets), tail_probability=0.123))
 
 
 def test_rolling_sharpe_shape():
@@ -293,8 +294,8 @@ def test_sharpe_accepts_expr_risk_free():
             "rf": [0.0001] * 280,
         }
     )
-    scalar = df.select(fc.sharpe(pl.col("r"), risk_free=0.0001, periods_per_year=1)).item()
-    expr = df.select(fc.sharpe(pl.col("r"), risk_free=pl.col("rf"), periods_per_year=1)).item()
+    scalar = df.select(fc.sharpe(pl.col("r"), risk_free=0.0001, frequency=1)).item()
+    expr = df.select(fc.sharpe(pl.col("r"), risk_free=pl.col("rf"), frequency=1)).item()
     assert math.isfinite(scalar) and math.isfinite(expr)
     assert scalar == pytest.approx(expr, rel=1e-9)
 
@@ -306,9 +307,43 @@ def test_sortino_accepts_expr_required_return():
             "mar": [0.001] * 280,
         }
     )
-    scalar = df.select(fc.sortino(pl.col("r"), required_return=0.001, periods_per_year=1)).item()
-    expr = df.select(fc.sortino(pl.col("r"), required_return=pl.col("mar"), periods_per_year=1)).item()
+    scalar = df.select(fc.sortino(pl.col("r"), required_return=0.001, frequency=1)).item()
+    expr = df.select(fc.sortino(pl.col("r"), required_return=pl.col("mar"), frequency=1)).item()
     assert scalar == pytest.approx(expr, rel=1e-9)
+
+
+def test_downside_metrics_convert_scalar_annual_required_return():
+    annual_required_return = 0.12
+    observation_required_return = (1.0 + annual_required_return) ** (1.0 / 252.0) - 1.0
+    df = pl.DataFrame(
+        {
+            "r": [0.01, -0.02, 0.03, -0.01, 0.02, -0.04, 0.05] * 40,
+            "required_return": [observation_required_return] * 280,
+        }
+    )
+
+    scalar = df.select(
+        fc.downside_deviation(pl.col("r"), required_return=annual_required_return, frequency=252).alias("deviation"),
+        fc.sortino(pl.col("r"), required_return=annual_required_return, frequency=252).alias("sortino"),
+    ).row(0, named=True)
+    expression = df.select(
+        fc.downside_deviation(pl.col("r"), required_return=pl.col("required_return"), frequency=252).alias("deviation"),
+        fc.sortino(pl.col("r"), required_return=pl.col("required_return"), frequency=252).alias("sortino"),
+    ).row(0, named=True)
+
+    assert scalar == pytest.approx(expression)
+
+
+def test_value_at_risk_parametric_supports_rolling_windows():
+    returns = pl.Series("r", [0.01, -0.02, 0.03, -0.01, 0.02])
+    out = pl.DataFrame({"r": returns}).select(fc.value_at_risk_parametric(pl.col("r"), tail_probability=0.05, window=3).alias("value_at_risk"))[
+        "value_at_risk"
+    ]
+
+    assert out[0] is None
+    assert out[1] is None
+    expected = returns[:3].mean() + returns[:3].std() * -1.6448536269514722
+    assert out[2] == pytest.approx(expected)
 
 
 def test_namespace_on_expr(prices):
@@ -335,7 +370,7 @@ def test_namespace_pipeline(prices):
         pl.col("p").fcalcs.simple_returns().alias("r"),
     ).select(
         pl.col("r").fcalcs.max_drawdown().alias("mdd"),
-        pl.col("r").fcalcs.cum_returns_final().alias("total"),
+        pl.col("r").fcalcs.cumulative_return().alias("total"),
     )
     assert out["total"][0] == pytest.approx(prices[-1] / prices[0] - 1.0)
     assert out["mdd"][0] <= 0.0

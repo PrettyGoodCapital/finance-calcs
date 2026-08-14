@@ -3,7 +3,7 @@
 Lightweight expression-level helpers for tail-shape statistics
 (:func:`tail_ratio`, :func:`ulcer_index`, :func:`omega_ratio`), plus a
 ``pl.Series``-level GPD peak-over-threshold fit for extreme VaR/CVaR
-estimates that need an MLE.
+estimates that need an eager distribution fit.
 
 Rolling forms of historical VaR / CVaR live on
 :func:`finance_calcs.value_at_risk` / :func:`finance_calcs.conditional_value_at_risk`
@@ -17,13 +17,21 @@ import math
 
 import numpy as np
 import polars as pl
+from finance_enums import Frequency
 
-from ._periods import PeriodLike, _bucket_or_none, _check_window_period
+from ._periods import FrequencyLike, PeriodLike, _annual_rate_to_observation_rate, _bucket_or_none, _check_window_period, _observations_per_year
+from ._validation import _validate_probability
 from .returns import _clean_returns
 
 __all__ = [
-    "gpd_cvar",
-    "gpd_var",
+    "conditional_value_at_risk_generalized_pareto",
+    "omega_ratio",
+    "tail_ratio",
+    "ulcer_index",
+    "value_at_risk_generalized_pareto",
+]
+
+__finance_namespace__ = [
     "omega_ratio",
     "tail_ratio",
     "ulcer_index",
@@ -86,20 +94,23 @@ def ulcer_index(
 
 def omega_ratio(
     returns: pl.Expr,
-    required_return: float | pl.Expr = 0.0,
     *,
+    required_return: float | pl.Expr = 0.0,
+    frequency: FrequencyLike = Frequency.Day,
     window: int | None = None,
     period: PeriodLike | None = None,
     date: pl.Expr | None = None,
 ) -> pl.Expr:
     """Omega ratio — gain/loss probability-weighted ratio.
 
-    ``required_return`` may be a scalar per-period threshold or a
-    :class:`pl.Expr` per-period column for a time-varying threshold.
+    ``required_return`` may be a scalar annual threshold or a
+    :class:`pl.Expr` per-observation column for a time-varying threshold.
     """
+    observations_per_year = _observations_per_year(frequency)
     _check_window_period(window, period)
     bucket = _bucket_or_none(date, period)
-    excess = (_clean_returns(returns) - required_return).fill_nan(None)
+    threshold = _annual_rate_to_observation_rate(required_return, observations_per_year)
+    excess = (_clean_returns(returns) - threshold).fill_nan(None)
     gains = pl.when(excess > 0).then(excess).otherwise(0.0)
     losses = pl.when(excess < 0).then(-excess).otherwise(0.0)
     if bucket is not None:
@@ -134,80 +145,98 @@ def _fit_gpd(excess: np.ndarray) -> tuple[float, float]:
     return (xi, beta)
 
 
-def gpd_var(returns: pl.Series, var_p: float = 0.01, threshold_p: float = 0.10) -> float:
-    r"""GPD-fitted extreme VaR (positive number, magnitude of loss).
+def value_at_risk_generalized_pareto(
+    returns: pl.Series,
+    *,
+    tail_probability: float = 0.01,
+    threshold_probability: float = 0.10,
+) -> float:
+    r"""GPD-fitted extreme VaR as a lower-tail return.
 
     Fits a Generalized Pareto Distribution to the excess of losses
     over a threshold (peak-over-threshold) and inverts to obtain the
-    ``var_p`` quantile.
+    ``tail_probability`` quantile.
 
     Closed form:
         :math:`VaR_p = u + \frac{\beta}{\xi}\left(\left(\frac{n}{n_u} p\right)^{-\xi} - 1\right)`
 
     Args:
         returns: Periodic returns (``pl.Series``).
-        var_p: Tail probability (``0.01`` → 1% VaR).
-        threshold_p: Probability mass beyond the threshold ``u``
+        tail_probability: Tail probability (``0.01`` → 1% VaR).
+        threshold_probability: Probability mass beyond the threshold ``u``
             used for the GPD fit (``0.10`` → top-10% of losses).
 
     Returns:
-        VaR magnitude as a positive float.
+        VaR as a negative return.
     """
+    _validate_probability(tail_probability, name="tail_probability")
+    _validate_probability(threshold_probability, name="threshold_probability")
+    if tail_probability >= threshold_probability:
+        raise ValueError("tail_probability must be less than threshold_probability")
     arr = returns.drop_nulls().to_numpy().astype(float)
     arr = arr[np.isfinite(arr)]
     if arr.size < 20:
         return float("nan")
     losses = -arr
-    u = float(np.quantile(losses, 1.0 - threshold_p))
+    u = float(np.quantile(losses, 1.0 - threshold_probability))
     excess = losses[losses > u] - u
     if excess.size < 5:
-        return float(np.quantile(losses, 1.0 - var_p))
+        return -float(np.quantile(losses, 1.0 - tail_probability))
     xi, beta = _fit_gpd(excess)
     n = arr.size
     nu = excess.size
-    ratio = (n / nu) * var_p
+    ratio = (n / nu) * tail_probability
     if abs(xi) < 1e-8:
         var = u + beta * (-math.log(ratio))
     else:
         var = u + (beta / xi) * (ratio ** (-xi) - 1.0)
-    return float(var)
+    return -float(var)
 
 
-def gpd_cvar(returns: pl.Series, var_p: float = 0.01, threshold_p: float = 0.10) -> float:
-    r"""GPD-fitted extreme CVaR (expected shortfall beyond ``var_p``).
+def conditional_value_at_risk_generalized_pareto(
+    returns: pl.Series,
+    *,
+    tail_probability: float = 0.01,
+    threshold_probability: float = 0.10,
+) -> float:
+    r"""GPD-fitted extreme CVaR as a lower-tail return.
 
     Closed form for the GPD tail (xi < 1):
         :math:`CVaR_p = \frac{VaR_p}{1 - \xi} + \frac{\beta - \xi u}{1 - \xi}`
 
     Args:
         returns: Periodic returns.
-        var_p: Tail probability.
-        threshold_p: Mass beyond the threshold used for the fit.
+        tail_probability: Tail probability.
+        threshold_probability: Mass beyond the threshold used for the fit.
 
     Returns:
-        CVaR magnitude as a positive float.
+        CVaR as a negative return.
     """
+    _validate_probability(tail_probability, name="tail_probability")
+    _validate_probability(threshold_probability, name="threshold_probability")
+    if tail_probability >= threshold_probability:
+        raise ValueError("tail_probability must be less than threshold_probability")
     arr = returns.drop_nulls().to_numpy().astype(float)
     arr = arr[np.isfinite(arr)]
     if arr.size < 20:
         return float("nan")
     losses = -arr
-    u = float(np.quantile(losses, 1.0 - threshold_p))
+    u = float(np.quantile(losses, 1.0 - threshold_probability))
     excess = losses[losses > u] - u
     if excess.size < 5:
-        var_fallback = float(np.quantile(losses, 1.0 - var_p))
+        var_fallback = float(np.quantile(losses, 1.0 - tail_probability))
         tail = losses[losses >= var_fallback]
-        return float(tail.mean()) if tail.size else var_fallback
+        return -float(tail.mean()) if tail.size else -var_fallback
     xi, beta = _fit_gpd(excess)
     n = arr.size
     nu = excess.size
-    ratio = (n / nu) * var_p
+    ratio = (n / nu) * tail_probability
     if abs(xi) < 1e-8:
         var = u + beta * (-math.log(ratio))
         cvar = var + beta
     else:
         var = u + (beta / xi) * (ratio ** (-xi) - 1.0)
         if xi >= 1.0:
-            return float("inf")
+            return float("-inf")
         cvar = var / (1.0 - xi) + (beta - xi * u) / (1.0 - xi)
-    return float(cvar)
+    return -float(cvar)

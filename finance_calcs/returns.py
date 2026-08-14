@@ -15,19 +15,17 @@ Per the workspace rule, there are no separate ``rolling_*`` or
 from __future__ import annotations
 
 import polars as pl
+from finance_enums import Frequency
 
-from ._periods import PeriodLike, _bucket_or_none, _check_window_period, period_bucket
+from ._periods import FrequencyLike, PeriodLike, _bucket_or_none, _check_window_period, _observations_per_year, period_bucket
 
 __all__ = [
-    "aggregate_returns",
     "annualized_return",
     "annualized_volatility",
-    "cagr",
-    "cum_returns",
-    "cum_returns_final",
+    "cumulative_return",
+    "cumulative_returns",
     "log_returns",
     "period_bucket",
-    "returns",
     "simple_returns",
 ]
 
@@ -56,7 +54,7 @@ def log_returns(price: pl.Expr) -> pl.Expr:
     return (price / price.shift(1)).log()
 
 
-def cum_returns(
+def cumulative_returns(
     returns: pl.Expr,
     starting_value: float = 0.0,
     *,
@@ -86,7 +84,7 @@ def cum_returns(
     return growth * starting_value
 
 
-def cum_returns_final(
+def cumulative_return(
     returns: pl.Expr,
     *,
     window: int | None = None,
@@ -109,31 +107,10 @@ def cum_returns_final(
     return _rolling_product(one_plus, window) - 1.0
 
 
-def returns(
-    returns: pl.Expr,
-    *,
-    window: int | None = None,
-    period: PeriodLike | None = None,
-    date: pl.Expr | None = None,
-) -> pl.Expr:
-    """Compound return over a trailing window or full sample.
-
-    ``window=None, period=None`` returns the full-sample compound return.
-    ``window=N`` returns trailing compounded returns over ``N`` rows.
-    ``period=...`` returns the compounded return for each period bucket.
-    """
-    return cum_returns_final(returns, window=window, period=period, date=date)
-
-
-def aggregate_returns(returns: pl.Expr, date: pl.Expr, period: PeriodLike) -> pl.Expr:
-    """Compound returns by a calendar or custom period bucket."""
-    return cum_returns_final(returns, period=period, date=date)
-
-
 def annualized_return(
     returns: pl.Expr,
-    periods_per_year: int = 252,
     *,
+    frequency: FrequencyLike = Frequency.Day,
     window: int | None = None,
     period: PeriodLike | None = None,
     date: pl.Expr | None = None,
@@ -141,11 +118,13 @@ def annualized_return(
     """Annualised geometric return.
 
     ``window=None`` → scalar lifetime CAGR. ``window=N`` → rolling
-    CAGR annualised by ``periods_per_year / window``. ``period=...`` →
+    CAGR annualised by the observations per year implied by ``frequency``.
+    ``period=...`` →
     CAGR for each period bucket. Annualisation uses the count of non-missing
     observations, not elapsed calendar time; ``date`` is used only to build a
     period bucket.
     """
+    observations_per_year = _observations_per_year(frequency)
     _check_window_period(window, period)
     bucket = _bucket_or_none(date, period)
     clean_returns = _clean_returns(returns)
@@ -153,32 +132,20 @@ def annualized_return(
     if bucket is not None:
         observation_count = clean_returns.is_not_null().sum().over(bucket)
         total_growth = one_plus.product().over(bucket)
-        return total_growth.pow(pl.lit(periods_per_year) / observation_count) - 1.0
+        return total_growth.pow(pl.lit(observations_per_year) / observation_count) - 1.0
     if window is None:
         n = clean_returns.is_not_null().sum()
         total_growth = one_plus.product()
-        return total_growth.pow(pl.lit(periods_per_year) / n) - 1.0
+        return total_growth.pow(pl.lit(observations_per_year) / n) - 1.0
     growth = _rolling_product(one_plus, window)
     observation_count = clean_returns.is_not_null().cast(pl.UInt32).rolling_sum(window)
-    return growth.pow(periods_per_year / observation_count) - 1.0
-
-
-def cagr(
-    returns: pl.Expr,
-    periods_per_year: int = 252,
-    *,
-    window: int | None = None,
-    period: PeriodLike | None = None,
-    date: pl.Expr | None = None,
-) -> pl.Expr:
-    """Compatibility alias for :func:`annualized_return`."""
-    return annualized_return(returns, periods_per_year, window=window, period=period, date=date)
+    return growth.pow(observations_per_year / observation_count) - 1.0
 
 
 def annualized_volatility(
     returns: pl.Expr,
-    periods_per_year: int = 252,
     *,
+    frequency: FrequencyLike = Frequency.Day,
     window: int | None = None,
     period: PeriodLike | None = None,
     date: pl.Expr | None = None,
@@ -189,11 +156,12 @@ def annualized_volatility(
     rolling annualised volatility; ``period=...`` → volatility for each
     period bucket.
     """
+    observations_per_year = _observations_per_year(frequency)
     _check_window_period(window, period)
     bucket = _bucket_or_none(date, period)
     clean_returns = _clean_returns(returns)
     if bucket is not None:
-        return clean_returns.std().over(bucket) * (periods_per_year**0.5)
+        return clean_returns.std().over(bucket) * (observations_per_year**0.5)
     if window is None:
-        return clean_returns.std() * (periods_per_year**0.5)
-    return clean_returns.rolling_std(window) * (periods_per_year**0.5)
+        return clean_returns.std() * (observations_per_year**0.5)
+    return clean_returns.rolling_std(window) * (observations_per_year**0.5)

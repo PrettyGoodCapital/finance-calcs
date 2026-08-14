@@ -21,7 +21,7 @@ def _vec(values: Sequence[float]) -> list[float]:
     return np.asarray(values, dtype=float).reshape(-1).tolist()
 
 
-def _adx_fallback(high: np.ndarray, low: np.ndarray, close: np.ndarray, period: int) -> np.ndarray:
+def _adx_fallback(high: np.ndarray, low: np.ndarray, close: np.ndarray, window: int) -> np.ndarray:
     n = high.size
     tr = np.zeros(n, dtype=float)
     plus_dm = np.zeros(n, dtype=float)
@@ -33,7 +33,7 @@ def _adx_fallback(high: np.ndarray, low: np.ndarray, close: np.ndarray, period: 
         minus_dm[i] = down if down > up and down > 0.0 else 0.0
         tr[i] = max(high[i] - low[i], abs(high[i] - close[i - 1]), abs(low[i] - close[i - 1]))
 
-    alpha = 1.0 / max(period, 1)
+    alpha = 1.0 / max(window, 1)
     tr_sm = np.zeros(n, dtype=float)
     plus_sm = np.zeros(n, dtype=float)
     minus_sm = np.zeros(n, dtype=float)
@@ -101,13 +101,13 @@ def _garch11_fallback(returns: np.ndarray, omega: float, alpha: float, beta: flo
     return out
 
 
-def native_adx(high: Sequence[float], low: Sequence[float], close: Sequence[float], period: int = 14) -> np.ndarray:
+def native_adx(high: Sequence[float], low: Sequence[float], close: Sequence[float], window: int = 14) -> np.ndarray:
     h = np.asarray(high, dtype=float).reshape(-1)
     low_values = np.asarray(low, dtype=float).reshape(-1)
     c = np.asarray(close, dtype=float).reshape(-1)
     if hasattr(_native, "native_adx"):
-        return np.asarray(_native.native_adx(h.tolist(), low_values.tolist(), c.tolist(), int(period)), dtype=float)
-    return _adx_fallback(h, low_values, c, int(period))
+        return np.asarray(_native.native_adx(h.tolist(), low_values.tolist(), c.tolist(), int(window)), dtype=float)
+    return _adx_fallback(h, low_values, c, int(window))
 
 
 def native_parabolic_sar(high: Sequence[float], low: Sequence[float], af_step: float = 0.02, af_max: float = 0.2) -> np.ndarray:

@@ -4,7 +4,7 @@ Registers ``.fcalcs`` on ``pl.Expr`` and ``pl.Series`` so all public
 calculations can be invoked fluently::
 
     df.with_columns(pl.col("close").fcalcs.simple_returns().alias("ret"))
-    df.select(pl.col("ret").fcalcs.sharpe_ratio())
+    df.select(pl.col("ret").fcalcs.sharpe())
 """
 
 from __future__ import annotations

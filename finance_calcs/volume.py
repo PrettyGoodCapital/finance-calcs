@@ -52,8 +52,8 @@ def adosc(
     low: pl.Expr,
     close: pl.Expr,
     volume: pl.Expr,
-    fast: int = 3,
-    slow: int = 10,
+    fast_window: int = 3,
+    slow_window: int = 10,
 ) -> pl.Expr:
     """Chaikin A/D Oscillator — ``EMA(AD, fast) - EMA(AD, slow)``.
 
@@ -62,11 +62,11 @@ def adosc(
         low: Bar low.
         close: Bar close.
         volume: Bar volume.
-        fast: Fast EMA span.
-        slow: Slow EMA span.
+        fast_window: Fast EMA window.
+        slow_window: Slow EMA window.
 
     Returns:
         ADOSC expression.
     """
     line = ad(high, low, close, volume)
-    return ema(line, fast) - ema(line, slow)
+    return ema(line, fast_window) - ema(line, slow_window)

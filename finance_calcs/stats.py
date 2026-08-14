@@ -11,6 +11,9 @@ import math
 
 import numpy as np
 import polars as pl
+from finance_enums import Frequency
+
+from ._periods import FrequencyLike, _observations_per_year
 
 __all__ = [
     "common_sense_ratio",
@@ -46,17 +49,17 @@ def kurtosis(returns: pl.Expr) -> pl.Expr:
 
 
 def higher_moments(returns: pl.Expr) -> pl.Expr:
-    """Bundled struct of ``{skew, kurt}`` for ``returns``.
+    """Bundled struct of skewness and kurtosis for ``returns``.
 
     Args:
         returns: Returns expression.
 
     Returns:
-        Struct expression with fields ``skew`` and ``kurt``.
+        Struct expression with fields ``skewness`` and ``kurtosis``.
     """
     return pl.struct(
-        skew=returns.skew(),
-        kurt=returns.kurtosis(),
+        skewness=returns.skew(),
+        kurtosis=returns.kurtosis(),
     )
 
 
@@ -102,10 +105,10 @@ def common_sense_ratio(returns: pl.Expr) -> pl.Expr:
     return tail * (1.0 + cum)
 
 
-def _sharpe(arr: np.ndarray, periods_per_year: int = 252) -> float:
+def _sharpe(arr: np.ndarray, observations_per_year: float) -> float:
     if arr.size < 2 or arr.std(ddof=1) == 0:
         return 0.0
-    return float(arr.mean() / arr.std(ddof=1) * math.sqrt(periods_per_year))
+    return float(arr.mean() / arr.std(ddof=1) * math.sqrt(observations_per_year))
 
 
 def _norm_cdf(x: float) -> float:
@@ -137,31 +140,33 @@ def _norm_ppf(p: float) -> float:
     return -(((((c[0] * q + c[1]) * q + c[2]) * q + c[3]) * q + c[4]) * q + c[5]) / ((((d[0] * q + d[1]) * q + d[2]) * q + d[3]) * q + 1.0)
 
 
-def probabilistic_sharpe(
+def sharpe_probability(
     returns: pl.Series,
-    benchmark_sr: float = 0.0,
-    periods_per_year: int = 252,
+    *,
+    benchmark_sharpe: float = 0.0,
+    frequency: FrequencyLike = Frequency.Day,
 ) -> float:
     """Lopez de Prado probabilistic Sharpe ratio.
 
     Probability that the observed Sharpe is greater than
-    ``benchmark_sr``, accounting for sample skew and kurtosis.
+    ``benchmark_sharpe``, accounting for sample skew and kurtosis.
 
     Args:
         returns: Periodic returns.
-        benchmark_sr: Annualised threshold Sharpe.
-        periods_per_year: Periods per year.
+        benchmark_sharpe: Annualised threshold Sharpe.
+        frequency: Observation frequency alias, enum, or observations per year.
 
     Returns:
-        ``Pr(SR_true > benchmark_sr)`` in ``[0, 1]``.
+        ``Pr(SR_true > benchmark_sharpe)`` in ``[0, 1]``.
     """
     arr = returns.drop_nulls().to_numpy().astype(float)
     n = arr.size
     if n < 3:
         return float("nan")
-    sr_hat = _sharpe(arr, periods_per_year)
-    sr_per = sr_hat / math.sqrt(periods_per_year)
-    bench_per = benchmark_sr / math.sqrt(periods_per_year)
+    observations_per_year = _observations_per_year(frequency)
+    sr_hat = _sharpe(arr, observations_per_year)
+    sr_per = sr_hat / math.sqrt(observations_per_year)
+    bench_per = benchmark_sharpe / math.sqrt(observations_per_year)
     skew = float(((arr - arr.mean()) ** 3).mean() / (arr.std(ddof=0) ** 3 + 1e-30))
     kurt = float(((arr - arr.mean()) ** 4).mean() / (arr.std(ddof=0) ** 4 + 1e-30)) - 3.0
     num = (sr_per - bench_per) * math.sqrt(n - 1)
@@ -169,51 +174,53 @@ def probabilistic_sharpe(
     return _norm_cdf(num / den)
 
 
-def deflated_sharpe(
+def sharpe_deflated_probability(
     returns: pl.Series,
-    n_trials: int,
-    sr_variance: float | None = None,
-    periods_per_year: int = 252,
+    *,
+    trial_count: int,
+    sharpe_variance: float | None = None,
+    frequency: FrequencyLike = Frequency.Day,
 ) -> float:
     """Deflated Sharpe ratio (Bailey & Lopez de Prado).
 
     Adjusts the probabilistic Sharpe for multiple-testing across
-    ``n_trials`` candidate strategies.
+    ``trial_count`` candidate strategies.
 
     Args:
         returns: Periodic returns.
-        n_trials: Number of independent strategies tried.
-        sr_variance: Variance of the trial Sharpes. If ``None`` a
+        trial_count: Number of independent strategies tried.
+        sharpe_variance: Variance of the trial Sharpes. If ``None`` a
             conservative default of ``1.0`` is used (worst case).
-        periods_per_year: Periods per year.
+        frequency: Observation frequency alias, enum, or observations per year.
 
     Returns:
         ``Pr(SR_true > expected_max_SR_under_null)`` in ``[0, 1]``.
     """
-    if n_trials < 1:
-        raise ValueError("n_trials must be >= 1")
-    if sr_variance is None:
-        sr_variance = 1.0
+    if trial_count < 2:
+        raise ValueError("trial_count must be >= 2")
+    if sharpe_variance is None:
+        sharpe_variance = 1.0
+    observations_per_year = _observations_per_year(frequency)
     euler_mascheroni = 0.5772156649015329
-    expected_max_z = (1.0 - euler_mascheroni) * _norm_ppf(1.0 - 1.0 / n_trials) + euler_mascheroni * _norm_ppf(1.0 - 1.0 / (n_trials * math.e))
-    threshold_sr_per = expected_max_z * math.sqrt(sr_variance) / math.sqrt(periods_per_year)
-    threshold_sr_ann = threshold_sr_per * math.sqrt(periods_per_year)
-    return probabilistic_sharpe(returns, threshold_sr_ann, periods_per_year)
+    expected_max_z = (1.0 - euler_mascheroni) * _norm_ppf(1.0 - 1.0 / trial_count) + euler_mascheroni * _norm_ppf(1.0 - 1.0 / (trial_count * math.e))
+    threshold_sharpe = expected_max_z * math.sqrt(sharpe_variance)
+    return sharpe_probability(returns, benchmark_sharpe=threshold_sharpe, frequency=observations_per_year)
 
 
-def minimum_track_record_length(
+def sharpe_minimum_track_record_length(
     returns: pl.Series,
-    benchmark_sr: float = 0.0,
-    alpha: float = 0.05,
-    periods_per_year: int = 252,
+    *,
+    benchmark_sharpe: float = 0.0,
+    significance_level: float = 0.05,
+    frequency: FrequencyLike = Frequency.Day,
 ) -> float:
-    """Minimum number of observations for ``SR > benchmark_sr`` at confidence ``1-alpha``.
+    """Minimum observations for Sharpe above benchmark at requested confidence.
 
     Args:
         returns: Periodic returns.
-        benchmark_sr: Annualised threshold Sharpe.
-        alpha: Significance level (``0.05`` → 95% confidence).
-        periods_per_year: Periods per year.
+        benchmark_sharpe: Annualised threshold Sharpe.
+        significance_level: Significance level (``0.05`` → 95% confidence).
+        frequency: Observation frequency alias, enum, or observations per year.
 
     Returns:
         Minimum number of observations (float; round up in practice).
@@ -221,33 +228,35 @@ def minimum_track_record_length(
     arr = returns.drop_nulls().to_numpy().astype(float)
     if arr.size < 3:
         return float("nan")
-    sr_hat = _sharpe(arr, periods_per_year)
-    sr_per = sr_hat / math.sqrt(periods_per_year)
-    bench_per = benchmark_sr / math.sqrt(periods_per_year)
+    observations_per_year = _observations_per_year(frequency)
+    sr_hat = _sharpe(arr, observations_per_year)
+    sr_per = sr_hat / math.sqrt(observations_per_year)
+    bench_per = benchmark_sharpe / math.sqrt(observations_per_year)
     if sr_per <= bench_per:
         return float("inf")
     skew = float(((arr - arr.mean()) ** 3).mean() / (arr.std(ddof=0) ** 3 + 1e-30))
     kurt = float(((arr - arr.mean()) ** 4).mean() / (arr.std(ddof=0) ** 4 + 1e-30)) - 3.0
-    z = _norm_ppf(1.0 - alpha)
+    z = _norm_ppf(1.0 - significance_level)
     num = z**2 * (1.0 - skew * sr_per + (kurt / 4.0) * sr_per**2)
     den = (sr_per - bench_per) ** 2
     return 1.0 + num / den
 
 
-def sharpe_ci_bootstrap(
+def sharpe_bootstrap_confidence_interval(
     returns: pl.Series,
-    n_bootstrap: int = 1000,
-    confidence: float = 0.95,
-    periods_per_year: int = 252,
+    *,
+    bootstrap_samples: int = 1000,
+    confidence_level: float = 0.95,
+    frequency: FrequencyLike = Frequency.Day,
     seed: int | None = None,
 ) -> tuple[float, float, float]:
     """Bootstrap confidence interval for the Sharpe ratio.
 
     Args:
         returns: Periodic returns.
-        n_bootstrap: Number of bootstrap resamples.
-        confidence: Two-sided confidence level.
-        periods_per_year: Periods per year.
+        bootstrap_samples: Number of bootstrap resamples.
+        confidence_level: Two-sided confidence level.
+        frequency: Observation frequency alias, enum, or observations per year.
         seed: RNG seed.
 
     Returns:
@@ -258,22 +267,24 @@ def sharpe_ci_bootstrap(
     if n < 3:
         return (float("nan"), float("nan"), float("nan"))
     rng = np.random.default_rng(seed)
-    samples = np.empty(n_bootstrap)
-    for i in range(n_bootstrap):
+    observations_per_year = _observations_per_year(frequency)
+    samples = np.empty(bootstrap_samples)
+    for i in range(bootstrap_samples):
         idx = rng.integers(0, n, size=n)
-        samples[i] = _sharpe(arr[idx], periods_per_year)
-    alpha = (1.0 - confidence) / 2.0
+        samples[i] = _sharpe(arr[idx], observations_per_year)
+    alpha = (1.0 - confidence_level) / 2.0
     lo, hi = np.quantile(samples, [alpha, 1.0 - alpha])
-    return (_sharpe(arr, periods_per_year), float(lo), float(hi))
+    return (_sharpe(arr, observations_per_year), float(lo), float(hi))
 
 
-def sharpe_with_ci(
+def sharpe_confidence_interval(
     returns: pl.Series,
+    *,
     risk_free: float | pl.Series | np.ndarray = 0.0,
-    periods_per_year: int = 252,
-    confidence: float = 0.95,
+    frequency: FrequencyLike = Frequency.Day,
+    confidence_level: float = 0.95,
 ) -> tuple[float, float, float]:
-    """Sharpe with HAC-style asymptotic confidence interval.
+    """Sharpe with a Mertens-style asymptotic confidence interval.
 
     Args:
         returns: Periodic returns.
@@ -281,8 +292,8 @@ def sharpe_with_ci(
             scalar, or a per-period rate series (``pl.Series`` /
             ``np.ndarray``) aligned to ``returns`` for a time-varying
             risk-free rate.
-        periods_per_year: Periods per year.
-        confidence: Two-sided confidence level.
+        frequency: Observation frequency alias, enum, or observations per year.
+        confidence_level: Two-sided confidence level.
 
     Returns:
         Tuple ``(sharpe, lower, upper)`` where the bounds are derived
@@ -292,18 +303,19 @@ def sharpe_with_ci(
     n = arr.size
     if n < 3:
         return (float("nan"), float("nan"), float("nan"))
+    observations_per_year = _observations_per_year(frequency)
     if isinstance(risk_free, pl.Series):
         rf = risk_free.to_numpy().astype(float)
     elif isinstance(risk_free, np.ndarray):
         rf = risk_free.astype(float)
     else:
-        rf = risk_free / periods_per_year
+        rf = (1.0 + risk_free) ** (1.0 / observations_per_year) - 1.0
     excess = arr - rf
     sr_per = excess.mean() / (excess.std(ddof=1) + 1e-30)
-    sr_ann = sr_per * math.sqrt(periods_per_year)
+    sr_ann = sr_per * math.sqrt(observations_per_year)
     skew = float(((excess - excess.mean()) ** 3).mean() / (excess.std(ddof=0) ** 3 + 1e-30))
     kurt = float(((excess - excess.mean()) ** 4).mean() / (excess.std(ddof=0) ** 4 + 1e-30)) - 3.0
     var_sr = (1.0 + 0.5 * sr_per**2 - skew * sr_per + (kurt / 4.0) * sr_per**2) / n
-    se = math.sqrt(max(var_sr, 0.0)) * math.sqrt(periods_per_year)
-    z = _norm_ppf(1.0 - (1.0 - confidence) / 2.0)
+    se = math.sqrt(max(var_sr, 0.0)) * math.sqrt(observations_per_year)
+    z = _norm_ppf(1.0 - (1.0 - confidence_level) / 2.0)
     return (sr_ann, sr_ann - z * se, sr_ann + z * se)

@@ -37,16 +37,16 @@ post-trade summaries accept concrete `pl.DataFrame` inputs.
 
 ## Implemented coverage
 
-| Topic                        | Functions                                                                                                                                                                                    |
-| ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Returns and periods          | `period_bucket`, `simple_returns`, `log_returns`, `cum_returns`, `cum_returns_final`, `returns`, `aggregate_returns`, `annualized_return`, `annualized_volatility`, `cagr`                   |
-| Risk and drawdown            | `volatility`, `sharpe`, `sortino`, `calmar`, `downside_deviation`, `drawdown_series`, `max_drawdown`, `drawdown_details`, `value_at_risk`, `conditional_value_at_risk`, `expected_shortfall` |
-| Report metrics               | Best/worst returns, average wins/losses, gain-to-pain, recovery factor, Kelly criterion, and QuantStats-compatible naming aliases                                                            |
-| Technical indicators         | Moving averages, Bollinger/Donchian channels, momentum oscillators, range volatility, and volume indicators                                                                                  |
-| Alpha and quantiles          | Forward returns, conditional/horizon IC, IC decay, IC summaries, quantile assignment, signal normalization, quantile returns, turnover, and long/short spreads                               |
-| Factor and benchmark metrics | Alpha, beta, benchmark R-squared, up/down capture, batting average, tracking error, and information ratio                                                                                    |
-| Distribution and tail risk   | Higher moments, Sharpe significance helpers, tail ratio, ulcer index, omega ratio, GPD VaR, and GPD CVaR                                                                                     |
-| Portfolio and post-trade     | Exposure, concentration, active share, transaction costs/volume/attribution, slippage, turnover, round trips, MAE/MFE, and trade-quality metrics                                             |
+| Topic                        | Functions                                                                                                                                                                |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Returns and periods          | `period_bucket`, `simple_returns`, `log_returns`, `cumulative_returns`, `cumulative_return`, `annualized_return`, `annualized_volatility`                                |
+| Risk and drawdown            | `sharpe`, `sortino`, `calmar`, `downside_deviation`, `drawdown_series`, `max_drawdown`, `drawdown_details`, and historical, parametric, and generalized-Pareto tail risk |
+| Report metrics               | Best/worst returns, average wins/losses, gain-to-pain, recovery factor, and Kelly criterion                                                                              |
+| Technical indicators         | Moving averages, Bollinger/Donchian channels, momentum oscillators, range volatility, and volume indicators                                                              |
+| Alpha and quantiles          | Forward returns, conditional/horizon IC, IC decay, IC summaries, quantile assignment, signal normalization, quantile returns, turnover, and long/short spreads           |
+| Factor and benchmark metrics | Alpha, beta, benchmark R-squared, up/down capture, batting average, tracking error, and information ratio                                                                |
+| Distribution and tail risk   | Higher moments, Sharpe significance helpers, tail ratio, ulcer index, omega ratio, GPD VaR, and GPD CVaR                                                                 |
+| Portfolio and post-trade     | Exposure, concentration, active share, transaction costs/volume/attribution, slippage, turnover, round trips, MAE/MFE, and trade-quality metrics                         |
 
 See the [Examples](docs/src/EXAMPLES.md) page for workflows with generated data
 and the [API](docs/src/API.md) page for a complete grouped reference for every
@@ -68,9 +68,9 @@ prices = generate_prices(symbol="ACME", seed=7)
 out = prices.with_columns(
     pl.col("price").fcalcs.simple_returns().alias("ret"),
 ).select(
-    fc.returns(pl.col("ret")).alias("total_return"),
-    pl.col("ret").fcalcs.annualized_return().alias("ann_return"),
-    pl.col("ret").fcalcs.volatility().alias("ann_vol"),
+    fc.cumulative_return(pl.col("ret")).alias("total_return"),
+    pl.col("ret").fcalcs.annualized_return().alias("annualized_return"),
+    pl.col("ret").fcalcs.annualized_volatility().alias("annualized_volatility"),
     pl.col("ret").fcalcs.sharpe().alias("sharpe"),
     pl.col("ret").fcalcs.max_drawdown().alias("max_drawdown"),
 )
@@ -106,7 +106,7 @@ monthly = prices.with_columns(
     pl.col("price").fcalcs.simple_returns().alias("ret"),
 ).with_columns(
     fc.period_bucket(pl.col("timestamp"), Frequency.Month).alias("month"),
-    pl.col("ret").fcalcs.returns(period="month", date=pl.col("timestamp")).alias("month_return"),
+    pl.col("ret").fcalcs.cumulative_return(period="month", date=pl.col("timestamp")).alias("month_return"),
     pl.col("ret").fcalcs.sharpe(period="1q", date=pl.col("timestamp")).alias("quarter_sharpe"),
 )
 ```
@@ -119,7 +119,7 @@ bucketed = prices.with_columns(
     pl.col("price").fcalcs.simple_returns().alias("ret"),
     pl.col("timestamp").dt.year().alias("fiscal_year"),
 ).with_columns(
-    fc.returns(pl.col("ret"), period=pl.col("fiscal_year")).alias("fiscal_return"),
+    fc.cumulative_return(pl.col("ret"), period=pl.col("fiscal_year")).alias("fiscal_return"),
 )
 ```
 

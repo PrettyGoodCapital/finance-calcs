@@ -1,6 +1,6 @@
 [package]
 name = "finance-calcs"
-version = "0.2.1"
+version = "0.3.0"
 authors = ["PrettyGoodCapital <prettygoodcapital@gmail.com>"]
 edition = "2021"
 license = "Apache-2.0"
@@ -17,4 +17,3 @@ crate-type = ["rlib"]
 
 [profile.test.junit]
 path = "junit.xml"
-

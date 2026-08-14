@@ -145,7 +145,7 @@ def test_extract_round_trips_and_trade_quality_stats() -> None:
 
     assert round_trips.height == 3
     assert round_trips["pnl"].to_list() == pytest.approx([40.0, -60.0, 50.0])
-    assert stats["n_trades"] == 3
+    assert stats["trade_count"] == 3
     assert stats["win_rate"] == pytest.approx(2 / 3)
     assert stats["total_pnl"] == pytest.approx(30.0)
     assert set(long_short["side"]) == {"long", "short"}
@@ -205,14 +205,14 @@ def test_trade_quality_expression_metrics() -> None:
         fc.win_rate(pl.col("pnl")).alias("win_rate"),
         fc.profit_factor(pl.col("pnl")).alias("profit_factor"),
         fc.payoff_ratio(pl.col("pnl")).alias("payoff_ratio"),
-        fc.avg_trade_pnl(pl.col("pnl")).alias("avg_trade_pnl"),
+        fc.average_trade_pnl(pl.col("pnl")).alias("average_trade_pnl"),
         fc.trade_size_return_correlation(pl.col("size"), pl.col("ret")).alias("size_corr"),
     )
 
     assert out["win_rate"][0] == pytest.approx(0.5)
     assert out["profit_factor"][0] == pytest.approx(33.0 / 16.0)
     assert out["payoff_ratio"][0] == pytest.approx(11.0 / (16.0 / 3.0))
-    assert out["avg_trade_pnl"][0] == pytest.approx(17.0 / 6.0)
+    assert out["average_trade_pnl"][0] == pytest.approx(17.0 / 6.0)
     assert out["size_corr"][0] is not None
 
 

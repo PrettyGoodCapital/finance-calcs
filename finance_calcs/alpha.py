@@ -2,7 +2,7 @@
 
 These functions are designed to be composed inside ``group_by("date").agg(...)``
 to produce a cross-sectional information-coefficient time series, then
-aggregated across time with :func:`ic_ir` and friends.
+aggregated across time with :func:`information_coefficient_ratio` and friends.
 """
 
 from __future__ import annotations
@@ -14,95 +14,112 @@ import polars as pl
 from ._periods import PeriodLike, _bucket_or_none, _check_window_period
 
 __all__ = [
-    "conditional_ic",
     "forward_returns",
     "hit_rate",
-    "horizon_ic",
-    "ic_decay",
-    "ic_ir",
-    "ic_summary_stats",
     "information_coefficient",
-    "pearson_ic",
-    "spearman_ic",
+    "information_coefficient_by_horizon",
+    "information_coefficient_conditional",
+    "information_coefficient_decay",
+    "information_coefficient_pearson",
+    "information_coefficient_ratio",
+    "information_coefficient_spearman",
+    "information_coefficient_statistics",
+]
+
+__finance_namespace__ = [
+    "forward_returns",
+    "hit_rate",
+    "information_coefficient",
+    "information_coefficient_by_horizon",
+    "information_coefficient_conditional",
+    "information_coefficient_decay",
+    "information_coefficient_pearson",
+    "information_coefficient_ratio",
+    "information_coefficient_spearman",
 ]
 
 
-def forward_returns(price: pl.Expr, periods: int = 1) -> pl.Expr:
-    """Forward simple return over ``periods`` bars.
+def forward_returns(price: pl.Expr, horizon: int = 1) -> pl.Expr:
+    """Forward simple return over ``horizon`` observations.
 
     Args:
         price: Price series.
-        periods: Look-ahead horizon in bars.
+        horizon: Look-ahead horizon in observations.
 
     Returns:
-        Expression yielding ``price.shift(-periods) / price - 1``.
+        Expression yielding ``price.shift(-horizon) / price - 1``.
     """
-    return price.shift(-periods) / price - 1.0
+    return price.shift(-horizon) / price - 1.0
 
 
-def pearson_ic(signal: pl.Expr, fwd: pl.Expr) -> pl.Expr:
+def information_coefficient_pearson(signal: pl.Expr, forward_returns: pl.Expr) -> pl.Expr:
     """Pearson information coefficient.
 
     Args:
         signal: Signal / alpha series.
-        fwd: Forward-return series of the same length.
+        forward_returns: Forward-return series of the same length.
 
     Returns:
         Scalar correlation expression.
     """
-    return pl.corr(signal, fwd, method="pearson")
+    return pl.corr(signal, forward_returns, method="pearson")
 
 
-def spearman_ic(signal: pl.Expr, fwd: pl.Expr) -> pl.Expr:
+def information_coefficient_spearman(signal: pl.Expr, forward_returns: pl.Expr) -> pl.Expr:
     """Spearman rank information coefficient.
 
     Args:
         signal: Signal / alpha series.
-        fwd: Forward-return series of the same length.
+        forward_returns: Forward-return series of the same length.
 
     Returns:
         Scalar rank-correlation expression.
     """
-    return pl.corr(signal, fwd, method="spearman")
+    return pl.corr(signal, forward_returns, method="spearman")
 
 
-information_coefficient = spearman_ic
+def information_coefficient(signal: pl.Expr, forward_returns: pl.Expr, *, method: str = "spearman") -> pl.Expr:
+    """Information coefficient using the requested correlation method."""
+    return pl.corr(signal, forward_returns, method=method)
 
 
-def conditional_ic(
+def information_coefficient_conditional(
     signal: pl.Expr,
-    fwd: pl.Expr,
+    forward_returns: pl.Expr,
     condition: pl.Expr,
     *,
     method: str = "spearman",
 ) -> pl.Expr:
     """Information coefficient on observations matching ``condition``."""
-    return pl.corr(signal.filter(condition), fwd.filter(condition), method=method)
+    return pl.corr(signal.filter(condition), forward_returns.filter(condition), method=method)
 
 
-def horizon_ic(
+def information_coefficient_by_horizon(
     signal: pl.Expr,
-    fwd: pl.Expr,
+    forward_returns: pl.Expr,
     *,
     method: str = "spearman",
 ) -> pl.Expr:
     """Information coefficient for one forward-return horizon."""
-    return pl.corr(signal, fwd, method=method)
+    return pl.corr(signal, forward_returns, method=method)
 
 
-def ic_decay(
+def information_coefficient_decay(
     signal: pl.Expr,
     forward_returns_by_horizon: Mapping[int, pl.Expr],
     *,
     method: str = "spearman",
-    prefix: str = "ic_",
+    prefix: str = "information_coefficient_",
 ) -> list[pl.Expr]:
     """Build one horizon IC expression per forward-return horizon."""
-    return [horizon_ic(signal, fwd, method=method).alias(f"{prefix}{horizon}") for horizon, fwd in sorted(forward_returns_by_horizon.items())]
+    return [
+        information_coefficient_by_horizon(signal, forward_return, method=method).alias(f"{prefix}{horizon}")
+        for horizon, forward_return in sorted(forward_returns_by_horizon.items())
+    ]
 
 
-def ic_ir(
-    ic: pl.Expr,
+def information_coefficient_ratio(
+    information_coefficient: pl.Expr,
     *,
     window: int | None = None,
     period: PeriodLike | None = None,
@@ -116,57 +133,57 @@ def ic_ir(
     _check_window_period(window, period)
     bucket = _bucket_or_none(date, period)
     if bucket is not None:
-        return ic.mean().over(bucket) / ic.std().over(bucket)
+        return information_coefficient.mean().over(bucket) / information_coefficient.std().over(bucket)
     if window is None:
-        return ic.mean() / ic.std()
-    return ic.rolling_mean(window) / ic.rolling_std(window)
+        return information_coefficient.mean() / information_coefficient.std()
+    return information_coefficient.rolling_mean(window) / information_coefficient.rolling_std(window)
 
 
-def hit_rate(signal: pl.Expr, fwd: pl.Expr) -> pl.Expr:
-    """Fraction of observations where ``sign(signal) == sign(fwd)``.
+def hit_rate(signal: pl.Expr, forward_returns: pl.Expr) -> pl.Expr:
+    """Fraction of observations where signal and forward-return signs agree.
 
     Args:
         signal: Signal series.
-        fwd: Forward return series.
+        forward_returns: Forward return series.
 
     Returns:
         Scalar mean expression in ``[0, 1]``.
     """
-    same = (signal.sign() == fwd.sign()).cast(pl.Float64)
+    same = (signal.sign() == forward_returns.sign()).cast(pl.Float64)
     return same.mean()
 
 
-def ic_summary_stats(ic: pl.Series) -> dict[str, float]:
+def information_coefficient_statistics(information_coefficient: pl.Series) -> dict[str, float | int]:
     """Summary statistics of an IC time series.
 
     Args:
-        ic: IC time series as a polars Series.
+        information_coefficient: Information-coefficient time series.
 
     Returns:
-        Dict with ``mean``, ``std``, ``ir``, ``t_stat``, ``pct_positive``,
-        ``n``. ``t_stat`` is ``ir * sqrt(n)``.
+        Dict with mean, standard deviation, information ratio, t-statistic,
+        positive fraction, and observation count.
     """
-    arr = ic.drop_nulls().drop_nans() if hasattr(ic, "drop_nans") else ic.drop_nulls()
+    arr = information_coefficient.drop_nulls().drop_nans() if hasattr(information_coefficient, "drop_nans") else information_coefficient.drop_nulls()
     n = arr.len()
     if n == 0:
         return {
             "mean": float("nan"),
-            "std": float("nan"),
-            "ir": float("nan"),
-            "t_stat": float("nan"),
-            "pct_positive": float("nan"),
-            "n": 0,
+            "standard_deviation": float("nan"),
+            "information_ratio": float("nan"),
+            "t_statistic": float("nan"),
+            "positive_fraction": float("nan"),
+            "observation_count": 0,
         }
     mean = float(arr.mean())
-    std = float(arr.std()) if n > 1 else 0.0
-    ir = mean / std if std > 0 else float("nan")
-    t_stat = ir * (n**0.5) if std > 0 else float("nan")
-    pct_pos = float((arr > 0).cast(pl.Float64).mean())
+    standard_deviation = float(arr.std()) if n > 1 else 0.0
+    information_ratio = mean / standard_deviation if standard_deviation > 0 else float("nan")
+    t_statistic = information_ratio * (n**0.5) if standard_deviation > 0 else float("nan")
+    positive_fraction = float((arr > 0).cast(pl.Float64).mean())
     return {
         "mean": mean,
-        "std": std,
-        "ir": ir,
-        "t_stat": t_stat,
-        "pct_positive": pct_pos,
-        "n": int(n),
+        "standard_deviation": standard_deviation,
+        "information_ratio": information_ratio,
+        "t_statistic": t_statistic,
+        "positive_fraction": positive_fraction,
+        "observation_count": int(n),
     }

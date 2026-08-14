@@ -40,7 +40,7 @@ def test_alpha_definition():
 
 def test_alpha_accepts_expr_risk_free():
     df = _toy_returns().with_columns(rf=pl.lit(0.0001))
-    scalar = df.select(fc.alpha(pl.col("ret"), pl.col("bench"), risk_free=0.0001 * 252)).item()
+    scalar = df.select(fc.alpha(pl.col("ret"), pl.col("bench"), risk_free=(1.0001**252) - 1.0)).item()
     expr = df.select(fc.alpha(pl.col("ret"), pl.col("bench"), risk_free=pl.col("rf"))).item()
     assert scalar == pytest.approx(expr, rel=1e-9)
 
@@ -113,9 +113,7 @@ def test_period_tracking_error_matches_grouped_monthly_result():
         }
     )
 
-    out = df.with_columns(
-        fc.tracking_error(pl.col("ret"), pl.col("bench"), periods_per_year=1, period="month", date=pl.col("date")).alias("period_te")
-    )
+    out = df.with_columns(fc.tracking_error(pl.col("ret"), pl.col("bench"), frequency=1, period="month", date=pl.col("date")).alias("period_te"))
     expected = (
         df.with_columns((pl.col("ret") - pl.col("bench")).alias("active"))
         .group_by(fc.period_bucket(pl.col("date"), "month").alias("bucket"))

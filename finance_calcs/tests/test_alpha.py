@@ -42,39 +42,39 @@ def test_forward_returns():
     assert out[3] is None
 
 
-def test_pearson_ic_per_date(panel):
+def test_information_coefficient_pearson_per_date(panel):
     ic = panel.group_by("date").agg(
-        fc.pearson_ic(pl.col("signal"), pl.col("fwd")).alias("ic"),
+        fc.information_coefficient_pearson(pl.col("signal"), pl.col("fwd")).alias("ic"),
     )
     mean_ic = float(ic["ic"].mean())
     assert mean_ic > 0.15
 
 
-def test_spearman_ic_per_date(panel):
+def test_information_coefficient_spearman_per_date(panel):
     ic = panel.group_by("date").agg(
-        fc.spearman_ic(pl.col("signal"), pl.col("fwd")).alias("ic"),
+        fc.information_coefficient_spearman(pl.col("signal"), pl.col("fwd")).alias("ic"),
     )
     mean_ic = float(ic["ic"].mean())
     assert mean_ic > 0.15
 
 
-def test_ic_ir_and_summary_stats(panel):
-    ic = panel.group_by("date").agg(fc.spearman_ic(pl.col("signal"), pl.col("fwd")).alias("ic")).sort("date")
-    stats = fc.ic_summary_stats(ic["ic"])
-    assert stats["n"] == 60
+def test_information_coefficient_ratio_and_statistics(panel):
+    ic = panel.group_by("date").agg(fc.information_coefficient_spearman(pl.col("signal"), pl.col("fwd")).alias("ic")).sort("date")
+    stats = fc.information_coefficient_statistics(ic["ic"])
+    assert stats["observation_count"] == 60
     assert stats["mean"] > 0.0
-    assert stats["t_stat"] > 1.0
-    ir_expr = float(ic.select(fc.ic_ir(pl.col("ic"))).item())
-    assert ir_expr == pytest.approx(stats["ir"], rel=1e-6)
+    assert stats["t_statistic"] > 1.0
+    ir_expr = float(ic.select(fc.information_coefficient_ratio(pl.col("ic"))).item())
+    assert ir_expr == pytest.approx(stats["information_ratio"], rel=1e-6)
 
 
 def test_rolling_ic(panel):
-    ic = panel.group_by("date").agg(fc.pearson_ic(pl.col("signal"), pl.col("fwd")).alias("ic")).sort("date")
-    rolling = ic.with_columns(fc.ic_ir(pl.col("ic"), window=10).alias("r")).drop_nulls()
+    ic = panel.group_by("date").agg(fc.information_coefficient_pearson(pl.col("signal"), pl.col("fwd")).alias("ic")).sort("date")
+    rolling = ic.with_columns(fc.information_coefficient_ratio(pl.col("ic"), window=10).alias("r")).drop_nulls()
     assert rolling.height > 0
 
 
-def test_period_ic_ir_matches_grouped_monthly_result():
+def test_period_information_coefficient_ratio_matches_grouped_monthly_result():
     df = pl.DataFrame(
         {
             "date": [
@@ -89,7 +89,7 @@ def test_period_ic_ir_matches_grouped_monthly_result():
         }
     )
 
-    out = df.with_columns(fc.ic_ir(pl.col("ic"), period="month", date=pl.col("date")).alias("period_ir"))
+    out = df.with_columns(fc.information_coefficient_ratio(pl.col("ic"), period="month", date=pl.col("date")).alias("period_ir"))
     expected = (
         df.group_by(fc.period_bucket(pl.col("date"), "month").alias("bucket"))
         .agg((pl.col("ic").mean() / pl.col("ic").std()).alias("expected"))
@@ -105,9 +105,9 @@ def test_hit_rate_perfect():
     assert hr == pytest.approx(1.0)
 
 
-def test_conditional_ic_filters_observations(panel):
+def test_information_coefficient_conditional_filters_observations(panel):
     out = panel.group_by("date").agg(
-        fc.conditional_ic(
+        fc.information_coefficient_conditional(
             pl.col("signal"),
             pl.col("fwd"),
             pl.col("signal") > 0,
@@ -119,24 +119,24 @@ def test_conditional_ic_filters_observations(panel):
     assert float(out["ic"].drop_nulls().mean()) > 0.0
 
 
-def test_horizon_ic_and_decay(panel):
+def test_information_coefficient_by_horizon_and_decay(panel):
     enriched = panel.with_columns(
         (pl.col("fwd") * 0.8 + 0.001).alias("fwd_1"),
         (pl.col("fwd") * 0.4 - 0.001).alias("fwd_5"),
     )
 
     out = enriched.group_by("date").agg(
-        fc.horizon_ic(pl.col("signal"), pl.col("fwd_1"), method="pearson").alias("h1"),
-        *fc.ic_decay(
+        fc.information_coefficient_by_horizon(pl.col("signal"), pl.col("fwd_1"), method="pearson").alias("h1"),
+        *fc.information_coefficient_decay(
             pl.col("signal"),
             {1: pl.col("fwd_1"), 5: pl.col("fwd_5")},
             method="pearson",
         ),
     )
 
-    assert {"h1", "ic_1", "ic_5"}.issubset(out.columns)
-    assert out["h1"].to_list() == pytest.approx(out["ic_1"].to_list())
-    assert float(out["ic_5"].mean()) > 0.0
+    assert {"h1", "information_coefficient_1", "information_coefficient_5"}.issubset(out.columns)
+    assert out["h1"].to_list() == pytest.approx(out["information_coefficient_1"].to_list())
+    assert float(out["information_coefficient_5"].mean()) > 0.0
 
 
 def test_assign_quantile_uniform():
@@ -216,3 +216,7 @@ def test_namespace_alpha():
     df = pl.DataFrame({"p": [100.0, 101.0, 102.0, 100.0]})
     out = df.select(pl.col("p").fcalcs.forward_returns(1).alias("f"))
     assert out.height == 4
+
+
+def test_eager_information_coefficient_statistics_is_not_registered_on_namespace():
+    assert not hasattr(pl.col("ic").fcalcs, "information_coefficient_statistics")
