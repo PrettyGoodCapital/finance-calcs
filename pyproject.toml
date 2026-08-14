@@ -32,7 +32,7 @@ classifiers = [
 
 dependencies = [
     "finance-dates>=0.4.0,<0.5",
-    "finance-enums>=0.5.1,<0.7",
+    "finance-enums>=0.5.1,<0.8",
     "numpy",
     "polars>=1.21",
 ]
@@ -145,6 +145,7 @@ module = "finance_calcs"
 path = "."
 
 [tool.hatch.build.targets.sdist]
+artifacts = []
 packages = [
     "finance_calcs",
     "rust",
