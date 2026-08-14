@@ -199,6 +199,7 @@
   <ul>
 <li class="toctree-l1"><a class="reference internal" href="docs/src/EXAMPLES.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="docs/src/API.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="docs/src/COMPATIBILITY.html">QuantStats Compatibility</a></li>
 </ul>
 
 </div>
@@ -283,24 +284,27 @@ post-trade summaries accept concrete <code class="docutils literal notranslate">
 </thead>
 <tbody>
 <tr class="row-even"><td><p>Returns and periods</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">period_bucket</span></code>, <code class="docutils literal notranslate"><span class="pre">simple_returns</span></code>, <code class="docutils literal notranslate"><span class="pre">log_returns</span></code>, <code class="docutils literal notranslate"><span class="pre">cum_returns</span></code>, <code class="docutils literal notranslate"><span class="pre">cum_returns_final</span></code>, <code class="docutils literal notranslate"><span class="pre">returns</span></code>, <code class="docutils literal notranslate"><span class="pre">aggregate_returns</span></code>, <code class="docutils literal notranslate"><span class="pre">annualized_return</span></code>, <code class="docutils literal notranslate"><span class="pre">annualized_volatility</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">period_bucket</span></code>, <code class="docutils literal notranslate"><span class="pre">simple_returns</span></code>, <code class="docutils literal notranslate"><span class="pre">log_returns</span></code>, <code class="docutils literal notranslate"><span class="pre">cum_returns</span></code>, <code class="docutils literal notranslate"><span class="pre">cum_returns_final</span></code>, <code class="docutils literal notranslate"><span class="pre">returns</span></code>, <code class="docutils literal notranslate"><span class="pre">aggregate_returns</span></code>, <code class="docutils literal notranslate"><span class="pre">annualized_return</span></code>, <code class="docutils literal notranslate"><span class="pre">annualized_volatility</span></code>, <code class="docutils literal notranslate"><span class="pre">cagr</span></code></p></td>
 </tr>
 <tr class="row-odd"><td><p>Risk and drawdown</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">volatility</span></code>, <code class="docutils literal notranslate"><span class="pre">sharpe</span></code>, <code class="docutils literal notranslate"><span class="pre">sortino</span></code>, <code class="docutils literal notranslate"><span class="pre">calmar</span></code>, <code class="docutils literal notranslate"><span class="pre">downside_deviation</span></code>, <code class="docutils literal notranslate"><span class="pre">downside_risk</span></code>, <code class="docutils literal notranslate"><span class="pre">drawdown_series</span></code>, <code class="docutils literal notranslate"><span class="pre">underwater_series</span></code>, <code class="docutils literal notranslate"><span class="pre">max_drawdown</span></code>, <code class="docutils literal notranslate"><span class="pre">value_at_risk</span></code>, <code class="docutils literal notranslate"><span class="pre">conditional_value_at_risk</span></code>, <code class="docutils literal notranslate"><span class="pre">parametric_var</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">volatility</span></code>, <code class="docutils literal notranslate"><span class="pre">sharpe</span></code>, <code class="docutils literal notranslate"><span class="pre">sortino</span></code>, <code class="docutils literal notranslate"><span class="pre">calmar</span></code>, <code class="docutils literal notranslate"><span class="pre">downside_deviation</span></code>, <code class="docutils literal notranslate"><span class="pre">drawdown_series</span></code>, <code class="docutils literal notranslate"><span class="pre">max_drawdown</span></code>, <code class="docutils literal notranslate"><span class="pre">drawdown_details</span></code>, <code class="docutils literal notranslate"><span class="pre">value_at_risk</span></code>, <code class="docutils literal notranslate"><span class="pre">conditional_value_at_risk</span></code>, <code class="docutils literal notranslate"><span class="pre">expected_shortfall</span></code></p></td>
 </tr>
-<tr class="row-even"><td><p>Technical indicators</p></td>
+<tr class="row-even"><td><p>Report metrics</p></td>
+<td><p>Best/worst returns, average wins/losses, gain-to-pain, recovery factor, Kelly criterion, and QuantStats-compatible naming aliases</p></td>
+</tr>
+<tr class="row-odd"><td><p>Technical indicators</p></td>
 <td><p>Moving averages, Bollinger/Donchian channels, momentum oscillators, range volatility, and volume indicators</p></td>
 </tr>
-<tr class="row-odd"><td><p>Alpha and quantiles</p></td>
+<tr class="row-even"><td><p>Alpha and quantiles</p></td>
 <td><p>Forward returns, conditional/horizon IC, IC decay, IC summaries, quantile assignment, signal normalization, quantile returns, turnover, and long/short spreads</p></td>
 </tr>
-<tr class="row-even"><td><p>Factor and benchmark metrics</p></td>
-<td><p>Alpha, beta, up/down capture, batting average, tracking error, and information ratio</p></td>
+<tr class="row-odd"><td><p>Factor and benchmark metrics</p></td>
+<td><p>Alpha, beta, benchmark R-squared, up/down capture, batting average, tracking error, and information ratio</p></td>
 </tr>
-<tr class="row-odd"><td><p>Distribution and tail risk</p></td>
+<tr class="row-even"><td><p>Distribution and tail risk</p></td>
 <td><p>Higher moments, Sharpe significance helpers, tail ratio, ulcer index, omega ratio, GPD VaR, and GPD CVaR</p></td>
 </tr>
-<tr class="row-even"><td><p>Portfolio and post-trade</p></td>
+<tr class="row-odd"><td><p>Portfolio and post-trade</p></td>
 <td><p>Exposure, concentration, active share, transaction costs/volume/attribution, slippage, turnover, round trips, MAE/MFE, and trade-quality metrics</p></td>
 </tr>
 </tbody>

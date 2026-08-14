@@ -198,6 +198,7 @@
   <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../docs/src/EXAMPLES.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../docs/src/API.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../docs/src/COMPATIBILITY.html">QuantStats Compatibility</a></li>
 </ul>
 
 </div>
@@ -259,10 +260,12 @@
     <span class="s2">&quot;downside_deviation&quot;</span><span class="p">,</span>
     <span class="s2">&quot;downside_risk&quot;</span><span class="p">,</span>
     <span class="s2">&quot;drawdown_series&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;expected_shortfall&quot;</span><span class="p">,</span>
     <span class="s2">&quot;max_drawdown&quot;</span><span class="p">,</span>
     <span class="s2">&quot;parametric_var&quot;</span><span class="p">,</span>
     <span class="s2">&quot;sharpe&quot;</span><span class="p">,</span>
     <span class="s2">&quot;sortino&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;to_drawdown_series&quot;</span><span class="p">,</span>
     <span class="s2">&quot;underwater_series&quot;</span><span class="p">,</span>
     <span class="s2">&quot;value_at_risk&quot;</span><span class="p">,</span>
     <span class="s2">&quot;volatility&quot;</span><span class="p">,</span>
@@ -466,6 +469,30 @@
 
 
 
+<div class="viewcode-block" id="to_drawdown_series">
+<a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.to_drawdown_series">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">to_drawdown_series</span><span class="p">(</span>
+    <span class="n">returns</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">period</span><span class="p">:</span> <span class="n">PeriodLike</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">date</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compatibility alias for :func:`drawdown_series`.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">drawdown_series</span><span class="p">(</span><span class="n">returns</span><span class="p">,</span> <span class="n">period</span><span class="o">=</span><span class="n">period</span><span class="p">,</span> <span class="n">date</span><span class="o">=</span><span class="n">date</span><span class="p">)</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_rolling_max_drawdown</span><span class="p">(</span><span class="n">returns</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span> <span class="n">window</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">window</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;window must be positive&quot;</span><span class="p">)</span>
+    <span class="n">clean_returns</span> <span class="o">=</span> <span class="n">_clean_returns</span><span class="p">(</span><span class="n">returns</span><span class="p">)</span><span class="o">.</span><span class="n">fill_null</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span>
+    <span class="n">windows</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">concat_list</span><span class="p">([</span><span class="n">clean_returns</span><span class="o">.</span><span class="n">shift</span><span class="p">(</span><span class="n">offset</span><span class="p">)</span> <span class="k">for</span> <span class="n">offset</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">window</span><span class="p">))])</span>
+    <span class="n">equity</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="n">pl</span><span class="o">.</span><span class="n">element</span><span class="p">())</span><span class="o">.</span><span class="n">cum_prod</span><span class="p">()</span>
+    <span class="n">drawdown</span> <span class="o">=</span> <span class="n">equity</span> <span class="o">/</span> <span class="n">equity</span><span class="o">.</span><span class="n">cum_max</span><span class="p">()</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">lower_bound</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span> <span class="o">-</span> <span class="mf">1.0</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">windows</span><span class="o">.</span><span class="n">list</span><span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="n">drawdown</span><span class="p">)</span><span class="o">.</span><span class="n">list</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">pl</span><span class="o">.</span><span class="n">when</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">int_range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">pl</span><span class="o">.</span><span class="n">len</span><span class="p">())</span> <span class="o">&gt;=</span> <span class="n">window</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">then</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+
+
 <div class="viewcode-block" id="max_drawdown">
 <a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.max_drawdown">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">max_drawdown</span><span class="p">(</span>
@@ -477,18 +504,17 @@
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Maximum (most negative) drawdown.</span>
 
-<span class="sd">    ``window=None`` → lifetime; ``window=N`` → rolling minimum of the</span>
-<span class="sd">    drawdown series over each trailing ``N``-bar window. ``period=...``</span>
-<span class="sd">    → maximum drawdown inside each period bucket.</span>
+<span class="sd">    ``window=None`` → lifetime; ``window=N`` → maximum drawdown rebased</span>
+<span class="sd">    inside each trailing ``N``-bar window. ``period=...`` → maximum</span>
+<span class="sd">    drawdown inside each period bucket.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">_check_window_period</span><span class="p">(</span><span class="n">window</span><span class="p">,</span> <span class="n">period</span><span class="p">)</span>
     <span class="n">bucket</span> <span class="o">=</span> <span class="n">_bucket_or_none</span><span class="p">(</span><span class="n">date</span><span class="p">,</span> <span class="n">period</span><span class="p">)</span>
-    <span class="n">dd</span> <span class="o">=</span> <span class="n">drawdown_series</span><span class="p">(</span><span class="n">returns</span><span class="p">,</span> <span class="n">period</span><span class="o">=</span><span class="n">period</span><span class="p">,</span> <span class="n">date</span><span class="o">=</span><span class="n">date</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">bucket</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">dd</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="o">.</span><span class="n">over</span><span class="p">(</span><span class="n">bucket</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">drawdown_series</span><span class="p">(</span><span class="n">returns</span><span class="p">,</span> <span class="n">period</span><span class="o">=</span><span class="n">period</span><span class="p">,</span> <span class="n">date</span><span class="o">=</span><span class="n">date</span><span class="p">)</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="o">.</span><span class="n">over</span><span class="p">(</span><span class="n">bucket</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">window</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">dd</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
-    <span class="k">return</span> <span class="n">dd</span><span class="o">.</span><span class="n">rolling_min</span><span class="p">(</span><span class="n">window</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">drawdown_series</span><span class="p">(</span><span class="n">returns</span><span class="p">)</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">_rolling_max_drawdown</span><span class="p">(</span><span class="n">returns</span><span class="p">,</span> <span class="n">window</span><span class="p">)</span></div>
 
 
 
@@ -568,6 +594,21 @@
     <span class="n">var</span> <span class="o">=</span> <span class="n">clean_returns</span><span class="o">.</span><span class="n">rolling_quantile</span><span class="p">(</span><span class="n">quantile</span><span class="o">=</span><span class="n">cutoff</span><span class="p">,</span> <span class="n">window_size</span><span class="o">=</span><span class="n">window</span><span class="p">)</span>
     <span class="n">masked</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">when</span><span class="p">(</span><span class="n">clean_returns</span> <span class="o">&lt;=</span> <span class="n">var</span><span class="p">)</span><span class="o">.</span><span class="n">then</span><span class="p">(</span><span class="n">clean_returns</span><span class="p">)</span><span class="o">.</span><span class="n">otherwise</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">masked</span><span class="o">.</span><span class="n">rolling_mean</span><span class="p">(</span><span class="n">window_size</span><span class="o">=</span><span class="n">window</span><span class="p">,</span> <span class="n">min_samples</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="expected_shortfall">
+<a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.expected_shortfall">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">expected_shortfall</span><span class="p">(</span>
+    <span class="n">returns</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span>
+    <span class="n">cutoff</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.05</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">window</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">period</span><span class="p">:</span> <span class="n">PeriodLike</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">date</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compatibility alias for :func:`conditional_value_at_risk`.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">conditional_value_at_risk</span><span class="p">(</span><span class="n">returns</span><span class="p">,</span> <span class="n">cutoff</span><span class="p">,</span> <span class="n">window</span><span class="o">=</span><span class="n">window</span><span class="p">,</span> <span class="n">period</span><span class="o">=</span><span class="n">period</span><span class="p">,</span> <span class="n">date</span><span class="o">=</span><span class="n">date</span><span class="p">)</span></div>
 
 
 

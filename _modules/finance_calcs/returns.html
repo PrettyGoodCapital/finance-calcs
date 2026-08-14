@@ -198,6 +198,7 @@
   <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../docs/src/EXAMPLES.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../docs/src/API.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../docs/src/COMPATIBILITY.html">QuantStats Compatibility</a></li>
 </ul>
 
 </div>
@@ -255,6 +256,7 @@
     <span class="s2">&quot;aggregate_returns&quot;</span><span class="p">,</span>
     <span class="s2">&quot;annualized_return&quot;</span><span class="p">,</span>
     <span class="s2">&quot;annualized_volatility&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;cagr&quot;</span><span class="p">,</span>
     <span class="s2">&quot;cum_returns&quot;</span><span class="p">,</span>
     <span class="s2">&quot;cum_returns_final&quot;</span><span class="p">,</span>
     <span class="s2">&quot;log_returns&quot;</span><span class="p">,</span>
@@ -413,6 +415,21 @@
     <span class="n">growth</span> <span class="o">=</span> <span class="n">_rolling_product</span><span class="p">(</span><span class="n">one_plus</span><span class="p">,</span> <span class="n">window</span><span class="p">)</span>
     <span class="n">observation_count</span> <span class="o">=</span> <span class="n">clean_returns</span><span class="o">.</span><span class="n">is_not_null</span><span class="p">()</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">UInt32</span><span class="p">)</span><span class="o">.</span><span class="n">rolling_sum</span><span class="p">(</span><span class="n">window</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">growth</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="n">periods_per_year</span> <span class="o">/</span> <span class="n">observation_count</span><span class="p">)</span> <span class="o">-</span> <span class="mf">1.0</span></div>
+
+
+
+<div class="viewcode-block" id="cagr">
+<a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.cagr">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">cagr</span><span class="p">(</span>
+    <span class="n">returns</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span>
+    <span class="n">periods_per_year</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">252</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">window</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">period</span><span class="p">:</span> <span class="n">PeriodLike</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">date</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compatibility alias for :func:`annualized_return`.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">annualized_return</span><span class="p">(</span><span class="n">returns</span><span class="p">,</span> <span class="n">periods_per_year</span><span class="p">,</span> <span class="n">window</span><span class="o">=</span><span class="n">window</span><span class="p">,</span> <span class="n">period</span><span class="o">=</span><span class="n">period</span><span class="p">,</span> <span class="n">date</span><span class="o">=</span><span class="n">date</span><span class="p">)</span></div>
 
 
 

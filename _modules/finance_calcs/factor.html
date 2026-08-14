@@ -198,6 +198,7 @@
   <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../docs/src/EXAMPLES.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../docs/src/API.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../docs/src/COMPATIBILITY.html">QuantStats Compatibility</a></li>
 </ul>
 
 </div>
@@ -251,6 +252,7 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">polars</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pl</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">._periods</span><span class="w"> </span><span class="kn">import</span> <span class="n">PeriodLike</span><span class="p">,</span> <span class="n">_bucket_or_none</span><span class="p">,</span> <span class="n">_check_window_period</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.returns</span><span class="w"> </span><span class="kn">import</span> <span class="n">_clean_returns</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
     <span class="s2">&quot;alpha&quot;</span><span class="p">,</span>
@@ -260,6 +262,7 @@
     <span class="s2">&quot;down_beta&quot;</span><span class="p">,</span>
     <span class="s2">&quot;down_capture&quot;</span><span class="p">,</span>
     <span class="s2">&quot;information_ratio&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;r_squared&quot;</span><span class="p">,</span>
     <span class="s2">&quot;tracking_error&quot;</span><span class="p">,</span>
     <span class="s2">&quot;up_alpha&quot;</span><span class="p">,</span>
     <span class="s2">&quot;up_beta&quot;</span><span class="p">,</span>
@@ -302,6 +305,34 @@
         <span class="k">return</span> <span class="n">pl</span><span class="o">.</span><span class="n">cov</span><span class="p">(</span><span class="n">returns</span><span class="p">,</span> <span class="n">benchmark</span><span class="p">)</span> <span class="o">/</span> <span class="n">benchmark</span><span class="o">.</span><span class="n">var</span><span class="p">()</span>
     <span class="n">cov</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">rolling_cov</span><span class="p">(</span><span class="n">returns</span><span class="p">,</span> <span class="n">benchmark</span><span class="p">,</span> <span class="n">window_size</span><span class="o">=</span><span class="n">window</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">cov</span> <span class="o">/</span> <span class="n">benchmark</span><span class="o">.</span><span class="n">rolling_var</span><span class="p">(</span><span class="n">window</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="r_squared">
+<a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.r_squared">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">r_squared</span><span class="p">(</span>
+    <span class="n">returns</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span>
+    <span class="n">benchmark</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">window</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">period</span><span class="p">:</span> <span class="n">PeriodLike</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">date</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Coefficient of determination against benchmark returns.</span>
+
+<span class="sd">    This is squared Pearson correlation. ``window=None`` returns a scalar,</span>
+<span class="sd">    ``window=N`` returns a rolling expression, and ``period=...`` computes</span>
+<span class="sd">    inside each bucket.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">_check_window_period</span><span class="p">(</span><span class="n">window</span><span class="p">,</span> <span class="n">period</span><span class="p">)</span>
+    <span class="n">bucket</span> <span class="o">=</span> <span class="n">_bucket_or_none</span><span class="p">(</span><span class="n">date</span><span class="p">,</span> <span class="n">period</span><span class="p">)</span>
+    <span class="n">clean_returns</span> <span class="o">=</span> <span class="n">_clean_returns</span><span class="p">(</span><span class="n">returns</span><span class="p">)</span>
+    <span class="n">clean_benchmark</span> <span class="o">=</span> <span class="n">_clean_returns</span><span class="p">(</span><span class="n">benchmark</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">bucket</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">pl</span><span class="o">.</span><span class="n">corr</span><span class="p">(</span><span class="n">clean_returns</span><span class="p">,</span> <span class="n">clean_benchmark</span><span class="p">)</span><span class="o">.</span><span class="n">over</span><span class="p">(</span><span class="n">bucket</span><span class="p">)</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">window</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">pl</span><span class="o">.</span><span class="n">corr</span><span class="p">(</span><span class="n">clean_returns</span><span class="p">,</span> <span class="n">clean_benchmark</span><span class="p">)</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">pl</span><span class="o">.</span><span class="n">rolling_corr</span><span class="p">(</span><span class="n">clean_returns</span><span class="p">,</span> <span class="n">clean_benchmark</span><span class="p">,</span> <span class="n">window_size</span><span class="o">=</span><span class="n">window</span><span class="p">)</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span></div>
 
 
 

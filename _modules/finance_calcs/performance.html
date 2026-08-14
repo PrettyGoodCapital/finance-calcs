@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html"><link rel="search" title="Search" href="../../search.html">
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2025.12.19 -->
-        <title>finance_calcs.alpha - finance calcs v0.2.1</title>
+        <title>finance_calcs.performance - finance calcs v0.2.1</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
@@ -231,205 +231,224 @@
           </label>
         </div>
         <article role="main" id="furo-main-content">
-          <h1>Source code for finance_calcs.alpha</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Alpha / signal evaluation as polars expressions.</span>
-
-<span class="sd">These functions are designed to be composed inside ``group_by(&quot;date&quot;).agg(...)``</span>
-<span class="sd">to produce a cross-sectional information-coefficient time series, then</span>
-<span class="sd">aggregated across time with :func:`ic_ir` and friends.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+          <h1>Source code for finance_calcs.performance</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Report-oriented performance metrics.&quot;&quot;&quot;</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Mapping</span>
-
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">polars</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pl</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">._periods</span><span class="w"> </span><span class="kn">import</span> <span class="n">PeriodLike</span><span class="p">,</span> <span class="n">_bucket_or_none</span><span class="p">,</span> <span class="n">_check_window_period</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">._periods</span><span class="w"> </span><span class="kn">import</span> <span class="n">PeriodLike</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.returns</span><span class="w"> </span><span class="kn">import</span> <span class="n">_clean_returns</span><span class="p">,</span> <span class="n">cum_returns_final</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.risk</span><span class="w"> </span><span class="kn">import</span> <span class="n">max_drawdown</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="s2">&quot;conditional_ic&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;forward_returns&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;hit_rate&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;horizon_ic&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;ic_decay&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;ic_ir&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;ic_summary_stats&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;information_coefficient&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;pearson_ic&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;spearman_ic&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;average_loss&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;average_win&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;avg_loss&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;avg_win&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;best&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;best_return&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;drawdown_details&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;gain_to_pain_ratio&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;kelly_criterion&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;recovery_factor&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;worst&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;worst_return&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="n">__finance_namespace__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;average_loss&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;average_win&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;avg_loss&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;avg_win&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;best&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;best_return&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;gain_to_pain_ratio&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;kelly_criterion&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;recovery_factor&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;worst&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;worst_return&quot;</span><span class="p">,</span>
 <span class="p">]</span>
 
 
-<div class="viewcode-block" id="forward_returns">
-<a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.forward_returns">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">forward_returns</span><span class="p">(</span><span class="n">price</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span> <span class="n">periods</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Forward simple return over ``periods`` bars.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        price: Price series.</span>
-<span class="sd">        periods: Look-ahead horizon in bars.</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        Expression yielding ``price.shift(-periods) / price - 1``.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">price</span><span class="o">.</span><span class="n">shift</span><span class="p">(</span><span class="o">-</span><span class="n">periods</span><span class="p">)</span> <span class="o">/</span> <span class="n">price</span> <span class="o">-</span> <span class="mf">1.0</span></div>
-
-
-
-<div class="viewcode-block" id="pearson_ic">
-<a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.pearson_ic">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">pearson_ic</span><span class="p">(</span><span class="n">signal</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span> <span class="n">fwd</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Pearson information coefficient.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        signal: Signal / alpha series.</span>
-<span class="sd">        fwd: Forward-return series of the same length.</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        Scalar correlation expression.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">pl</span><span class="o">.</span><span class="n">corr</span><span class="p">(</span><span class="n">signal</span><span class="p">,</span> <span class="n">fwd</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;pearson&quot;</span><span class="p">)</span></div>
-
-
-
-<div class="viewcode-block" id="spearman_ic">
-<a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.spearman_ic">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">spearman_ic</span><span class="p">(</span><span class="n">signal</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span> <span class="n">fwd</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Spearman rank information coefficient.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        signal: Signal / alpha series.</span>
-<span class="sd">        fwd: Forward-return series of the same length.</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        Scalar rank-correlation expression.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">pl</span><span class="o">.</span><span class="n">corr</span><span class="p">(</span><span class="n">signal</span><span class="p">,</span> <span class="n">fwd</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;spearman&quot;</span><span class="p">)</span></div>
-
-
-
-<span class="n">information_coefficient</span> <span class="o">=</span> <span class="n">spearman_ic</span>
-
-
-<div class="viewcode-block" id="conditional_ic">
-<a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.conditional_ic">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">conditional_ic</span><span class="p">(</span>
-    <span class="n">signal</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span>
-    <span class="n">fwd</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span>
-    <span class="n">condition</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span>
+<div class="viewcode-block" id="best_return">
+<a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.best_return">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">best_return</span><span class="p">(</span>
+    <span class="n">returns</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
-    <span class="n">method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;spearman&quot;</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Information coefficient on observations matching ``condition``.&quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">pl</span><span class="o">.</span><span class="n">corr</span><span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">condition</span><span class="p">),</span> <span class="n">fwd</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">condition</span><span class="p">),</span> <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">)</span></div>
-
-
-
-<div class="viewcode-block" id="horizon_ic">
-<a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.horizon_ic">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">horizon_ic</span><span class="p">(</span>
-    <span class="n">signal</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span>
-    <span class="n">fwd</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span>
-    <span class="o">*</span><span class="p">,</span>
-    <span class="n">method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;spearman&quot;</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Information coefficient for one forward-return horizon.&quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">pl</span><span class="o">.</span><span class="n">corr</span><span class="p">(</span><span class="n">signal</span><span class="p">,</span> <span class="n">fwd</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">)</span></div>
-
-
-
-<div class="viewcode-block" id="ic_decay">
-<a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.ic_decay">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">ic_decay</span><span class="p">(</span>
-    <span class="n">signal</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span>
-    <span class="n">forward_returns_by_horizon</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">],</span>
-    <span class="o">*</span><span class="p">,</span>
-    <span class="n">method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;spearman&quot;</span><span class="p">,</span>
-    <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;ic_&quot;</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Build one horizon IC expression per forward-return horizon.&quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="p">[</span><span class="n">horizon_ic</span><span class="p">(</span><span class="n">signal</span><span class="p">,</span> <span class="n">fwd</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">)</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}{</span><span class="n">horizon</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">horizon</span><span class="p">,</span> <span class="n">fwd</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">forward_returns_by_horizon</span><span class="o">.</span><span class="n">items</span><span class="p">())]</span></div>
-
-
-
-<div class="viewcode-block" id="ic_ir">
-<a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.ic_ir">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">ic_ir</span><span class="p">(</span>
-    <span class="n">ic</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span>
-    <span class="o">*</span><span class="p">,</span>
-    <span class="n">window</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">period</span><span class="p">:</span> <span class="n">PeriodLike</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">date</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;IC information ratio — ``mean(ic) / std(ic)``.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Highest raw or compounded period return.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">period</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_clean_returns</span><span class="p">(</span><span class="n">returns</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">cum_returns_final</span><span class="p">(</span><span class="n">returns</span><span class="p">,</span> <span class="n">period</span><span class="o">=</span><span class="n">period</span><span class="p">,</span> <span class="n">date</span><span class="o">=</span><span class="n">date</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">()</span></div>
 
-<span class="sd">    ``window=None`` → scalar; ``window=N`` → rolling IR over each</span>
-<span class="sd">    trailing ``N``-observation window; ``period=...`` → per-bucket IR.</span>
+
+
+<div class="viewcode-block" id="best">
+<a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.best">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">best</span><span class="p">(</span>
+    <span class="n">returns</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">period</span><span class="p">:</span> <span class="n">PeriodLike</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">date</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compatibility alias for :func:`best_return`.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">best_return</span><span class="p">(</span><span class="n">returns</span><span class="p">,</span> <span class="n">period</span><span class="o">=</span><span class="n">period</span><span class="p">,</span> <span class="n">date</span><span class="o">=</span><span class="n">date</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="worst_return">
+<a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.worst_return">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">worst_return</span><span class="p">(</span>
+    <span class="n">returns</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">period</span><span class="p">:</span> <span class="n">PeriodLike</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">date</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Lowest raw or compounded period return.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">period</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_clean_returns</span><span class="p">(</span><span class="n">returns</span><span class="p">)</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">cum_returns_final</span><span class="p">(</span><span class="n">returns</span><span class="p">,</span> <span class="n">period</span><span class="o">=</span><span class="n">period</span><span class="p">,</span> <span class="n">date</span><span class="o">=</span><span class="n">date</span><span class="p">)</span><span class="o">.</span><span class="n">min</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="worst">
+<a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.worst">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">worst</span><span class="p">(</span>
+    <span class="n">returns</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">period</span><span class="p">:</span> <span class="n">PeriodLike</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">date</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compatibility alias for :func:`worst_return`.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">worst_return</span><span class="p">(</span><span class="n">returns</span><span class="p">,</span> <span class="n">period</span><span class="o">=</span><span class="n">period</span><span class="p">,</span> <span class="n">date</span><span class="o">=</span><span class="n">date</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="average_win">
+<a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.average_win">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">average_win</span><span class="p">(</span><span class="n">returns</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Mean positive return.&quot;&quot;&quot;</span>
+    <span class="n">clean_returns</span> <span class="o">=</span> <span class="n">_clean_returns</span><span class="p">(</span><span class="n">returns</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">clean_returns</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">clean_returns</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="avg_win">
+<a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.avg_win">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">avg_win</span><span class="p">(</span><span class="n">returns</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compatibility alias for :func:`average_win`.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">average_win</span><span class="p">(</span><span class="n">returns</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="average_loss">
+<a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.average_loss">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">average_loss</span><span class="p">(</span><span class="n">returns</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Mean negative return, expressed as a negative value.&quot;&quot;&quot;</span>
+    <span class="n">clean_returns</span> <span class="o">=</span> <span class="n">_clean_returns</span><span class="p">(</span><span class="n">returns</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">clean_returns</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">clean_returns</span> <span class="o">&lt;</span> <span class="mf">0.0</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="avg_loss">
+<a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.avg_loss">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">avg_loss</span><span class="p">(</span><span class="n">returns</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compatibility alias for :func:`average_loss`.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">average_loss</span><span class="p">(</span><span class="n">returns</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="gain_to_pain_ratio">
+<a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.gain_to_pain_ratio">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">gain_to_pain_ratio</span><span class="p">(</span><span class="n">returns</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Arithmetic net return divided by absolute summed losses.&quot;&quot;&quot;</span>
+    <span class="n">clean_returns</span> <span class="o">=</span> <span class="n">_clean_returns</span><span class="p">(</span><span class="n">returns</span><span class="p">)</span>
+    <span class="n">pain</span> <span class="o">=</span> <span class="n">clean_returns</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">clean_returns</span> <span class="o">&lt;</span> <span class="mf">0.0</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">abs</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">clean_returns</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">/</span> <span class="n">pain</span></div>
+
+
+
+<div class="viewcode-block" id="recovery_factor">
+<a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.recovery_factor">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">recovery_factor</span><span class="p">(</span><span class="n">returns</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Absolute arithmetic net return divided by absolute maximum drawdown.&quot;&quot;&quot;</span>
+    <span class="n">clean_returns</span> <span class="o">=</span> <span class="n">_clean_returns</span><span class="p">(</span><span class="n">returns</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">clean_returns</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">abs</span><span class="p">()</span> <span class="o">/</span> <span class="n">max_drawdown</span><span class="p">(</span><span class="n">clean_returns</span><span class="p">)</span><span class="o">.</span><span class="n">abs</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="kelly_criterion">
+<a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.kelly_criterion">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">kelly_criterion</span><span class="p">(</span><span class="n">returns</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Kelly fraction estimated from active-period win rate and payoff ratio.&quot;&quot;&quot;</span>
+    <span class="n">clean_returns</span> <span class="o">=</span> <span class="n">_clean_returns</span><span class="p">(</span><span class="n">returns</span><span class="p">)</span>
+    <span class="n">wins</span> <span class="o">=</span> <span class="n">clean_returns</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">clean_returns</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">)</span>
+    <span class="n">losses</span> <span class="o">=</span> <span class="n">clean_returns</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">clean_returns</span> <span class="o">&lt;</span> <span class="mf">0.0</span><span class="p">)</span>
+    <span class="n">win_probability</span> <span class="o">=</span> <span class="n">wins</span><span class="o">.</span><span class="n">count</span><span class="p">()</span> <span class="o">/</span> <span class="p">(</span><span class="n">wins</span><span class="o">.</span><span class="n">count</span><span class="p">()</span> <span class="o">+</span> <span class="n">losses</span><span class="o">.</span><span class="n">count</span><span class="p">())</span>
+    <span class="n">payoff</span> <span class="o">=</span> <span class="n">wins</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="o">/</span> <span class="n">losses</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">abs</span><span class="p">()</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">payoff</span> <span class="o">*</span> <span class="n">win_probability</span> <span class="o">-</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">win_probability</span><span class="p">))</span> <span class="o">/</span> <span class="n">payoff</span></div>
+
+
+
+<div class="viewcode-block" id="drawdown_details">
+<a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.drawdown_details">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">drawdown_details</span><span class="p">(</span><span class="n">returns</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">date</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Series</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return peak, valley, recovery, duration, and depth for each drawdown.</span>
+
+<span class="sd">    ``end`` is null and ``recovered`` is false for an open drawdown. Without a</span>
+<span class="sd">    date series, integer row positions identify each point.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">_check_window_period</span><span class="p">(</span><span class="n">window</span><span class="p">,</span> <span class="n">period</span><span class="p">)</span>
-    <span class="n">bucket</span> <span class="o">=</span> <span class="n">_bucket_or_none</span><span class="p">(</span><span class="n">date</span><span class="p">,</span> <span class="n">period</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">bucket</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">ic</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">over</span><span class="p">(</span><span class="n">bucket</span><span class="p">)</span> <span class="o">/</span> <span class="n">ic</span><span class="o">.</span><span class="n">std</span><span class="p">()</span><span class="o">.</span><span class="n">over</span><span class="p">(</span><span class="n">bucket</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">window</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">ic</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="o">/</span> <span class="n">ic</span><span class="o">.</span><span class="n">std</span><span class="p">()</span>
-    <span class="k">return</span> <span class="n">ic</span><span class="o">.</span><span class="n">rolling_mean</span><span class="p">(</span><span class="n">window</span><span class="p">)</span> <span class="o">/</span> <span class="n">ic</span><span class="o">.</span><span class="n">rolling_std</span><span class="p">(</span><span class="n">window</span><span class="p">)</span></div>
+    <span class="k">if</span> <span class="n">date</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">date</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">returns</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;date and returns lengths must match&quot;</span><span class="p">)</span>
 
+    <span class="n">index</span> <span class="o">=</span> <span class="n">date</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="s2">&quot;index&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="n">date</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">pl</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="s2">&quot;index&quot;</span><span class="p">,</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">returns</span><span class="p">)),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">pl</span><span class="o">.</span><span class="n">Int64</span><span class="p">)</span>
+    <span class="n">schema</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;start&quot;</span><span class="p">:</span> <span class="n">index</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span>
+        <span class="s2">&quot;valley&quot;</span><span class="p">:</span> <span class="n">index</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span>
+        <span class="s2">&quot;end&quot;</span><span class="p">:</span> <span class="n">index</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span>
+        <span class="s2">&quot;duration&quot;</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Int64</span><span class="p">,</span>
+        <span class="s2">&quot;max_drawdown&quot;</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Float64</span><span class="p">,</span>
+        <span class="s2">&quot;recovered&quot;</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Boolean</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="k">if</span> <span class="n">returns</span><span class="o">.</span><span class="n">is_empty</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">pl</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">)</span>
 
+    <span class="n">values</span> <span class="o">=</span> <span class="n">returns</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">Float64</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">fill_nan</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span><span class="o">.</span><span class="n">fill_null</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+    <span class="n">equity</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cumprod</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="n">values</span><span class="p">)</span>
+    <span class="n">peak</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="o">.</span><span class="n">accumulate</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">equity</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">))</span>
+    <span class="n">drawdown</span> <span class="o">=</span> <span class="n">equity</span> <span class="o">/</span> <span class="n">peak</span> <span class="o">-</span> <span class="mf">1.0</span>
+    <span class="n">index_values</span> <span class="o">=</span> <span class="n">index</span><span class="o">.</span><span class="n">to_list</span><span class="p">()</span>
 
-<div class="viewcode-block" id="hit_rate">
-<a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.hit_rate">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">hit_rate</span><span class="p">(</span><span class="n">signal</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span> <span class="n">fwd</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Fraction of observations where ``sign(signal) == sign(fwd)``.</span>
+    <span class="n">rows</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">object</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">start</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">valley</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">position</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">drawdown</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="o">&lt;</span> <span class="mf">0.0</span> <span class="ow">and</span> <span class="n">start</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">start</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">position</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="n">valley</span> <span class="o">=</span> <span class="n">position</span>
+        <span class="k">if</span> <span class="n">start</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">value</span> <span class="o">&lt;</span> <span class="n">drawdown</span><span class="p">[</span><span class="n">valley</span><span class="p">]:</span>
+            <span class="n">valley</span> <span class="o">=</span> <span class="n">position</span>
+        <span class="n">recovered</span> <span class="o">=</span> <span class="n">start</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">value</span> <span class="o">&gt;=</span> <span class="mf">0.0</span>
+        <span class="n">open_at_end</span> <span class="o">=</span> <span class="n">start</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">position</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">drawdown</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="n">recovered</span> <span class="ow">or</span> <span class="n">open_at_end</span><span class="p">:</span>
+            <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;start&quot;</span><span class="p">:</span> <span class="n">index_values</span><span class="p">[</span><span class="n">start</span><span class="p">],</span>
+                    <span class="s2">&quot;valley&quot;</span><span class="p">:</span> <span class="n">index_values</span><span class="p">[</span><span class="n">valley</span><span class="p">],</span>
+                    <span class="s2">&quot;end&quot;</span><span class="p">:</span> <span class="n">index_values</span><span class="p">[</span><span class="n">position</span><span class="p">]</span> <span class="k">if</span> <span class="n">recovered</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+                    <span class="s2">&quot;duration&quot;</span><span class="p">:</span> <span class="n">position</span> <span class="o">-</span> <span class="n">start</span><span class="p">,</span>
+                    <span class="s2">&quot;max_drawdown&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">drawdown</span><span class="p">[</span><span class="n">valley</span><span class="p">]),</span>
+                    <span class="s2">&quot;recovered&quot;</span><span class="p">:</span> <span class="n">recovered</span><span class="p">,</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+            <span class="n">start</span> <span class="o">=</span> <span class="kc">None</span>
 
-<span class="sd">    Args:</span>
-<span class="sd">        signal: Signal series.</span>
-<span class="sd">        fwd: Forward return series.</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        Scalar mean expression in ``[0, 1]``.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">same</span> <span class="o">=</span> <span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">sign</span><span class="p">()</span> <span class="o">==</span> <span class="n">fwd</span><span class="o">.</span><span class="n">sign</span><span class="p">())</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">Float64</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">same</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span></div>
-
-
-
-<div class="viewcode-block" id="ic_summary_stats">
-<a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.ic_summary_stats">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">ic_summary_stats</span><span class="p">(</span><span class="n">ic</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Series</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Summary statistics of an IC time series.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        ic: IC time series as a polars Series.</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        Dict with ``mean``, ``std``, ``ir``, ``t_stat``, ``pct_positive``,</span>
-<span class="sd">        ``n``. ``t_stat`` is ``ir * sqrt(n)``.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">arr</span> <span class="o">=</span> <span class="n">ic</span><span class="o">.</span><span class="n">drop_nulls</span><span class="p">()</span><span class="o">.</span><span class="n">drop_nans</span><span class="p">()</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">ic</span><span class="p">,</span> <span class="s2">&quot;drop_nans&quot;</span><span class="p">)</span> <span class="k">else</span> <span class="n">ic</span><span class="o">.</span><span class="n">drop_nulls</span><span class="p">()</span>
-    <span class="n">n</span> <span class="o">=</span> <span class="n">arr</span><span class="o">.</span><span class="n">len</span><span class="p">()</span>
-    <span class="k">if</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="k">return</span> <span class="p">{</span>
-            <span class="s2">&quot;mean&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;nan&quot;</span><span class="p">),</span>
-            <span class="s2">&quot;std&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;nan&quot;</span><span class="p">),</span>
-            <span class="s2">&quot;ir&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;nan&quot;</span><span class="p">),</span>
-            <span class="s2">&quot;t_stat&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;nan&quot;</span><span class="p">),</span>
-            <span class="s2">&quot;pct_positive&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;nan&quot;</span><span class="p">),</span>
-            <span class="s2">&quot;n&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-        <span class="p">}</span>
-    <span class="n">mean</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">arr</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span>
-    <span class="n">std</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">arr</span><span class="o">.</span><span class="n">std</span><span class="p">())</span> <span class="k">if</span> <span class="n">n</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="mf">0.0</span>
-    <span class="n">ir</span> <span class="o">=</span> <span class="n">mean</span> <span class="o">/</span> <span class="n">std</span> <span class="k">if</span> <span class="n">std</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;nan&quot;</span><span class="p">)</span>
-    <span class="n">t_stat</span> <span class="o">=</span> <span class="n">ir</span> <span class="o">*</span> <span class="p">(</span><span class="n">n</span><span class="o">**</span><span class="mf">0.5</span><span class="p">)</span> <span class="k">if</span> <span class="n">std</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;nan&quot;</span><span class="p">)</span>
-    <span class="n">pct_pos</span> <span class="o">=</span> <span class="nb">float</span><span class="p">((</span><span class="n">arr</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">Float64</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span>
-    <span class="k">return</span> <span class="p">{</span>
-        <span class="s2">&quot;mean&quot;</span><span class="p">:</span> <span class="n">mean</span><span class="p">,</span>
-        <span class="s2">&quot;std&quot;</span><span class="p">:</span> <span class="n">std</span><span class="p">,</span>
-        <span class="s2">&quot;ir&quot;</span><span class="p">:</span> <span class="n">ir</span><span class="p">,</span>
-        <span class="s2">&quot;t_stat&quot;</span><span class="p">:</span> <span class="n">t_stat</span><span class="p">,</span>
-        <span class="s2">&quot;pct_positive&quot;</span><span class="p">:</span> <span class="n">pct_pos</span><span class="p">,</span>
-        <span class="s2">&quot;n&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">n</span><span class="p">),</span>
-    <span class="p">}</span></div>
+    <span class="k">return</span> <span class="n">pl</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">)</span> <span class="k">if</span> <span class="n">rows</span> <span class="k">else</span> <span class="n">pl</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">)</span></div>
 
 </pre></div>
         </article>

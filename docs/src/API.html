@@ -3,7 +3,7 @@
   <head><meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="../../genindex.html"><link rel="search" title="Search" href="../../search.html"><link rel="prev" title="Examples" href="EXAMPLES.html">
+<link rel="index" title="Index" href="../../genindex.html"><link rel="search" title="Search" href="../../search.html"><link rel="next" title="QuantStats Compatibility" href="COMPATIBILITY.html"><link rel="prev" title="Examples" href="EXAMPLES.html">
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2025.12.19 -->
         <title>API - finance calcs v0.2.1</title>
@@ -199,6 +199,7 @@
   <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="EXAMPLES.html">Examples</a></li>
 <li class="toctree-l1 current current-page"><a class="current reference internal" href="#">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="COMPATIBILITY.html">QuantStats Compatibility</a></li>
 </ul>
 
 </div>
@@ -347,7 +348,11 @@ period returns. They are the base layer for most risk and factor metrics.</p>
 <td><p>Annualized geometric return</p></td>
 <td><p>Uses compound return and non-missing observation count, not elapsed dates</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">annualized_volatility(returns,</span> <span class="pre">periods_per_year=252,</span> <span class="pre">*,</span> <span class="pre">window=None,</span> <span class="pre">period=None,</span> <span class="pre">date=None)</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cagr(...)</span></code></p></td>
+<td><p>QuantStats-compatible CAGR name</p></td>
+<td><p>Alias for <code class="docutils literal notranslate"><span class="pre">annualized_return</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">annualized_volatility(returns,</span> <span class="pre">periods_per_year=252,</span> <span class="pre">*,</span> <span class="pre">window=None,</span> <span class="pre">period=None,</span> <span class="pre">date=None)</span></code></p></td>
 <td><p>Annualized standard deviation</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">std</span> <span class="pre">*</span> <span class="pre">sqrt(periods_per_year)</span></code></p></td>
 </tr>
@@ -423,6 +428,12 @@ period bucket.</p>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="finance_calcs.cagr">
+<span class="sig-prename descclassname"><span class="pre">finance_calcs.</span></span><span class="sig-name descname"><span class="pre">cagr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">returns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">periods_per_year</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">252</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">window</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">period</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Frequency</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Expr</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">date</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Expr</span></span></span><a class="reference internal" href="../../_modules/finance_calcs/returns.html#cagr"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#finance_calcs.cagr" title="Link to this definition">¶</a></dt>
+<dd><p>Compatibility alias for <a class="reference internal" href="#finance_calcs.annualized_return" title="finance_calcs.annualized_return"><code class="xref py py-func docutils literal notranslate"><span class="pre">annualized_return()</span></code></a>.</p>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="finance_calcs.annualized_volatility">
 <span class="sig-prename descclassname"><span class="pre">finance_calcs.</span></span><span class="sig-name descname"><span class="pre">annualized_volatility</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">returns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">periods_per_year</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">252</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">window</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">period</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Frequency</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Expr</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">date</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Expr</span></span></span><a class="reference internal" href="../../_modules/finance_calcs/returns.html#annualized_volatility"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#finance_calcs.annualized_volatility" title="Link to this definition">¶</a></dt>
 <dd><p>Annualised standard deviation of returns.</p>
@@ -475,21 +486,29 @@ rates and are converted to per-period rates where appropriate; expression
 <td><p>Running drawdown path</p></td>
 <td><p>Equity curve divided by running peak, including initial 1.0 baseline</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">underwater_series(returns,</span> <span class="pre">*,</span> <span class="pre">period=None,</span> <span class="pre">date=None)</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">to_drawdown_series(...)</span></code></p></td>
+<td><p>QuantStats-compatible drawdown name</p></td>
+<td><p>Alias for <code class="docutils literal notranslate"><span class="pre">drawdown_series</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">underwater_series(returns,</span> <span class="pre">*,</span> <span class="pre">period=None,</span> <span class="pre">date=None)</span></code></p></td>
 <td><p>Drawdown path alias</p></td>
 <td><p>Same result as <code class="docutils literal notranslate"><span class="pre">drawdown_series</span></code></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">max_drawdown(returns,</span> <span class="pre">*,</span> <span class="pre">window=None,</span> <span class="pre">period=None,</span> <span class="pre">date=None)</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">max_drawdown(returns,</span> <span class="pre">*,</span> <span class="pre">window=None,</span> <span class="pre">period=None,</span> <span class="pre">date=None)</span></code></p></td>
 <td><p>Most negative drawdown</p></td>
-<td><p>Supports lifetime, rolling, or period-bucketed drawdown</p></td>
+<td><p>Rolling windows rebase their equity and peak inside each window</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">value_at_risk(returns,</span> <span class="pre">cutoff=0.05,</span> <span class="pre">*,</span> <span class="pre">window=None,</span> <span class="pre">period=None,</span> <span class="pre">date=None)</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">value_at_risk(returns,</span> <span class="pre">cutoff=0.05,</span> <span class="pre">*,</span> <span class="pre">window=None,</span> <span class="pre">period=None,</span> <span class="pre">date=None)</span></code></p></td>
 <td><p>Historical VaR quantile</p></td>
 <td><p>Returns the lower-tail return quantile</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">conditional_value_at_risk(returns,</span> <span class="pre">cutoff=0.05,</span> <span class="pre">*,</span> <span class="pre">window=None,</span> <span class="pre">period=None,</span> <span class="pre">date=None)</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">conditional_value_at_risk(returns,</span> <span class="pre">cutoff=0.05,</span> <span class="pre">*,</span> <span class="pre">window=None,</span> <span class="pre">period=None,</span> <span class="pre">date=None)</span></code></p></td>
 <td><p>Expected shortfall</p></td>
 <td><p>Mean return of observations at or below VaR</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">expected_shortfall(...)</span></code></p></td>
+<td><p>QuantStats-compatible expected shortfall name</p></td>
+<td><p>Alias for <code class="docutils literal notranslate"><span class="pre">conditional_value_at_risk</span></code></p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">parametric_var(returns,</span> <span class="pre">cutoff=0.05,</span> <span class="pre">*,</span> <span class="pre">period=None,</span> <span class="pre">date=None)</span></code></p></td>
 <td><p>Gaussian VaR</p></td>
@@ -556,6 +575,12 @@ Sharpe; <code class="docutils literal notranslate"><span class="pre">window=N</s
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="finance_calcs.to_drawdown_series">
+<span class="sig-prename descclassname"><span class="pre">finance_calcs.</span></span><span class="sig-name descname"><span class="pre">to_drawdown_series</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">returns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">period</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Frequency</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Expr</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">date</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Expr</span></span></span><a class="reference internal" href="../../_modules/finance_calcs/risk.html#to_drawdown_series"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#finance_calcs.to_drawdown_series" title="Link to this definition">¶</a></dt>
+<dd><p>Compatibility alias for <a class="reference internal" href="#finance_calcs.drawdown_series" title="finance_calcs.drawdown_series"><code class="xref py py-func docutils literal notranslate"><span class="pre">drawdown_series()</span></code></a>.</p>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="finance_calcs.underwater_series">
 <span class="sig-prename descclassname"><span class="pre">finance_calcs.</span></span><span class="sig-name descname"><span class="pre">underwater_series</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">returns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">period</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Frequency</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Expr</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">date</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Expr</span></span></span><a class="reference internal" href="../../_modules/finance_calcs/risk.html#underwater_series"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#finance_calcs.underwater_series" title="Link to this definition">¶</a></dt>
 <dd><p>Alias of <a class="reference internal" href="#finance_calcs.drawdown_series" title="finance_calcs.drawdown_series"><code class="xref py py-func docutils literal notranslate"><span class="pre">drawdown_series()</span></code></a>.</p>
@@ -565,9 +590,9 @@ Sharpe; <code class="docutils literal notranslate"><span class="pre">window=N</s
 <dt class="sig sig-object py" id="finance_calcs.max_drawdown">
 <span class="sig-prename descclassname"><span class="pre">finance_calcs.</span></span><span class="sig-name descname"><span class="pre">max_drawdown</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">returns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">window</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">period</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Frequency</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Expr</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">date</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Expr</span></span></span><a class="reference internal" href="../../_modules/finance_calcs/risk.html#max_drawdown"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#finance_calcs.max_drawdown" title="Link to this definition">¶</a></dt>
 <dd><p>Maximum (most negative) drawdown.</p>
-<p><code class="docutils literal notranslate"><span class="pre">window=None</span></code> → lifetime; <code class="docutils literal notranslate"><span class="pre">window=N</span></code> → rolling minimum of the
-drawdown series over each trailing <code class="docutils literal notranslate"><span class="pre">N</span></code>-bar window. <code class="docutils literal notranslate"><span class="pre">period=...</span></code>
-→ maximum drawdown inside each period bucket.</p>
+<p><code class="docutils literal notranslate"><span class="pre">window=None</span></code> → lifetime; <code class="docutils literal notranslate"><span class="pre">window=N</span></code> → maximum drawdown rebased
+inside each trailing <code class="docutils literal notranslate"><span class="pre">N</span></code>-bar window. <code class="docutils literal notranslate"><span class="pre">period=...</span></code> → maximum
+drawdown inside each period bucket.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -587,10 +612,141 @@ or below the rolling VaR. <code class="docutils literal notranslate"><span class
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="finance_calcs.expected_shortfall">
+<span class="sig-prename descclassname"><span class="pre">finance_calcs.</span></span><span class="sig-name descname"><span class="pre">expected_shortfall</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">returns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cutoff</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">window</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">period</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Frequency</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Expr</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">date</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Expr</span></span></span><a class="reference internal" href="../../_modules/finance_calcs/risk.html#expected_shortfall"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#finance_calcs.expected_shortfall" title="Link to this definition">¶</a></dt>
+<dd><p>Compatibility alias for <a class="reference internal" href="#finance_calcs.conditional_value_at_risk" title="finance_calcs.conditional_value_at_risk"><code class="xref py py-func docutils literal notranslate"><span class="pre">conditional_value_at_risk()</span></code></a>.</p>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="finance_calcs.parametric_var">
 <span class="sig-prename descclassname"><span class="pre">finance_calcs.</span></span><span class="sig-name descname"><span class="pre">parametric_var</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">returns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cutoff</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">period</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Frequency</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Expr</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">date</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Expr</span></span></span><a class="reference internal" href="../../_modules/finance_calcs/risk.html#parametric_var"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#finance_calcs.parametric_var" title="Link to this definition">¶</a></dt>
 <dd><p>Gaussian (parametric) VaR <span class="math notranslate nohighlight">\(\mu + \sigma \Phi^{-1}(p)\)</span>.</p>
 <p><code class="docutils literal notranslate"><span class="pre">cutoff</span></code> must be one of <code class="docutils literal notranslate"><span class="pre">{0.01,</span> <span class="pre">0.025,</span> <span class="pre">0.05,</span> <span class="pre">0.1}</span></code>.</p>
+</dd></dl>
+
+</section>
+<hr class="docutils" />
+<section id="report-metrics">
+<h2>Report Metrics<a class="headerlink" href="#report-metrics" title="Link to this heading">¶</a></h2>
+<p>These metrics provide the calculation layer for static, terminal, and notebook
+reports. Expression metrics remain lazy-query compatible. <code class="docutils literal notranslate"><span class="pre">drawdown_details</span></code>
+is eager because it returns one row per variable-length drawdown episode.</p>
+<div class="table-wrapper colwidths-auto docutils container">
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Function</p></th>
+<th class="head"><p>Use it for</p></th>
+<th class="head"><p>Notes</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">best_return(returns,</span> <span class="pre">*,</span> <span class="pre">period=None,</span> <span class="pre">date=None)</span></code></p></td>
+<td><p>Highest raw or compounded period return</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">best</span></code> is the QuantStats-compatible alias</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">worst_return(returns,</span> <span class="pre">*,</span> <span class="pre">period=None,</span> <span class="pre">date=None)</span></code></p></td>
+<td><p>Lowest raw or compounded period return</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">worst</span></code> is the QuantStats-compatible alias</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">average_win(returns)</span></code></p></td>
+<td><p>Mean positive return</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">avg_win</span></code> is the QuantStats-compatible alias</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">average_loss(returns)</span></code></p></td>
+<td><p>Mean negative return</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">avg_loss</span></code> is the QuantStats-compatible alias</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">gain_to_pain_ratio(returns)</span></code></p></td>
+<td><p>Net return per unit of summed loss</p></td>
+<td><p>Uses arithmetic return sums</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">recovery_factor(returns)</span></code></p></td>
+<td><p>Net return relative to maximum drawdown</p></td>
+<td><p>Uses absolute arithmetic net return and drawdown</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">kelly_criterion(returns)</span></code></p></td>
+<td><p>Estimated Kelly allocation fraction</p></td>
+<td><p>Zero returns are excluded from active-period win rate</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">drawdown_details(returns,</span> <span class="pre">*,</span> <span class="pre">date=None)</span></code></p></td>
+<td><p>Materialized drawdown episodes</p></td>
+<td><p>Returns start, valley, end, duration, depth, and recovery</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<dl class="py function">
+<dt class="sig sig-object py" id="finance_calcs.best_return">
+<span class="sig-prename descclassname"><span class="pre">finance_calcs.</span></span><span class="sig-name descname"><span class="pre">best_return</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">returns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">period</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Frequency</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Expr</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">date</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Expr</span></span></span><a class="reference internal" href="../../_modules/finance_calcs/performance.html#best_return"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#finance_calcs.best_return" title="Link to this definition">¶</a></dt>
+<dd><p>Highest raw or compounded period return.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="finance_calcs.best">
+<span class="sig-prename descclassname"><span class="pre">finance_calcs.</span></span><span class="sig-name descname"><span class="pre">best</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">returns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">period</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Frequency</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Expr</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">date</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Expr</span></span></span><a class="reference internal" href="../../_modules/finance_calcs/performance.html#best"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#finance_calcs.best" title="Link to this definition">¶</a></dt>
+<dd><p>Compatibility alias for <a class="reference internal" href="#finance_calcs.best_return" title="finance_calcs.best_return"><code class="xref py py-func docutils literal notranslate"><span class="pre">best_return()</span></code></a>.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="finance_calcs.worst_return">
+<span class="sig-prename descclassname"><span class="pre">finance_calcs.</span></span><span class="sig-name descname"><span class="pre">worst_return</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">returns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">period</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Frequency</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Expr</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">date</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Expr</span></span></span><a class="reference internal" href="../../_modules/finance_calcs/performance.html#worst_return"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#finance_calcs.worst_return" title="Link to this definition">¶</a></dt>
+<dd><p>Lowest raw or compounded period return.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="finance_calcs.worst">
+<span class="sig-prename descclassname"><span class="pre">finance_calcs.</span></span><span class="sig-name descname"><span class="pre">worst</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">returns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">period</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Frequency</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Expr</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">date</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Expr</span></span></span><a class="reference internal" href="../../_modules/finance_calcs/performance.html#worst"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#finance_calcs.worst" title="Link to this definition">¶</a></dt>
+<dd><p>Compatibility alias for <a class="reference internal" href="#finance_calcs.worst_return" title="finance_calcs.worst_return"><code class="xref py py-func docutils literal notranslate"><span class="pre">worst_return()</span></code></a>.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="finance_calcs.average_win">
+<span class="sig-prename descclassname"><span class="pre">finance_calcs.</span></span><span class="sig-name descname"><span class="pre">average_win</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">returns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Expr</span></span></span><a class="reference internal" href="../../_modules/finance_calcs/performance.html#average_win"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#finance_calcs.average_win" title="Link to this definition">¶</a></dt>
+<dd><p>Mean positive return.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="finance_calcs.avg_win">
+<span class="sig-prename descclassname"><span class="pre">finance_calcs.</span></span><span class="sig-name descname"><span class="pre">avg_win</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">returns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Expr</span></span></span><a class="reference internal" href="../../_modules/finance_calcs/performance.html#avg_win"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#finance_calcs.avg_win" title="Link to this definition">¶</a></dt>
+<dd><p>Compatibility alias for <a class="reference internal" href="#finance_calcs.average_win" title="finance_calcs.average_win"><code class="xref py py-func docutils literal notranslate"><span class="pre">average_win()</span></code></a>.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="finance_calcs.average_loss">
+<span class="sig-prename descclassname"><span class="pre">finance_calcs.</span></span><span class="sig-name descname"><span class="pre">average_loss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">returns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Expr</span></span></span><a class="reference internal" href="../../_modules/finance_calcs/performance.html#average_loss"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#finance_calcs.average_loss" title="Link to this definition">¶</a></dt>
+<dd><p>Mean negative return, expressed as a negative value.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="finance_calcs.avg_loss">
+<span class="sig-prename descclassname"><span class="pre">finance_calcs.</span></span><span class="sig-name descname"><span class="pre">avg_loss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">returns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Expr</span></span></span><a class="reference internal" href="../../_modules/finance_calcs/performance.html#avg_loss"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#finance_calcs.avg_loss" title="Link to this definition">¶</a></dt>
+<dd><p>Compatibility alias for <a class="reference internal" href="#finance_calcs.average_loss" title="finance_calcs.average_loss"><code class="xref py py-func docutils literal notranslate"><span class="pre">average_loss()</span></code></a>.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="finance_calcs.gain_to_pain_ratio">
+<span class="sig-prename descclassname"><span class="pre">finance_calcs.</span></span><span class="sig-name descname"><span class="pre">gain_to_pain_ratio</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">returns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Expr</span></span></span><a class="reference internal" href="../../_modules/finance_calcs/performance.html#gain_to_pain_ratio"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#finance_calcs.gain_to_pain_ratio" title="Link to this definition">¶</a></dt>
+<dd><p>Arithmetic net return divided by absolute summed losses.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="finance_calcs.recovery_factor">
+<span class="sig-prename descclassname"><span class="pre">finance_calcs.</span></span><span class="sig-name descname"><span class="pre">recovery_factor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">returns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Expr</span></span></span><a class="reference internal" href="../../_modules/finance_calcs/performance.html#recovery_factor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#finance_calcs.recovery_factor" title="Link to this definition">¶</a></dt>
+<dd><p>Absolute arithmetic net return divided by absolute maximum drawdown.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="finance_calcs.kelly_criterion">
+<span class="sig-prename descclassname"><span class="pre">finance_calcs.</span></span><span class="sig-name descname"><span class="pre">kelly_criterion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">returns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Expr</span></span></span><a class="reference internal" href="../../_modules/finance_calcs/performance.html#kelly_criterion"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#finance_calcs.kelly_criterion" title="Link to this definition">¶</a></dt>
+<dd><p>Kelly fraction estimated from active-period win rate and payoff ratio.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="finance_calcs.drawdown_details">
+<span class="sig-prename descclassname"><span class="pre">finance_calcs.</span></span><span class="sig-name descname"><span class="pre">drawdown_details</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">returns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">date</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="../../_modules/finance_calcs/performance.html#drawdown_details"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#finance_calcs.drawdown_details" title="Link to this definition">¶</a></dt>
+<dd><p>Return peak, valley, recovery, duration, and depth for each drawdown.</p>
+<p><code class="docutils literal notranslate"><span class="pre">end</span></code> is null and <code class="docutils literal notranslate"><span class="pre">recovered</span></code> is false for an open drawdown. Without a
+date series, integer row positions identify each point.</p>
 </dd></dl>
 
 </section>
@@ -2052,43 +2208,47 @@ signature includes <code class="docutils literal notranslate"><span class="pre">
 <td><p>Market beta</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">cov(returns,</span> <span class="pre">benchmark)</span> <span class="pre">/</span> <span class="pre">var(benchmark)</span></code></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">up_alpha(...)</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">r_squared(returns,</span> <span class="pre">benchmark,</span> <span class="pre">*,</span> <span class="pre">window=None,</span> <span class="pre">period=None,</span> <span class="pre">date=None)</span></code></p></td>
+<td><p>Benchmark coefficient of determination</p></td>
+<td><p>Squared Pearson correlation</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">up_alpha(...)</span></code></p></td>
 <td><p>Alpha in up markets</p></td>
 <td><p>Restricts observations to <code class="docutils literal notranslate"><span class="pre">benchmark</span> <span class="pre">&gt;</span> <span class="pre">0</span></code></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">down_alpha(...)</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">down_alpha(...)</span></code></p></td>
 <td><p>Alpha in down markets</p></td>
 <td><p>Restricts observations to <code class="docutils literal notranslate"><span class="pre">benchmark</span> <span class="pre">&lt;</span> <span class="pre">0</span></code></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">up_beta(...)</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">up_beta(...)</span></code></p></td>
 <td><p>Beta in up markets</p></td>
 <td><p>Restricts observations to <code class="docutils literal notranslate"><span class="pre">benchmark</span> <span class="pre">&gt;</span> <span class="pre">0</span></code></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">down_beta(...)</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">down_beta(...)</span></code></p></td>
 <td><p>Beta in down markets</p></td>
 <td><p>Restricts observations to <code class="docutils literal notranslate"><span class="pre">benchmark</span> <span class="pre">&lt;</span> <span class="pre">0</span></code></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">up_capture(returns,</span> <span class="pre">benchmark,</span> <span class="pre">*,</span> <span class="pre">window=None,</span> <span class="pre">period=None,</span> <span class="pre">date=None)</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">up_capture(returns,</span> <span class="pre">benchmark,</span> <span class="pre">*,</span> <span class="pre">window=None,</span> <span class="pre">period=None,</span> <span class="pre">date=None)</span></code></p></td>
 <td><p>Up-market capture</p></td>
 <td><p>Mean strategy return divided by mean benchmark return when benchmark is positive</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">down_capture(returns,</span> <span class="pre">benchmark,</span> <span class="pre">*,</span> <span class="pre">window=None,</span> <span class="pre">period=None,</span> <span class="pre">date=None)</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">down_capture(returns,</span> <span class="pre">benchmark,</span> <span class="pre">*,</span> <span class="pre">window=None,</span> <span class="pre">period=None,</span> <span class="pre">date=None)</span></code></p></td>
 <td><p>Down-market capture</p></td>
 <td><p>Mean strategy return divided by mean benchmark return when benchmark is negative</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">up_down_capture(returns,</span> <span class="pre">benchmark,</span> <span class="pre">*,</span> <span class="pre">window=None,</span> <span class="pre">period=None,</span> <span class="pre">date=None)</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">up_down_capture(returns,</span> <span class="pre">benchmark,</span> <span class="pre">*,</span> <span class="pre">window=None,</span> <span class="pre">period=None,</span> <span class="pre">date=None)</span></code></p></td>
 <td><p>Capture balance</p></td>
 <td><p>Up capture divided by down capture</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">batting_average(returns,</span> <span class="pre">benchmark,</span> <span class="pre">*,</span> <span class="pre">window=None,</span> <span class="pre">period=None,</span> <span class="pre">date=None)</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">batting_average(returns,</span> <span class="pre">benchmark,</span> <span class="pre">*,</span> <span class="pre">window=None,</span> <span class="pre">period=None,</span> <span class="pre">date=None)</span></code></p></td>
 <td><p>Fraction of outperformance observations</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">returns</span> <span class="pre">&gt;</span> <span class="pre">benchmark</span></code> mean</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">tracking_error(returns,</span> <span class="pre">benchmark,</span> <span class="pre">periods_per_year=252,</span> <span class="pre">*,</span> <span class="pre">window=None,</span> <span class="pre">period=None,</span> <span class="pre">date=None)</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">tracking_error(returns,</span> <span class="pre">benchmark,</span> <span class="pre">periods_per_year=252,</span> <span class="pre">*,</span> <span class="pre">window=None,</span> <span class="pre">period=None,</span> <span class="pre">date=None)</span></code></p></td>
 <td><p>Annualized active risk</p></td>
 <td><p>Standard deviation of active return</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">information_ratio(returns,</span> <span class="pre">benchmark,</span> <span class="pre">periods_per_year=252,</span> <span class="pre">*,</span> <span class="pre">window=None,</span> <span class="pre">period=None,</span> <span class="pre">date=None)</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">information_ratio(returns,</span> <span class="pre">benchmark,</span> <span class="pre">periods_per_year=252,</span> <span class="pre">*,</span> <span class="pre">window=None,</span> <span class="pre">period=None,</span> <span class="pre">date=None)</span></code></p></td>
 <td><p>Annualized active return per active risk</p></td>
 <td><p>Mean active return divided by active standard deviation, scaled</p></td>
 </tr>
@@ -2111,6 +2271,15 @@ annualised alpha; <code class="docutils literal notranslate"><span class="pre">p
 <dd><p>OLS market beta — <code class="docutils literal notranslate"><span class="pre">cov(r,</span> <span class="pre">b)</span> <span class="pre">/</span> <span class="pre">var(b)</span></code>.</p>
 <p><code class="docutils literal notranslate"><span class="pre">window=None</span></code> → scalar; <code class="docutils literal notranslate"><span class="pre">window=N</span></code> → rolling beta;
 <code class="docutils literal notranslate"><span class="pre">period=...</span></code> → per-bucket beta.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="finance_calcs.r_squared">
+<span class="sig-prename descclassname"><span class="pre">finance_calcs.</span></span><span class="sig-name descname"><span class="pre">r_squared</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">returns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">benchmark</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">window</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">period</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Frequency</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Expr</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">date</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Expr</span></span></span><a class="reference internal" href="../../_modules/finance_calcs/factor.html#r_squared"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#finance_calcs.r_squared" title="Link to this definition">¶</a></dt>
+<dd><p>Coefficient of determination against benchmark returns.</p>
+<p>This is squared Pearson correlation. <code class="docutils literal notranslate"><span class="pre">window=None</span></code> returns a scalar,
+<code class="docutils literal notranslate"><span class="pre">window=N</span></code> returns a rolling expression, and <code class="docutils literal notranslate"><span class="pre">period=...</span></code> computes
+inside each bucket.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -2949,7 +3118,15 @@ date. The contribution is <code class="docutils literal notranslate"><span class
       <footer>
         
         <div class="related-pages">
-          
+          <a class="next-page" href="COMPATIBILITY.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">QuantStats Compatibility</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
           <a class="prev-page" href="EXAMPLES.html">
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
@@ -3003,6 +3180,7 @@ date. The contribution is <code class="docutils literal notranslate"><span class
 <li><a class="reference internal" href="#finance_calcs.returns"><code class="docutils literal notranslate"><span class="pre">returns()</span></code></a></li>
 <li><a class="reference internal" href="#finance_calcs.aggregate_returns"><code class="docutils literal notranslate"><span class="pre">aggregate_returns()</span></code></a></li>
 <li><a class="reference internal" href="#finance_calcs.annualized_return"><code class="docutils literal notranslate"><span class="pre">annualized_return()</span></code></a></li>
+<li><a class="reference internal" href="#finance_calcs.cagr"><code class="docutils literal notranslate"><span class="pre">cagr()</span></code></a></li>
 <li><a class="reference internal" href="#finance_calcs.annualized_volatility"><code class="docutils literal notranslate"><span class="pre">annualized_volatility()</span></code></a></li>
 </ul>
 </li>
@@ -3014,11 +3192,28 @@ date. The contribution is <code class="docutils literal notranslate"><span class
 <li><a class="reference internal" href="#finance_calcs.downside_deviation"><code class="docutils literal notranslate"><span class="pre">downside_deviation()</span></code></a></li>
 <li><a class="reference internal" href="#finance_calcs.downside_risk"><code class="docutils literal notranslate"><span class="pre">downside_risk()</span></code></a></li>
 <li><a class="reference internal" href="#finance_calcs.drawdown_series"><code class="docutils literal notranslate"><span class="pre">drawdown_series()</span></code></a></li>
+<li><a class="reference internal" href="#finance_calcs.to_drawdown_series"><code class="docutils literal notranslate"><span class="pre">to_drawdown_series()</span></code></a></li>
 <li><a class="reference internal" href="#finance_calcs.underwater_series"><code class="docutils literal notranslate"><span class="pre">underwater_series()</span></code></a></li>
 <li><a class="reference internal" href="#finance_calcs.max_drawdown"><code class="docutils literal notranslate"><span class="pre">max_drawdown()</span></code></a></li>
 <li><a class="reference internal" href="#finance_calcs.value_at_risk"><code class="docutils literal notranslate"><span class="pre">value_at_risk()</span></code></a></li>
 <li><a class="reference internal" href="#finance_calcs.conditional_value_at_risk"><code class="docutils literal notranslate"><span class="pre">conditional_value_at_risk()</span></code></a></li>
+<li><a class="reference internal" href="#finance_calcs.expected_shortfall"><code class="docutils literal notranslate"><span class="pre">expected_shortfall()</span></code></a></li>
 <li><a class="reference internal" href="#finance_calcs.parametric_var"><code class="docutils literal notranslate"><span class="pre">parametric_var()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#report-metrics">Report Metrics</a><ul>
+<li><a class="reference internal" href="#finance_calcs.best_return"><code class="docutils literal notranslate"><span class="pre">best_return()</span></code></a></li>
+<li><a class="reference internal" href="#finance_calcs.best"><code class="docutils literal notranslate"><span class="pre">best()</span></code></a></li>
+<li><a class="reference internal" href="#finance_calcs.worst_return"><code class="docutils literal notranslate"><span class="pre">worst_return()</span></code></a></li>
+<li><a class="reference internal" href="#finance_calcs.worst"><code class="docutils literal notranslate"><span class="pre">worst()</span></code></a></li>
+<li><a class="reference internal" href="#finance_calcs.average_win"><code class="docutils literal notranslate"><span class="pre">average_win()</span></code></a></li>
+<li><a class="reference internal" href="#finance_calcs.avg_win"><code class="docutils literal notranslate"><span class="pre">avg_win()</span></code></a></li>
+<li><a class="reference internal" href="#finance_calcs.average_loss"><code class="docutils literal notranslate"><span class="pre">average_loss()</span></code></a></li>
+<li><a class="reference internal" href="#finance_calcs.avg_loss"><code class="docutils literal notranslate"><span class="pre">avg_loss()</span></code></a></li>
+<li><a class="reference internal" href="#finance_calcs.gain_to_pain_ratio"><code class="docutils literal notranslate"><span class="pre">gain_to_pain_ratio()</span></code></a></li>
+<li><a class="reference internal" href="#finance_calcs.recovery_factor"><code class="docutils literal notranslate"><span class="pre">recovery_factor()</span></code></a></li>
+<li><a class="reference internal" href="#finance_calcs.kelly_criterion"><code class="docutils literal notranslate"><span class="pre">kelly_criterion()</span></code></a></li>
+<li><a class="reference internal" href="#finance_calcs.drawdown_details"><code class="docutils literal notranslate"><span class="pre">drawdown_details()</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#overlap-and-price-channels">Overlap and Price Channels</a><ul>
@@ -3105,6 +3300,7 @@ date. The contribution is <code class="docutils literal notranslate"><span class
 <li><a class="reference internal" href="#factor-and-benchmark-metrics">Factor and Benchmark Metrics</a><ul>
 <li><a class="reference internal" href="#finance_calcs.alpha"><code class="docutils literal notranslate"><span class="pre">alpha()</span></code></a></li>
 <li><a class="reference internal" href="#finance_calcs.beta"><code class="docutils literal notranslate"><span class="pre">beta()</span></code></a></li>
+<li><a class="reference internal" href="#finance_calcs.r_squared"><code class="docutils literal notranslate"><span class="pre">r_squared()</span></code></a></li>
 <li><a class="reference internal" href="#finance_calcs.up_alpha"><code class="docutils literal notranslate"><span class="pre">up_alpha()</span></code></a></li>
 <li><a class="reference internal" href="#finance_calcs.down_alpha"><code class="docutils literal notranslate"><span class="pre">down_alpha()</span></code></a></li>
 <li><a class="reference internal" href="#finance_calcs.up_beta"><code class="docutils literal notranslate"><span class="pre">up_beta()</span></code></a></li>
