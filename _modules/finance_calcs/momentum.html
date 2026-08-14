@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html"><link rel="search" title="Search" href="../../search.html">
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2025.12.19 -->
-        <title>finance_calcs.momentum - finance calcs v0.2.1</title>
+        <title>finance_calcs.momentum - finance calcs v0.3.0</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
@@ -166,7 +166,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">finance calcs <code style='font-size: var(--font-size--small--4);color: var(--sd-color-primary);'>v0.2.1</code></div></a>
+      <a href="../../index.html"><div class="brand">finance calcs <code style='font-size: var(--font-size--small--4);color: var(--sd-color-primary);'>v0.3.0</code></div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -187,7 +187,7 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
-  <span class="sidebar-brand-text">finance calcs <code style='font-size: var(--font-size--small--4);color: var(--sd-color-primary);'>v0.2.1</code></span>
+  <span class="sidebar-brand-text">finance calcs <code style='font-size: var(--font-size--small--4);color: var(--sd-color-primary);'>v0.3.0</code></span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -264,19 +264,19 @@
 <span class="p">]</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_wilder</span><span class="p">(</span><span class="n">expr</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span> <span class="n">period</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Wilder smoothing — EMA with ``alpha = 1/period``.&quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">expr</span><span class="o">.</span><span class="n">ewm_mean</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="mf">1.0</span> <span class="o">/</span> <span class="n">period</span><span class="p">,</span> <span class="n">adjust</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ignore_nulls</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_wilder</span><span class="p">(</span><span class="n">expr</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span> <span class="n">window</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Wilder smoothing — EMA with ``alpha = 1/window``.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">expr</span><span class="o">.</span><span class="n">ewm_mean</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="mf">1.0</span> <span class="o">/</span> <span class="n">window</span><span class="p">,</span> <span class="n">adjust</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ignore_nulls</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="rsi">
 <a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.rsi">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">rsi</span><span class="p">(</span><span class="n">close</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span> <span class="n">period</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">14</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">rsi</span><span class="p">(</span><span class="n">close</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span> <span class="n">window</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">14</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Relative Strength Index (Wilder).</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        close: Price series.</span>
-<span class="sd">        period: Smoothing period.</span>
+<span class="sd">        window: Smoothing window.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Expression yielding RSI in ``[0, 100]``.</span>
@@ -284,9 +284,9 @@
     <span class="n">diff</span> <span class="o">=</span> <span class="n">close</span><span class="o">.</span><span class="n">diff</span><span class="p">()</span>
     <span class="n">gain</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">when</span><span class="p">(</span><span class="n">diff</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">then</span><span class="p">(</span><span class="n">diff</span><span class="p">)</span><span class="o">.</span><span class="n">otherwise</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span>
     <span class="n">loss</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">when</span><span class="p">(</span><span class="n">diff</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">then</span><span class="p">(</span><span class="o">-</span><span class="n">diff</span><span class="p">)</span><span class="o">.</span><span class="n">otherwise</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span>
-    <span class="n">avg_gain</span> <span class="o">=</span> <span class="n">_wilder</span><span class="p">(</span><span class="n">gain</span><span class="p">,</span> <span class="n">period</span><span class="p">)</span>
-    <span class="n">avg_loss</span> <span class="o">=</span> <span class="n">_wilder</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span> <span class="n">period</span><span class="p">)</span>
-    <span class="n">rs</span> <span class="o">=</span> <span class="n">avg_gain</span> <span class="o">/</span> <span class="n">avg_loss</span>
+    <span class="n">average_gain</span> <span class="o">=</span> <span class="n">_wilder</span><span class="p">(</span><span class="n">gain</span><span class="p">,</span> <span class="n">window</span><span class="p">)</span>
+    <span class="n">average_loss</span> <span class="o">=</span> <span class="n">_wilder</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span> <span class="n">window</span><span class="p">)</span>
+    <span class="n">rs</span> <span class="o">=</span> <span class="n">average_gain</span> <span class="o">/</span> <span class="n">average_loss</span>
     <span class="k">return</span> <span class="mf">100.0</span> <span class="o">-</span> <span class="p">(</span><span class="mf">100.0</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="n">rs</span><span class="p">))</span></div>
 
 
@@ -295,20 +295,20 @@
 <a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.macd_line">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">macd_line</span><span class="p">(</span>
     <span class="n">close</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span>
-    <span class="n">fast</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">12</span><span class="p">,</span>
-    <span class="n">slow</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">26</span><span class="p">,</span>
+    <span class="n">fast_window</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">12</span><span class="p">,</span>
+    <span class="n">slow_window</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">26</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;MACD line — ``EMA(fast) - EMA(slow)``.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        close: Price series.</span>
-<span class="sd">        fast: Fast EMA span.</span>
-<span class="sd">        slow: Slow EMA span.</span>
+<span class="sd">        fast_window: Fast EMA window.</span>
+<span class="sd">        slow_window: Slow EMA window.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Expression yielding the MACD line.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">ema</span><span class="p">(</span><span class="n">close</span><span class="p">,</span> <span class="n">fast</span><span class="p">)</span> <span class="o">-</span> <span class="n">ema</span><span class="p">(</span><span class="n">close</span><span class="p">,</span> <span class="n">slow</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">ema</span><span class="p">(</span><span class="n">close</span><span class="p">,</span> <span class="n">fast_window</span><span class="p">)</span> <span class="o">-</span> <span class="n">ema</span><span class="p">(</span><span class="n">close</span><span class="p">,</span> <span class="n">slow_window</span><span class="p">)</span></div>
 
 
 
@@ -316,22 +316,22 @@
 <a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.macd_signal">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">macd_signal</span><span class="p">(</span>
     <span class="n">close</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span>
-    <span class="n">fast</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">12</span><span class="p">,</span>
-    <span class="n">slow</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">26</span><span class="p">,</span>
-    <span class="n">signal</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">9</span><span class="p">,</span>
+    <span class="n">fast_window</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">12</span><span class="p">,</span>
+    <span class="n">slow_window</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">26</span><span class="p">,</span>
+    <span class="n">signal_window</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">9</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;MACD signal line — EMA of :func:`macd_line`.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        close: Price series.</span>
-<span class="sd">        fast: Fast EMA span.</span>
-<span class="sd">        slow: Slow EMA span.</span>
-<span class="sd">        signal: Signal EMA span.</span>
+<span class="sd">        fast_window: Fast EMA window.</span>
+<span class="sd">        slow_window: Slow EMA window.</span>
+<span class="sd">        signal_window: Signal EMA window.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Expression yielding the MACD signal line.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">ema</span><span class="p">(</span><span class="n">macd_line</span><span class="p">(</span><span class="n">close</span><span class="p">,</span> <span class="n">fast</span><span class="p">,</span> <span class="n">slow</span><span class="p">),</span> <span class="n">signal</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">ema</span><span class="p">(</span><span class="n">macd_line</span><span class="p">(</span><span class="n">close</span><span class="p">,</span> <span class="n">fast_window</span><span class="p">,</span> <span class="n">slow_window</span><span class="p">),</span> <span class="n">signal_window</span><span class="p">)</span></div>
 
 
 
@@ -339,103 +339,103 @@
 <a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.macd_hist">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">macd_hist</span><span class="p">(</span>
     <span class="n">close</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span>
-    <span class="n">fast</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">12</span><span class="p">,</span>
-    <span class="n">slow</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">26</span><span class="p">,</span>
-    <span class="n">signal</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">9</span><span class="p">,</span>
+    <span class="n">fast_window</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">12</span><span class="p">,</span>
+    <span class="n">slow_window</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">26</span><span class="p">,</span>
+    <span class="n">signal_window</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">9</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;MACD histogram — ``MACD - signal``.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        close: Price series.</span>
-<span class="sd">        fast: Fast EMA span.</span>
-<span class="sd">        slow: Slow EMA span.</span>
-<span class="sd">        signal: Signal EMA span.</span>
+<span class="sd">        fast_window: Fast EMA window.</span>
+<span class="sd">        slow_window: Slow EMA window.</span>
+<span class="sd">        signal_window: Signal EMA window.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Expression yielding the MACD histogram.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">macd_line</span><span class="p">(</span><span class="n">close</span><span class="p">,</span> <span class="n">fast</span><span class="p">,</span> <span class="n">slow</span><span class="p">)</span> <span class="o">-</span> <span class="n">macd_signal</span><span class="p">(</span><span class="n">close</span><span class="p">,</span> <span class="n">fast</span><span class="p">,</span> <span class="n">slow</span><span class="p">,</span> <span class="n">signal</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">macd_line</span><span class="p">(</span><span class="n">close</span><span class="p">,</span> <span class="n">fast_window</span><span class="p">,</span> <span class="n">slow_window</span><span class="p">)</span> <span class="o">-</span> <span class="n">macd_signal</span><span class="p">(</span><span class="n">close</span><span class="p">,</span> <span class="n">fast_window</span><span class="p">,</span> <span class="n">slow_window</span><span class="p">,</span> <span class="n">signal_window</span><span class="p">)</span></div>
 
 
 
 <div class="viewcode-block" id="mom">
 <a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.mom">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">mom</span><span class="p">(</span><span class="n">close</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span> <span class="n">period</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Momentum — ``close - close[period]``.</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">mom</span><span class="p">(</span><span class="n">close</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span> <span class="n">window</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Momentum — ``close - close[window]``.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        close: Price series.</span>
-<span class="sd">        period: Look-back length.</span>
+<span class="sd">        window: Look-back length.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Difference expression.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">close</span> <span class="o">-</span> <span class="n">close</span><span class="o">.</span><span class="n">shift</span><span class="p">(</span><span class="n">period</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">close</span> <span class="o">-</span> <span class="n">close</span><span class="o">.</span><span class="n">shift</span><span class="p">(</span><span class="n">window</span><span class="p">)</span></div>
 
 
 
 <div class="viewcode-block" id="roc">
 <a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.roc">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">roc</span><span class="p">(</span><span class="n">close</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span> <span class="n">period</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Rate-of-change in percent — ``100 * (close / close[period] - 1)``.</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">roc</span><span class="p">(</span><span class="n">close</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span> <span class="n">window</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Rate-of-change in percent — ``100 * (close / close[window] - 1)``.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        close: Price series.</span>
-<span class="sd">        period: Look-back length.</span>
+<span class="sd">        window: Look-back length.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        ROC expression.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="p">(</span><span class="n">close</span> <span class="o">/</span> <span class="n">close</span><span class="o">.</span><span class="n">shift</span><span class="p">(</span><span class="n">period</span><span class="p">)</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">)</span> <span class="o">*</span> <span class="mf">100.0</span></div>
+    <span class="k">return</span> <span class="p">(</span><span class="n">close</span> <span class="o">/</span> <span class="n">close</span><span class="o">.</span><span class="n">shift</span><span class="p">(</span><span class="n">window</span><span class="p">)</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">)</span> <span class="o">*</span> <span class="mf">100.0</span></div>
 
 
 
 <div class="viewcode-block" id="rocp">
 <a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.rocp">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">rocp</span><span class="p">(</span><span class="n">close</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span> <span class="n">period</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;ROC percentage (TA-Lib): ``(close - close[period]) / close[period]``.</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">rocp</span><span class="p">(</span><span class="n">close</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span> <span class="n">window</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;ROC percentage (TA-Lib): ``(close - close[window]) / close[window]``.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        close: Price series.</span>
-<span class="sd">        period: Look-back length.</span>
+<span class="sd">        window: Look-back length.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        ROCP expression.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">prev</span> <span class="o">=</span> <span class="n">close</span><span class="o">.</span><span class="n">shift</span><span class="p">(</span><span class="n">period</span><span class="p">)</span>
+    <span class="n">prev</span> <span class="o">=</span> <span class="n">close</span><span class="o">.</span><span class="n">shift</span><span class="p">(</span><span class="n">window</span><span class="p">)</span>
     <span class="k">return</span> <span class="p">(</span><span class="n">close</span> <span class="o">-</span> <span class="n">prev</span><span class="p">)</span> <span class="o">/</span> <span class="n">prev</span></div>
 
 
 
 <div class="viewcode-block" id="rocr">
 <a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.rocr">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">rocr</span><span class="p">(</span><span class="n">close</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span> <span class="n">period</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;ROC ratio: ``close / close[period]``.</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">rocr</span><span class="p">(</span><span class="n">close</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span> <span class="n">window</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;ROC ratio: ``close / close[window]``.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        close: Price series.</span>
-<span class="sd">        period: Look-back length.</span>
+<span class="sd">        window: Look-back length.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        ROCR expression.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">close</span> <span class="o">/</span> <span class="n">close</span><span class="o">.</span><span class="n">shift</span><span class="p">(</span><span class="n">period</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">close</span> <span class="o">/</span> <span class="n">close</span><span class="o">.</span><span class="n">shift</span><span class="p">(</span><span class="n">window</span><span class="p">)</span></div>
 
 
 
 <div class="viewcode-block" id="rocr100">
 <a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.rocr100">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">rocr100</span><span class="p">(</span><span class="n">close</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span> <span class="n">period</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">rocr100</span><span class="p">(</span><span class="n">close</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span> <span class="n">window</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;ROC ratio scaled by 100.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        close: Price series.</span>
-<span class="sd">        period: Look-back length.</span>
+<span class="sd">        window: Look-back length.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        ROCR100 expression.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">rocr</span><span class="p">(</span><span class="n">close</span><span class="p">,</span> <span class="n">period</span><span class="p">)</span> <span class="o">*</span> <span class="mf">100.0</span></div>
+    <span class="k">return</span> <span class="n">rocr</span><span class="p">(</span><span class="n">close</span><span class="p">,</span> <span class="n">window</span><span class="p">)</span> <span class="o">*</span> <span class="mf">100.0</span></div>
 
 
 
@@ -445,7 +445,7 @@
     <span class="n">high</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span>
     <span class="n">low</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span>
     <span class="n">close</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span>
-    <span class="n">period</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">14</span><span class="p">,</span>
+    <span class="n">window</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">14</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Williams %R.</span>
 
@@ -453,13 +453,13 @@
 <span class="sd">        high: Bar high.</span>
 <span class="sd">        low: Bar low.</span>
 <span class="sd">        close: Bar close.</span>
-<span class="sd">        period: Window length.</span>
+<span class="sd">        window: Window length.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Expression in ``[-100, 0]``.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">hh</span> <span class="o">=</span> <span class="n">high</span><span class="o">.</span><span class="n">rolling_max</span><span class="p">(</span><span class="n">period</span><span class="p">)</span>
-    <span class="n">ll</span> <span class="o">=</span> <span class="n">low</span><span class="o">.</span><span class="n">rolling_min</span><span class="p">(</span><span class="n">period</span><span class="p">)</span>
+    <span class="n">hh</span> <span class="o">=</span> <span class="n">high</span><span class="o">.</span><span class="n">rolling_max</span><span class="p">(</span><span class="n">window</span><span class="p">)</span>
+    <span class="n">ll</span> <span class="o">=</span> <span class="n">low</span><span class="o">.</span><span class="n">rolling_min</span><span class="p">(</span><span class="n">window</span><span class="p">)</span>
     <span class="k">return</span> <span class="o">-</span><span class="mf">100.0</span> <span class="o">*</span> <span class="p">(</span><span class="n">hh</span> <span class="o">-</span> <span class="n">close</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">hh</span> <span class="o">-</span> <span class="n">ll</span><span class="p">)</span></div>
 
 
@@ -470,7 +470,7 @@
     <span class="n">high</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span>
     <span class="n">low</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span>
     <span class="n">close</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span>
-    <span class="n">period</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">14</span><span class="p">,</span>
+    <span class="n">window</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">14</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Fast stochastic %K.</span>
 
@@ -478,13 +478,13 @@
 <span class="sd">        high: Bar high.</span>
 <span class="sd">        low: Bar low.</span>
 <span class="sd">        close: Bar close.</span>
-<span class="sd">        period: Window length.</span>
+<span class="sd">        window: Window length.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Expression in ``[0, 100]``.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">ll</span> <span class="o">=</span> <span class="n">low</span><span class="o">.</span><span class="n">rolling_min</span><span class="p">(</span><span class="n">period</span><span class="p">)</span>
-    <span class="n">hh</span> <span class="o">=</span> <span class="n">high</span><span class="o">.</span><span class="n">rolling_max</span><span class="p">(</span><span class="n">period</span><span class="p">)</span>
+    <span class="n">ll</span> <span class="o">=</span> <span class="n">low</span><span class="o">.</span><span class="n">rolling_min</span><span class="p">(</span><span class="n">window</span><span class="p">)</span>
+    <span class="n">hh</span> <span class="o">=</span> <span class="n">high</span><span class="o">.</span><span class="n">rolling_max</span><span class="p">(</span><span class="n">window</span><span class="p">)</span>
     <span class="k">return</span> <span class="mf">100.0</span> <span class="o">*</span> <span class="p">(</span><span class="n">close</span> <span class="o">-</span> <span class="n">ll</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">hh</span> <span class="o">-</span> <span class="n">ll</span><span class="p">)</span></div>
 
 
@@ -495,8 +495,8 @@
     <span class="n">high</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span>
     <span class="n">low</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span>
     <span class="n">close</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span>
-    <span class="n">period</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">14</span><span class="p">,</span>
-    <span class="n">d_period</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span>
+    <span class="n">window</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">14</span><span class="p">,</span>
+    <span class="n">signal_window</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Stochastic %D — SMA of :func:`stoch_k`.</span>
 
@@ -504,13 +504,13 @@
 <span class="sd">        high: Bar high.</span>
 <span class="sd">        low: Bar low.</span>
 <span class="sd">        close: Bar close.</span>
-<span class="sd">        period: %K window length.</span>
-<span class="sd">        d_period: Smoothing window for %D.</span>
+<span class="sd">        window: %K window length.</span>
+<span class="sd">        signal_window: Smoothing window for %D.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Expression yielding %D.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">stoch_k</span><span class="p">(</span><span class="n">high</span><span class="p">,</span> <span class="n">low</span><span class="p">,</span> <span class="n">close</span><span class="p">,</span> <span class="n">period</span><span class="p">)</span><span class="o">.</span><span class="n">rolling_mean</span><span class="p">(</span><span class="n">d_period</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">stoch_k</span><span class="p">(</span><span class="n">high</span><span class="p">,</span> <span class="n">low</span><span class="p">,</span> <span class="n">close</span><span class="p">,</span> <span class="n">window</span><span class="p">)</span><span class="o">.</span><span class="n">rolling_mean</span><span class="p">(</span><span class="n">signal_window</span><span class="p">)</span></div>
 
 
 
@@ -520,7 +520,7 @@
     <span class="n">high</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span>
     <span class="n">low</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span>
     <span class="n">close</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span>
-    <span class="n">period</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">20</span><span class="p">,</span>
+    <span class="n">window</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">20</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Commodity Channel Index.</span>
 
@@ -528,26 +528,26 @@
 <span class="sd">        high: Bar high.</span>
 <span class="sd">        low: Bar low.</span>
 <span class="sd">        close: Bar close.</span>
-<span class="sd">        period: Window length.</span>
+<span class="sd">        window: Window length.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        CCI expression. Uses mean absolute deviation in the denominator.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">tp</span> <span class="o">=</span> <span class="p">(</span><span class="n">high</span> <span class="o">+</span> <span class="n">low</span> <span class="o">+</span> <span class="n">close</span><span class="p">)</span> <span class="o">/</span> <span class="mf">3.0</span>
-    <span class="n">sma_tp</span> <span class="o">=</span> <span class="n">tp</span><span class="o">.</span><span class="n">rolling_mean</span><span class="p">(</span><span class="n">period</span><span class="p">)</span>
-    <span class="n">mad</span> <span class="o">=</span> <span class="p">(</span><span class="n">tp</span> <span class="o">-</span> <span class="n">sma_tp</span><span class="p">)</span><span class="o">.</span><span class="n">abs</span><span class="p">()</span><span class="o">.</span><span class="n">rolling_mean</span><span class="p">(</span><span class="n">period</span><span class="p">)</span>
+    <span class="n">sma_tp</span> <span class="o">=</span> <span class="n">tp</span><span class="o">.</span><span class="n">rolling_mean</span><span class="p">(</span><span class="n">window</span><span class="p">)</span>
+    <span class="n">mad</span> <span class="o">=</span> <span class="p">(</span><span class="n">tp</span> <span class="o">-</span> <span class="n">sma_tp</span><span class="p">)</span><span class="o">.</span><span class="n">abs</span><span class="p">()</span><span class="o">.</span><span class="n">rolling_mean</span><span class="p">(</span><span class="n">window</span><span class="p">)</span>
     <span class="k">return</span> <span class="p">(</span><span class="n">tp</span> <span class="o">-</span> <span class="n">sma_tp</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mf">0.015</span> <span class="o">*</span> <span class="n">mad</span><span class="p">)</span></div>
 
 
 
 <div class="viewcode-block" id="cmo">
 <a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.cmo">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">cmo</span><span class="p">(</span><span class="n">close</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span> <span class="n">period</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">14</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">cmo</span><span class="p">(</span><span class="n">close</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span> <span class="n">window</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">14</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Chande Momentum Oscillator.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        close: Price series.</span>
-<span class="sd">        period: Window length.</span>
+<span class="sd">        window: Window length.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        CMO expression in ``[-100, 100]``.</span>
@@ -555,8 +555,8 @@
     <span class="n">diff</span> <span class="o">=</span> <span class="n">close</span><span class="o">.</span><span class="n">diff</span><span class="p">()</span>
     <span class="n">gain</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">when</span><span class="p">(</span><span class="n">diff</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">then</span><span class="p">(</span><span class="n">diff</span><span class="p">)</span><span class="o">.</span><span class="n">otherwise</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span>
     <span class="n">loss</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">when</span><span class="p">(</span><span class="n">diff</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">then</span><span class="p">(</span><span class="o">-</span><span class="n">diff</span><span class="p">)</span><span class="o">.</span><span class="n">otherwise</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span>
-    <span class="n">g</span> <span class="o">=</span> <span class="n">gain</span><span class="o">.</span><span class="n">rolling_sum</span><span class="p">(</span><span class="n">period</span><span class="p">)</span>
-    <span class="n">loss</span> <span class="o">=</span> <span class="n">loss</span><span class="o">.</span><span class="n">rolling_sum</span><span class="p">(</span><span class="n">period</span><span class="p">)</span>
+    <span class="n">g</span> <span class="o">=</span> <span class="n">gain</span><span class="o">.</span><span class="n">rolling_sum</span><span class="p">(</span><span class="n">window</span><span class="p">)</span>
+    <span class="n">loss</span> <span class="o">=</span> <span class="n">loss</span><span class="o">.</span><span class="n">rolling_sum</span><span class="p">(</span><span class="n">window</span><span class="p">)</span>
     <span class="n">denom</span> <span class="o">=</span> <span class="n">g</span> <span class="o">+</span> <span class="n">loss</span>
     <span class="k">return</span> <span class="n">pl</span><span class="o">.</span><span class="n">when</span><span class="p">(</span><span class="n">denom</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">then</span><span class="p">(</span><span class="mf">100.0</span> <span class="o">*</span> <span class="p">(</span><span class="n">g</span> <span class="o">-</span> <span class="n">loss</span><span class="p">)</span> <span class="o">/</span> <span class="n">denom</span><span class="p">)</span><span class="o">.</span><span class="n">otherwise</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span></div>
 
@@ -564,19 +564,19 @@
 
 <div class="viewcode-block" id="trix">
 <a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.trix">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">trix</span><span class="p">(</span><span class="n">close</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span> <span class="n">period</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">15</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">trix</span><span class="p">(</span><span class="n">close</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span> <span class="n">window</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">15</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;TRIX — 1-day ROC of triple-smoothed log price.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        close: Price series.</span>
-<span class="sd">        period: EMA span.</span>
+<span class="sd">        window: EMA span.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        TRIX expression in percent.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">e1</span> <span class="o">=</span> <span class="n">ema</span><span class="p">(</span><span class="n">close</span><span class="p">,</span> <span class="n">period</span><span class="p">)</span>
-    <span class="n">e2</span> <span class="o">=</span> <span class="n">e1</span><span class="o">.</span><span class="n">ewm_mean</span><span class="p">(</span><span class="n">span</span><span class="o">=</span><span class="n">period</span><span class="p">,</span> <span class="n">adjust</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ignore_nulls</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">e3</span> <span class="o">=</span> <span class="n">e2</span><span class="o">.</span><span class="n">ewm_mean</span><span class="p">(</span><span class="n">span</span><span class="o">=</span><span class="n">period</span><span class="p">,</span> <span class="n">adjust</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ignore_nulls</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">e1</span> <span class="o">=</span> <span class="n">ema</span><span class="p">(</span><span class="n">close</span><span class="p">,</span> <span class="n">window</span><span class="p">)</span>
+    <span class="n">e2</span> <span class="o">=</span> <span class="n">e1</span><span class="o">.</span><span class="n">ewm_mean</span><span class="p">(</span><span class="n">span</span><span class="o">=</span><span class="n">window</span><span class="p">,</span> <span class="n">adjust</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ignore_nulls</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">e3</span> <span class="o">=</span> <span class="n">e2</span><span class="o">.</span><span class="n">ewm_mean</span><span class="p">(</span><span class="n">span</span><span class="o">=</span><span class="n">window</span><span class="p">,</span> <span class="n">adjust</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ignore_nulls</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="k">return</span> <span class="p">(</span><span class="n">e3</span> <span class="o">/</span> <span class="n">e3</span><span class="o">.</span><span class="n">shift</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">)</span> <span class="o">*</span> <span class="mf">100.0</span></div>
 
 
@@ -632,7 +632,7 @@
     <span class="n">high</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span>
     <span class="n">low</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span>
     <span class="n">close</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span>
-    <span class="n">period</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">14</span><span class="p">,</span>
+    <span class="n">window</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">14</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Wilder&#39;s +DI.</span>
 
@@ -640,13 +640,13 @@
 <span class="sd">        high: Bar high.</span>
 <span class="sd">        low: Bar low.</span>
 <span class="sd">        close: Bar close.</span>
-<span class="sd">        period: Smoothing period.</span>
+<span class="sd">        window: Smoothing window.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        +DI expression in percent.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">tr</span> <span class="o">=</span> <span class="n">_wilder</span><span class="p">(</span><span class="n">_true_range</span><span class="p">(</span><span class="n">high</span><span class="p">,</span> <span class="n">low</span><span class="p">,</span> <span class="n">close</span><span class="p">),</span> <span class="n">period</span><span class="p">)</span>
-    <span class="k">return</span> <span class="mf">100.0</span> <span class="o">*</span> <span class="n">_wilder</span><span class="p">(</span><span class="n">plus_dm</span><span class="p">(</span><span class="n">high</span><span class="p">,</span> <span class="n">low</span><span class="p">),</span> <span class="n">period</span><span class="p">)</span> <span class="o">/</span> <span class="n">tr</span></div>
+    <span class="n">tr</span> <span class="o">=</span> <span class="n">_wilder</span><span class="p">(</span><span class="n">_true_range</span><span class="p">(</span><span class="n">high</span><span class="p">,</span> <span class="n">low</span><span class="p">,</span> <span class="n">close</span><span class="p">),</span> <span class="n">window</span><span class="p">)</span>
+    <span class="k">return</span> <span class="mf">100.0</span> <span class="o">*</span> <span class="n">_wilder</span><span class="p">(</span><span class="n">plus_dm</span><span class="p">(</span><span class="n">high</span><span class="p">,</span> <span class="n">low</span><span class="p">),</span> <span class="n">window</span><span class="p">)</span> <span class="o">/</span> <span class="n">tr</span></div>
 
 
 
@@ -656,7 +656,7 @@
     <span class="n">high</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span>
     <span class="n">low</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span>
     <span class="n">close</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span>
-    <span class="n">period</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">14</span><span class="p">,</span>
+    <span class="n">window</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">14</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Wilder&#39;s -DI.</span>
 
@@ -664,13 +664,13 @@
 <span class="sd">        high: Bar high.</span>
 <span class="sd">        low: Bar low.</span>
 <span class="sd">        close: Bar close.</span>
-<span class="sd">        period: Smoothing period.</span>
+<span class="sd">        window: Smoothing window.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        -DI expression in percent.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">tr</span> <span class="o">=</span> <span class="n">_wilder</span><span class="p">(</span><span class="n">_true_range</span><span class="p">(</span><span class="n">high</span><span class="p">,</span> <span class="n">low</span><span class="p">,</span> <span class="n">close</span><span class="p">),</span> <span class="n">period</span><span class="p">)</span>
-    <span class="k">return</span> <span class="mf">100.0</span> <span class="o">*</span> <span class="n">_wilder</span><span class="p">(</span><span class="n">minus_dm</span><span class="p">(</span><span class="n">high</span><span class="p">,</span> <span class="n">low</span><span class="p">),</span> <span class="n">period</span><span class="p">)</span> <span class="o">/</span> <span class="n">tr</span></div>
+    <span class="n">tr</span> <span class="o">=</span> <span class="n">_wilder</span><span class="p">(</span><span class="n">_true_range</span><span class="p">(</span><span class="n">high</span><span class="p">,</span> <span class="n">low</span><span class="p">,</span> <span class="n">close</span><span class="p">),</span> <span class="n">window</span><span class="p">)</span>
+    <span class="k">return</span> <span class="mf">100.0</span> <span class="o">*</span> <span class="n">_wilder</span><span class="p">(</span><span class="n">minus_dm</span><span class="p">(</span><span class="n">high</span><span class="p">,</span> <span class="n">low</span><span class="p">),</span> <span class="n">window</span><span class="p">)</span> <span class="o">/</span> <span class="n">tr</span></div>
 
 
 
@@ -680,7 +680,7 @@
     <span class="n">high</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span>
     <span class="n">low</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span>
     <span class="n">close</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span>
-    <span class="n">period</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">14</span><span class="p">,</span>
+    <span class="n">window</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">14</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Average Directional Index (Wilder).</span>
 
@@ -688,16 +688,16 @@
 <span class="sd">        high: Bar high.</span>
 <span class="sd">        low: Bar low.</span>
 <span class="sd">        close: Bar close.</span>
-<span class="sd">        period: Smoothing period.</span>
+<span class="sd">        window: Smoothing window.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        ADX expression in ``[0, 100]``.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">p_di</span> <span class="o">=</span> <span class="n">plus_di</span><span class="p">(</span><span class="n">high</span><span class="p">,</span> <span class="n">low</span><span class="p">,</span> <span class="n">close</span><span class="p">,</span> <span class="n">period</span><span class="p">)</span>
-    <span class="n">m_di</span> <span class="o">=</span> <span class="n">minus_di</span><span class="p">(</span><span class="n">high</span><span class="p">,</span> <span class="n">low</span><span class="p">,</span> <span class="n">close</span><span class="p">,</span> <span class="n">period</span><span class="p">)</span>
+    <span class="n">p_di</span> <span class="o">=</span> <span class="n">plus_di</span><span class="p">(</span><span class="n">high</span><span class="p">,</span> <span class="n">low</span><span class="p">,</span> <span class="n">close</span><span class="p">,</span> <span class="n">window</span><span class="p">)</span>
+    <span class="n">m_di</span> <span class="o">=</span> <span class="n">minus_di</span><span class="p">(</span><span class="n">high</span><span class="p">,</span> <span class="n">low</span><span class="p">,</span> <span class="n">close</span><span class="p">,</span> <span class="n">window</span><span class="p">)</span>
     <span class="n">denom</span> <span class="o">=</span> <span class="n">p_di</span> <span class="o">+</span> <span class="n">m_di</span>
     <span class="n">dx</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">when</span><span class="p">(</span><span class="n">denom</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">then</span><span class="p">(</span><span class="mf">100.0</span> <span class="o">*</span> <span class="p">(</span><span class="n">p_di</span> <span class="o">-</span> <span class="n">m_di</span><span class="p">)</span><span class="o">.</span><span class="n">abs</span><span class="p">()</span> <span class="o">/</span> <span class="n">denom</span><span class="p">)</span><span class="o">.</span><span class="n">otherwise</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">_wilder</span><span class="p">(</span><span class="n">dx</span><span class="p">,</span> <span class="n">period</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">_wilder</span><span class="p">(</span><span class="n">dx</span><span class="p">,</span> <span class="n">window</span><span class="p">)</span></div>
 
 </pre></div>
         </article>
@@ -731,7 +731,7 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=37f418d5"></script>
+</div><script src="../../_static/documentation_options.js?v=e259d695"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=46bd48cc"></script>

@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html"><link rel="search" title="Search" href="../../search.html">
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2025.12.19 -->
-        <title>finance_calcs.volatility - finance calcs v0.2.1</title>
+        <title>finance_calcs.volatility - finance calcs v0.3.0</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
@@ -166,7 +166,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">finance calcs <code style='font-size: var(--font-size--small--4);color: var(--sd-color-primary);'>v0.2.1</code></div></a>
+      <a href="../../index.html"><div class="brand">finance calcs <code style='font-size: var(--font-size--small--4);color: var(--sd-color-primary);'>v0.3.0</code></div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -187,7 +187,7 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
-  <span class="sidebar-brand-text">finance calcs <code style='font-size: var(--font-size--small--4);color: var(--sd-color-primary);'>v0.2.1</code></span>
+  <span class="sidebar-brand-text">finance calcs <code style='font-size: var(--font-size--small--4);color: var(--sd-color-primary);'>v0.3.0</code></span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -239,17 +239,20 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">polars</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pl</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">finance_enums</span><span class="w"> </span><span class="kn">import</span> <span class="n">Frequency</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">._periods</span><span class="w"> </span><span class="kn">import</span> <span class="n">FrequencyLike</span><span class="p">,</span> <span class="n">_observations_per_year</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
     <span class="s2">&quot;atr&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;ewma_vol&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;garman_klass_vol&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;exponentially_weighted_volatility&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;garman_klass_volatility&quot;</span><span class="p">,</span>
     <span class="s2">&quot;natr&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;parkinson_vol&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;realized_vol&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;rogers_satchell_vol&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;parkinson_volatility&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;realized_volatility&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;rogers_satchell_volatility&quot;</span><span class="p">,</span>
     <span class="s2">&quot;true_range&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;yang_zhang_vol&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;yang_zhang_volatility&quot;</span><span class="p">,</span>
 <span class="p">]</span>
 
 
@@ -282,7 +285,7 @@
     <span class="n">high</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span>
     <span class="n">low</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span>
     <span class="n">close</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span>
-    <span class="n">period</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">14</span><span class="p">,</span>
+    <span class="n">window</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">14</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Average True Range using Wilder smoothing.</span>
 
@@ -290,12 +293,12 @@
 <span class="sd">        high: Bar high.</span>
 <span class="sd">        low: Bar low.</span>
 <span class="sd">        close: Bar close.</span>
-<span class="sd">        period: Smoothing period.</span>
+<span class="sd">        window: Smoothing window.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        ATR expression.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">true_range</span><span class="p">(</span><span class="n">high</span><span class="p">,</span> <span class="n">low</span><span class="p">,</span> <span class="n">close</span><span class="p">)</span><span class="o">.</span><span class="n">ewm_mean</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="mf">1.0</span> <span class="o">/</span> <span class="n">period</span><span class="p">,</span> <span class="n">adjust</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ignore_nulls</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">true_range</span><span class="p">(</span><span class="n">high</span><span class="p">,</span> <span class="n">low</span><span class="p">,</span> <span class="n">close</span><span class="p">)</span><span class="o">.</span><span class="n">ewm_mean</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="mf">1.0</span> <span class="o">/</span> <span class="n">window</span><span class="p">,</span> <span class="n">adjust</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ignore_nulls</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
 
 
 
@@ -305,7 +308,7 @@
     <span class="n">high</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span>
     <span class="n">low</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span>
     <span class="n">close</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span>
-    <span class="n">period</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">14</span><span class="p">,</span>
+    <span class="n">window</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">14</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Normalised ATR — ``100 * ATR / close``.</span>
 
@@ -313,18 +316,24 @@
 <span class="sd">        high: Bar high.</span>
 <span class="sd">        low: Bar low.</span>
 <span class="sd">        close: Bar close.</span>
-<span class="sd">        period: Smoothing period.</span>
+<span class="sd">        window: Smoothing window.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        NATR expression in percent.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="mf">100.0</span> <span class="o">*</span> <span class="n">atr</span><span class="p">(</span><span class="n">high</span><span class="p">,</span> <span class="n">low</span><span class="p">,</span> <span class="n">close</span><span class="p">,</span> <span class="n">period</span><span class="p">)</span> <span class="o">/</span> <span class="n">close</span></div>
+    <span class="k">return</span> <span class="mf">100.0</span> <span class="o">*</span> <span class="n">atr</span><span class="p">(</span><span class="n">high</span><span class="p">,</span> <span class="n">low</span><span class="p">,</span> <span class="n">close</span><span class="p">,</span> <span class="n">window</span><span class="p">)</span> <span class="o">/</span> <span class="n">close</span></div>
 
 
 
-<div class="viewcode-block" id="parkinson_vol">
-<a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.parkinson_vol">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">parkinson_vol</span><span class="p">(</span><span class="n">high</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span> <span class="n">low</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span> <span class="n">period</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">20</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
+<div class="viewcode-block" id="parkinson_volatility">
+<a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.parkinson_volatility">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">parkinson_volatility</span><span class="p">(</span>
+    <span class="n">high</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span>
+    <span class="n">low</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span>
+    <span class="n">window</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">20</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">frequency</span><span class="p">:</span> <span class="n">FrequencyLike</span> <span class="o">=</span> <span class="n">Frequency</span><span class="o">.</span><span class="n">Day</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Parkinson high-low range volatility estimator.</span>
 
 <span class="sd">    .. math::</span>
@@ -333,24 +342,26 @@
 <span class="sd">    Args:</span>
 <span class="sd">        high: Bar high.</span>
 <span class="sd">        low: Bar low.</span>
-<span class="sd">        period: Window length.</span>
+<span class="sd">        window: Window length.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        Per-period volatility expression (rolling).</span>
+<span class="sd">        Annualized rolling volatility expression.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">log_hl</span> <span class="o">=</span> <span class="p">(</span><span class="n">high</span> <span class="o">/</span> <span class="n">low</span><span class="p">)</span><span class="o">.</span><span class="n">log</span><span class="p">()</span>
-    <span class="k">return</span> <span class="p">(</span><span class="n">log_hl</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">rolling_mean</span><span class="p">(</span><span class="n">period</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mf">4.0</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mf">2.0</span><span class="p">)))</span><span class="o">.</span><span class="n">sqrt</span><span class="p">()</span></div>
+    <span class="k">return</span> <span class="p">(</span><span class="n">log_hl</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">rolling_mean</span><span class="p">(</span><span class="n">window</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mf">4.0</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mf">2.0</span><span class="p">)))</span><span class="o">.</span><span class="n">sqrt</span><span class="p">()</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">_observations_per_year</span><span class="p">(</span><span class="n">frequency</span><span class="p">))</span></div>
 
 
 
-<div class="viewcode-block" id="garman_klass_vol">
-<a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.garman_klass_vol">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">garman_klass_vol</span><span class="p">(</span>
+<div class="viewcode-block" id="garman_klass_volatility">
+<a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.garman_klass_volatility">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">garman_klass_volatility</span><span class="p">(</span>
     <span class="n">open_</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span>
     <span class="n">high</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span>
     <span class="n">low</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span>
     <span class="n">close</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span>
-    <span class="n">period</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">20</span><span class="p">,</span>
+    <span class="n">window</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">20</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">frequency</span><span class="p">:</span> <span class="n">FrequencyLike</span> <span class="o">=</span> <span class="n">Frequency</span><span class="o">.</span><span class="n">Day</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Garman-Klass OHLC volatility estimator.</span>
 
@@ -362,26 +373,36 @@
 <span class="sd">        high: Bar high.</span>
 <span class="sd">        low: Bar low.</span>
 <span class="sd">        close: Bar close.</span>
-<span class="sd">        period: Window length.</span>
+<span class="sd">        window: Window length.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        Per-period GK volatility expression (rolling).</span>
+<span class="sd">        Annualized rolling Garman-Klass volatility expression.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">log_hl</span> <span class="o">=</span> <span class="p">(</span><span class="n">high</span> <span class="o">/</span> <span class="n">low</span><span class="p">)</span><span class="o">.</span><span class="n">log</span><span class="p">()</span>
     <span class="n">log_co</span> <span class="o">=</span> <span class="p">(</span><span class="n">close</span> <span class="o">/</span> <span class="n">open_</span><span class="p">)</span><span class="o">.</span><span class="n">log</span><span class="p">()</span>
     <span class="n">term</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">log_hl</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="o">-</span> <span class="p">(</span><span class="mf">2.0</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mf">2.0</span><span class="p">)</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">)</span> <span class="o">*</span> <span class="n">log_co</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">term</span><span class="o">.</span><span class="n">rolling_mean</span><span class="p">(</span><span class="n">period</span><span class="p">)</span><span class="o">.</span><span class="n">sqrt</span><span class="p">()</span></div>
+    <span class="k">return</span> <span class="n">term</span><span class="o">.</span><span class="n">rolling_mean</span><span class="p">(</span><span class="n">window</span><span class="p">)</span><span class="o">.</span><span class="n">sqrt</span><span class="p">()</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">_observations_per_year</span><span class="p">(</span><span class="n">frequency</span><span class="p">))</span></div>
 
 
 
-<div class="viewcode-block" id="rogers_satchell_vol">
-<a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.rogers_satchell_vol">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">rogers_satchell_vol</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_rogers_satchell_variance</span><span class="p">(</span><span class="n">open_</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span> <span class="n">high</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span> <span class="n">low</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span> <span class="n">close</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span> <span class="n">window</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
+    <span class="n">log_hc</span> <span class="o">=</span> <span class="p">(</span><span class="n">high</span> <span class="o">/</span> <span class="n">close</span><span class="p">)</span><span class="o">.</span><span class="n">log</span><span class="p">()</span>
+    <span class="n">log_ho</span> <span class="o">=</span> <span class="p">(</span><span class="n">high</span> <span class="o">/</span> <span class="n">open_</span><span class="p">)</span><span class="o">.</span><span class="n">log</span><span class="p">()</span>
+    <span class="n">log_lc</span> <span class="o">=</span> <span class="p">(</span><span class="n">low</span> <span class="o">/</span> <span class="n">close</span><span class="p">)</span><span class="o">.</span><span class="n">log</span><span class="p">()</span>
+    <span class="n">log_lo</span> <span class="o">=</span> <span class="p">(</span><span class="n">low</span> <span class="o">/</span> <span class="n">open_</span><span class="p">)</span><span class="o">.</span><span class="n">log</span><span class="p">()</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">log_hc</span> <span class="o">*</span> <span class="n">log_ho</span> <span class="o">+</span> <span class="n">log_lc</span> <span class="o">*</span> <span class="n">log_lo</span><span class="p">)</span><span class="o">.</span><span class="n">rolling_mean</span><span class="p">(</span><span class="n">window</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="rogers_satchell_volatility">
+<a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.rogers_satchell_volatility">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">rogers_satchell_volatility</span><span class="p">(</span>
     <span class="n">open_</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span>
     <span class="n">high</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span>
     <span class="n">low</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span>
     <span class="n">close</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span>
-    <span class="n">period</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">20</span><span class="p">,</span>
+    <span class="n">window</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">20</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">frequency</span><span class="p">:</span> <span class="n">FrequencyLike</span> <span class="o">=</span> <span class="n">Frequency</span><span class="o">.</span><span class="n">Day</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Rogers-Satchell drift-independent volatility.</span>
 
@@ -393,28 +414,26 @@
 <span class="sd">        high: Bar high.</span>
 <span class="sd">        low: Bar low.</span>
 <span class="sd">        close: Bar close.</span>
-<span class="sd">        period: Window length.</span>
+<span class="sd">        window: Window length.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        RS volatility expression (rolling).</span>
+<span class="sd">        Annualized rolling Rogers-Satchell volatility expression.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">log_hc</span> <span class="o">=</span> <span class="p">(</span><span class="n">high</span> <span class="o">/</span> <span class="n">close</span><span class="p">)</span><span class="o">.</span><span class="n">log</span><span class="p">()</span>
-    <span class="n">log_ho</span> <span class="o">=</span> <span class="p">(</span><span class="n">high</span> <span class="o">/</span> <span class="n">open_</span><span class="p">)</span><span class="o">.</span><span class="n">log</span><span class="p">()</span>
-    <span class="n">log_lc</span> <span class="o">=</span> <span class="p">(</span><span class="n">low</span> <span class="o">/</span> <span class="n">close</span><span class="p">)</span><span class="o">.</span><span class="n">log</span><span class="p">()</span>
-    <span class="n">log_lo</span> <span class="o">=</span> <span class="p">(</span><span class="n">low</span> <span class="o">/</span> <span class="n">open_</span><span class="p">)</span><span class="o">.</span><span class="n">log</span><span class="p">()</span>
-    <span class="k">return</span> <span class="p">(</span><span class="n">log_hc</span> <span class="o">*</span> <span class="n">log_ho</span> <span class="o">+</span> <span class="n">log_lc</span> <span class="o">*</span> <span class="n">log_lo</span><span class="p">)</span><span class="o">.</span><span class="n">rolling_mean</span><span class="p">(</span><span class="n">period</span><span class="p">)</span><span class="o">.</span><span class="n">sqrt</span><span class="p">()</span></div>
+    <span class="k">return</span> <span class="n">_rogers_satchell_variance</span><span class="p">(</span><span class="n">open_</span><span class="p">,</span> <span class="n">high</span><span class="p">,</span> <span class="n">low</span><span class="p">,</span> <span class="n">close</span><span class="p">,</span> <span class="n">window</span><span class="p">)</span><span class="o">.</span><span class="n">sqrt</span><span class="p">()</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">_observations_per_year</span><span class="p">(</span><span class="n">frequency</span><span class="p">))</span></div>
 
 
 
-<div class="viewcode-block" id="yang_zhang_vol">
-<a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.yang_zhang_vol">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">yang_zhang_vol</span><span class="p">(</span>
+<div class="viewcode-block" id="yang_zhang_volatility">
+<a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.yang_zhang_volatility">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">yang_zhang_volatility</span><span class="p">(</span>
     <span class="n">open_</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span>
     <span class="n">high</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span>
     <span class="n">low</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span>
     <span class="n">close</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span>
-    <span class="n">period</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">20</span><span class="p">,</span>
-    <span class="n">k</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">window</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">20</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">weight</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">frequency</span><span class="p">:</span> <span class="n">FrequencyLike</span> <span class="o">=</span> <span class="n">Frequency</span><span class="o">.</span><span class="n">Day</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Yang-Zhang volatility — minimum-variance combination of overnight,</span>
 <span class="sd">    open-to-close, and Rogers-Satchell drift-independent components.</span>
@@ -424,54 +443,64 @@
 <span class="sd">        high: Bar high.</span>
 <span class="sd">        low: Bar low.</span>
 <span class="sd">        close: Bar close.</span>
-<span class="sd">        period: Window length.</span>
-<span class="sd">        k: Weight on open-to-close variance. Defaults to</span>
-<span class="sd">            ``0.34 / (1.34 + (period+1)/(period-1))``.</span>
+<span class="sd">        window: Window length.</span>
+<span class="sd">        weight: Weight on open-to-close variance. Defaults to</span>
+<span class="sd">            ``0.34 / (1.34 + (window+1)/(window-1))``.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        YZ volatility expression (rolling).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">k</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">k</span> <span class="o">=</span> <span class="mf">0.34</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.34</span> <span class="o">+</span> <span class="p">(</span><span class="n">period</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">period</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">weight</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">weight</span> <span class="o">=</span> <span class="mf">0.34</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.34</span> <span class="o">+</span> <span class="p">(</span><span class="n">window</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">window</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span>
     <span class="n">prev_close</span> <span class="o">=</span> <span class="n">close</span><span class="o">.</span><span class="n">shift</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
     <span class="n">overnight</span> <span class="o">=</span> <span class="p">(</span><span class="n">open_</span> <span class="o">/</span> <span class="n">prev_close</span><span class="p">)</span><span class="o">.</span><span class="n">log</span><span class="p">()</span>
     <span class="n">oc</span> <span class="o">=</span> <span class="p">(</span><span class="n">close</span> <span class="o">/</span> <span class="n">open_</span><span class="p">)</span><span class="o">.</span><span class="n">log</span><span class="p">()</span>
-    <span class="n">sigma_on</span> <span class="o">=</span> <span class="n">overnight</span><span class="o">.</span><span class="n">rolling_var</span><span class="p">(</span><span class="n">period</span><span class="p">)</span>
-    <span class="n">sigma_oc</span> <span class="o">=</span> <span class="n">oc</span><span class="o">.</span><span class="n">rolling_var</span><span class="p">(</span><span class="n">period</span><span class="p">)</span>
-    <span class="n">sigma_rs</span> <span class="o">=</span> <span class="n">rogers_satchell_vol</span><span class="p">(</span><span class="n">open_</span><span class="p">,</span> <span class="n">high</span><span class="p">,</span> <span class="n">low</span><span class="p">,</span> <span class="n">close</span><span class="p">,</span> <span class="n">period</span><span class="p">)</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
-    <span class="k">return</span> <span class="p">(</span><span class="n">sigma_on</span> <span class="o">+</span> <span class="n">k</span> <span class="o">*</span> <span class="n">sigma_oc</span> <span class="o">+</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">k</span><span class="p">)</span> <span class="o">*</span> <span class="n">sigma_rs</span><span class="p">)</span><span class="o">.</span><span class="n">sqrt</span><span class="p">()</span></div>
+    <span class="n">sigma_on</span> <span class="o">=</span> <span class="n">overnight</span><span class="o">.</span><span class="n">rolling_var</span><span class="p">(</span><span class="n">window</span><span class="p">)</span>
+    <span class="n">sigma_oc</span> <span class="o">=</span> <span class="n">oc</span><span class="o">.</span><span class="n">rolling_var</span><span class="p">(</span><span class="n">window</span><span class="p">)</span>
+    <span class="n">sigma_rs</span> <span class="o">=</span> <span class="n">_rogers_satchell_variance</span><span class="p">(</span><span class="n">open_</span><span class="p">,</span> <span class="n">high</span><span class="p">,</span> <span class="n">low</span><span class="p">,</span> <span class="n">close</span><span class="p">,</span> <span class="n">window</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">sigma_on</span> <span class="o">+</span> <span class="n">weight</span> <span class="o">*</span> <span class="n">sigma_oc</span> <span class="o">+</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">weight</span><span class="p">)</span> <span class="o">*</span> <span class="n">sigma_rs</span><span class="p">)</span><span class="o">.</span><span class="n">sqrt</span><span class="p">()</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">_observations_per_year</span><span class="p">(</span><span class="n">frequency</span><span class="p">))</span></div>
 
 
 
-<div class="viewcode-block" id="ewma_vol">
-<a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.ewma_vol">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">ewma_vol</span><span class="p">(</span><span class="n">returns</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span> <span class="n">span</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">20</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
+<div class="viewcode-block" id="exponentially_weighted_volatility">
+<a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.exponentially_weighted_volatility">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">exponentially_weighted_volatility</span><span class="p">(</span>
+    <span class="n">returns</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span>
+    <span class="n">window</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">20</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">frequency</span><span class="p">:</span> <span class="n">FrequencyLike</span> <span class="o">=</span> <span class="n">Frequency</span><span class="o">.</span><span class="n">Day</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Exponentially weighted standard deviation.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        returns: Return series.</span>
-<span class="sd">        span: EWMA span.</span>
+<span class="sd">        window: EWMA window.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Square root of the EWMA variance of ``returns``.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">returns</span><span class="o">.</span><span class="n">ewm_std</span><span class="p">(</span><span class="n">span</span><span class="o">=</span><span class="n">span</span><span class="p">,</span> <span class="n">adjust</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ignore_nulls</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">returns</span><span class="o">.</span><span class="n">ewm_std</span><span class="p">(</span><span class="n">span</span><span class="o">=</span><span class="n">window</span><span class="p">,</span> <span class="n">adjust</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ignore_nulls</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">_observations_per_year</span><span class="p">(</span><span class="n">frequency</span><span class="p">))</span></div>
 
 
 
-<div class="viewcode-block" id="realized_vol">
-<a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.realized_vol">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">realized_vol</span><span class="p">(</span><span class="n">returns</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span> <span class="n">period</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">20</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
+<div class="viewcode-block" id="realized_volatility">
+<a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.realized_volatility">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">realized_volatility</span><span class="p">(</span>
+    <span class="n">returns</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span>
+    <span class="n">window</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">20</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">frequency</span><span class="p">:</span> <span class="n">FrequencyLike</span> <span class="o">=</span> <span class="n">Frequency</span><span class="o">.</span><span class="n">Day</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Rolling realised volatility (sample standard deviation).</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        returns: Return series.</span>
-<span class="sd">        period: Window length.</span>
+<span class="sd">        window: Window length.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        Rolling standard deviation expression.</span>
+<span class="sd">        Annualized rolling standard deviation expression.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">returns</span><span class="o">.</span><span class="n">rolling_std</span><span class="p">(</span><span class="n">period</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">returns</span><span class="o">.</span><span class="n">rolling_std</span><span class="p">(</span><span class="n">window</span><span class="p">)</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">_observations_per_year</span><span class="p">(</span><span class="n">frequency</span><span class="p">))</span></div>
 
 </pre></div>
         </article>
@@ -505,7 +534,7 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=37f418d5"></script>
+</div><script src="../../_static/documentation_options.js?v=e259d695"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=46bd48cc"></script>

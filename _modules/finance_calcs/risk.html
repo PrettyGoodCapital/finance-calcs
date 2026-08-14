@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html"><link rel="search" title="Search" href="../../search.html">
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2025.12.19 -->
-        <title>finance_calcs.risk - finance calcs v0.2.1</title>
+        <title>finance_calcs.risk - finance calcs v0.3.0</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
@@ -166,7 +166,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">finance calcs <code style='font-size: var(--font-size--small--4);color: var(--sd-color-primary);'>v0.2.1</code></div></a>
+      <a href="../../index.html"><div class="brand">finance calcs <code style='font-size: var(--font-size--small--4);color: var(--sd-color-primary);'>v0.3.0</code></div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -187,7 +187,7 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
-  <span class="sidebar-brand-text">finance calcs <code style='font-size: var(--font-size--small--4);color: var(--sd-color-primary);'>v0.2.1</code></span>
+  <span class="sidebar-brand-text">finance calcs <code style='font-size: var(--font-size--small--4);color: var(--sd-color-primary);'>v0.3.0</code></span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -250,25 +250,23 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">polars</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pl</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">finance_enums</span><span class="w"> </span><span class="kn">import</span> <span class="n">Frequency</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">._periods</span><span class="w"> </span><span class="kn">import</span> <span class="n">PeriodLike</span><span class="p">,</span> <span class="n">_bucket_or_none</span><span class="p">,</span> <span class="n">_check_window_period</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">.returns</span><span class="w"> </span><span class="kn">import</span> <span class="n">_clean_returns</span><span class="p">,</span> <span class="n">annualized_return</span><span class="p">,</span> <span class="n">annualized_volatility</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">._periods</span><span class="w"> </span><span class="kn">import</span> <span class="n">FrequencyLike</span><span class="p">,</span> <span class="n">PeriodLike</span><span class="p">,</span> <span class="n">_annual_rate_to_observation_rate</span><span class="p">,</span> <span class="n">_bucket_or_none</span><span class="p">,</span> <span class="n">_check_window_period</span><span class="p">,</span> <span class="n">_observations_per_year</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">._validation</span><span class="w"> </span><span class="kn">import</span> <span class="n">_validate_probability</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.returns</span><span class="w"> </span><span class="kn">import</span> <span class="n">_clean_returns</span><span class="p">,</span> <span class="n">annualized_return</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
     <span class="s2">&quot;calmar&quot;</span><span class="p">,</span>
     <span class="s2">&quot;conditional_value_at_risk&quot;</span><span class="p">,</span>
     <span class="s2">&quot;downside_deviation&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;downside_risk&quot;</span><span class="p">,</span>
     <span class="s2">&quot;drawdown_series&quot;</span><span class="p">,</span>
     <span class="s2">&quot;expected_shortfall&quot;</span><span class="p">,</span>
     <span class="s2">&quot;max_drawdown&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;parametric_var&quot;</span><span class="p">,</span>
     <span class="s2">&quot;sharpe&quot;</span><span class="p">,</span>
     <span class="s2">&quot;sortino&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;to_drawdown_series&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;underwater_series&quot;</span><span class="p">,</span>
     <span class="s2">&quot;value_at_risk&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;volatility&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;value_at_risk_parametric&quot;</span><span class="p">,</span>
 <span class="p">]</span>
 
 
@@ -278,35 +276,6 @@
     <span class="mf">0.05</span><span class="p">:</span> <span class="o">-</span><span class="mf">1.6448536269514722</span><span class="p">,</span>
     <span class="mf">0.1</span><span class="p">:</span> <span class="o">-</span><span class="mf">1.2815515655446004</span><span class="p">,</span>
 <span class="p">}</span>
-
-
-<div class="viewcode-block" id="volatility">
-<a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.volatility">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">volatility</span><span class="p">(</span>
-    <span class="n">returns</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span>
-    <span class="n">periods_per_year</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">252</span><span class="p">,</span>
-    <span class="o">*</span><span class="p">,</span>
-    <span class="n">window</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">period</span><span class="p">:</span> <span class="n">PeriodLike</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">date</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Annualised volatility alias for :func:`annualized_volatility`.&quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">annualized_volatility</span><span class="p">(</span><span class="n">returns</span><span class="p">,</span> <span class="n">periods_per_year</span><span class="p">,</span> <span class="n">window</span><span class="o">=</span><span class="n">window</span><span class="p">,</span> <span class="n">period</span><span class="o">=</span><span class="n">period</span><span class="p">,</span> <span class="n">date</span><span class="o">=</span><span class="n">date</span><span class="p">)</span></div>
-
-
-
-<span class="k">def</span><span class="w"> </span><span class="nf">_rf_per_period</span><span class="p">(</span><span class="n">risk_free</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span> <span class="n">periods_per_year</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert an annual scalar ``risk_free`` to a per-period rate.</span>
-
-<span class="sd">    If ``risk_free`` is a :class:`pl.Expr` it is assumed to already be a</span>
-<span class="sd">    per-period rate column (sampled at the same frequency as returns)</span>
-<span class="sd">    and is returned unchanged.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">risk_free</span><span class="p">,</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">risk_free</span>
-    <span class="k">if</span> <span class="n">risk_free</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">:</span>
-        <span class="k">return</span> <span class="mf">0.0</span>
-    <span class="k">return</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="n">risk_free</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="n">periods_per_year</span><span class="p">)</span> <span class="o">-</span> <span class="mf">1.0</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_safe_scalar_ratio</span><span class="p">(</span><span class="n">numerator</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">denominator</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
@@ -321,27 +290,29 @@
 <a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.sharpe">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">sharpe</span><span class="p">(</span>
     <span class="n">returns</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span>
-    <span class="n">risk_free</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
-    <span class="n">periods_per_year</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">252</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
+    <span class="n">risk_free</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
+    <span class="n">frequency</span><span class="p">:</span> <span class="n">FrequencyLike</span> <span class="o">=</span> <span class="n">Frequency</span><span class="o">.</span><span class="n">Day</span><span class="p">,</span>
     <span class="n">window</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">period</span><span class="p">:</span> <span class="n">PeriodLike</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">date</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Annualised Sharpe ratio.</span>
 
-<span class="sd">    :math:`\sqrt{\mathrm{ppy}}\,\mathrm{mean}(r - r_f) / \mathrm{std}(r - r_f)`.</span>
+<span class="sd">    Mean excess return divided by its standard deviation, scaled by the</span>
+<span class="sd">    square root of observations per year implied by ``frequency``.</span>
 
 <span class="sd">    ``risk_free`` may be a scalar annual rate (converted to per-period</span>
 <span class="sd">    geometrically) or a :class:`pl.Expr` per-period rate column for a</span>
 <span class="sd">    time-varying risk-free rate. ``window=None`` → scalar lifetime</span>
 <span class="sd">    Sharpe; ``window=N`` → rolling; ``period=...`` → per-bucket.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">observations_per_year</span> <span class="o">=</span> <span class="n">_observations_per_year</span><span class="p">(</span><span class="n">frequency</span><span class="p">)</span>
     <span class="n">_check_window_period</span><span class="p">(</span><span class="n">window</span><span class="p">,</span> <span class="n">period</span><span class="p">)</span>
     <span class="n">bucket</span> <span class="o">=</span> <span class="n">_bucket_or_none</span><span class="p">(</span><span class="n">date</span><span class="p">,</span> <span class="n">period</span><span class="p">)</span>
-    <span class="n">excess</span> <span class="o">=</span> <span class="n">_clean_returns</span><span class="p">(</span><span class="n">returns</span><span class="p">)</span> <span class="o">-</span> <span class="n">_rf_per_period</span><span class="p">(</span><span class="n">risk_free</span><span class="p">,</span> <span class="n">periods_per_year</span><span class="p">)</span>
+    <span class="n">excess</span> <span class="o">=</span> <span class="n">_clean_returns</span><span class="p">(</span><span class="n">returns</span><span class="p">)</span> <span class="o">-</span> <span class="n">_annual_rate_to_observation_rate</span><span class="p">(</span><span class="n">risk_free</span><span class="p">,</span> <span class="n">observations_per_year</span><span class="p">)</span>
     <span class="n">excess</span> <span class="o">=</span> <span class="n">excess</span><span class="o">.</span><span class="n">fill_nan</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
-    <span class="n">scale</span> <span class="o">=</span> <span class="n">periods_per_year</span><span class="o">**</span><span class="mf">0.5</span>
+    <span class="n">scale</span> <span class="o">=</span> <span class="n">observations_per_year</span><span class="o">**</span><span class="mf">0.5</span>
     <span class="k">if</span> <span class="n">bucket</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">excess</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">over</span><span class="p">(</span><span class="n">bucket</span><span class="p">)</span> <span class="o">/</span> <span class="n">excess</span><span class="o">.</span><span class="n">std</span><span class="p">()</span><span class="o">.</span><span class="n">over</span><span class="p">(</span><span class="n">bucket</span><span class="p">)</span> <span class="o">*</span> <span class="n">scale</span>
     <span class="k">if</span> <span class="n">window</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -358,26 +329,29 @@
 <a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.downside_deviation">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">downside_deviation</span><span class="p">(</span>
     <span class="n">returns</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span>
-    <span class="n">required_return</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
-    <span class="n">periods_per_year</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">252</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
+    <span class="n">required_return</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
+    <span class="n">frequency</span><span class="p">:</span> <span class="n">FrequencyLike</span> <span class="o">=</span> <span class="n">Frequency</span><span class="o">.</span><span class="n">Day</span><span class="p">,</span>
     <span class="n">window</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">period</span><span class="p">:</span> <span class="n">PeriodLike</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">date</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Annualised semi-deviation below ``required_return``.</span>
 
-<span class="sd">    ``required_return`` may be a scalar per-period threshold or a</span>
-<span class="sd">    :class:`pl.Expr` per-period column for a time-varying threshold.</span>
+<span class="sd">    ``required_return`` may be a scalar annual threshold (converted to</span>
+<span class="sd">    per-observation geometrically) or a :class:`pl.Expr` per-observation</span>
+<span class="sd">    column for a time-varying threshold.</span>
 <span class="sd">    ``window=None`` → scalar; ``window=N`` → rolling;</span>
 <span class="sd">    ``period=...`` → per-bucket.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">observations_per_year</span> <span class="o">=</span> <span class="n">_observations_per_year</span><span class="p">(</span><span class="n">frequency</span><span class="p">)</span>
     <span class="n">_check_window_period</span><span class="p">(</span><span class="n">window</span><span class="p">,</span> <span class="n">period</span><span class="p">)</span>
     <span class="n">bucket</span> <span class="o">=</span> <span class="n">_bucket_or_none</span><span class="p">(</span><span class="n">date</span><span class="p">,</span> <span class="n">period</span><span class="p">)</span>
     <span class="n">clean_returns</span> <span class="o">=</span> <span class="n">_clean_returns</span><span class="p">(</span><span class="n">returns</span><span class="p">)</span>
-    <span class="n">diff</span> <span class="o">=</span> <span class="p">(</span><span class="n">clean_returns</span> <span class="o">-</span> <span class="n">required_return</span><span class="p">)</span><span class="o">.</span><span class="n">fill_nan</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+    <span class="n">threshold</span> <span class="o">=</span> <span class="n">_annual_rate_to_observation_rate</span><span class="p">(</span><span class="n">required_return</span><span class="p">,</span> <span class="n">observations_per_year</span><span class="p">)</span>
+    <span class="n">diff</span> <span class="o">=</span> <span class="p">(</span><span class="n">clean_returns</span> <span class="o">-</span> <span class="n">threshold</span><span class="p">)</span><span class="o">.</span><span class="n">fill_nan</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
     <span class="n">neg_sq</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">when</span><span class="p">(</span><span class="n">diff</span><span class="o">.</span><span class="n">is_null</span><span class="p">())</span><span class="o">.</span><span class="n">then</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span><span class="o">.</span><span class="n">when</span><span class="p">(</span><span class="n">diff</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">then</span><span class="p">(</span><span class="n">diff</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span><span class="o">.</span><span class="n">otherwise</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span>
-    <span class="n">scale</span> <span class="o">=</span> <span class="n">periods_per_year</span><span class="o">**</span><span class="mf">0.5</span>
+    <span class="n">scale</span> <span class="o">=</span> <span class="n">observations_per_year</span><span class="o">**</span><span class="mf">0.5</span>
     <span class="k">if</span> <span class="n">bucket</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">observation_count</span> <span class="o">=</span> <span class="n">clean_returns</span><span class="o">.</span><span class="n">is_not_null</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">over</span><span class="p">(</span><span class="n">bucket</span><span class="p">)</span>
         <span class="k">return</span> <span class="p">(</span><span class="n">neg_sq</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">over</span><span class="p">(</span><span class="n">bucket</span><span class="p">)</span> <span class="o">/</span> <span class="n">observation_count</span><span class="p">)</span><span class="o">.</span><span class="n">sqrt</span><span class="p">()</span> <span class="o">*</span> <span class="n">scale</span>
@@ -388,49 +362,35 @@
 
 
 
-<div class="viewcode-block" id="downside_risk">
-<a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.downside_risk">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">downside_risk</span><span class="p">(</span>
-    <span class="n">returns</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span>
-    <span class="n">required_return</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
-    <span class="n">periods_per_year</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">252</span><span class="p">,</span>
-    <span class="o">*</span><span class="p">,</span>
-    <span class="n">window</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">period</span><span class="p">:</span> <span class="n">PeriodLike</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">date</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Annualised downside-risk alias for :func:`downside_deviation`.&quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">downside_deviation</span><span class="p">(</span><span class="n">returns</span><span class="p">,</span> <span class="n">required_return</span><span class="p">,</span> <span class="n">periods_per_year</span><span class="p">,</span> <span class="n">window</span><span class="o">=</span><span class="n">window</span><span class="p">,</span> <span class="n">period</span><span class="o">=</span><span class="n">period</span><span class="p">,</span> <span class="n">date</span><span class="o">=</span><span class="n">date</span><span class="p">)</span></div>
-
-
-
 <div class="viewcode-block" id="sortino">
 <a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.sortino">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">sortino</span><span class="p">(</span>
     <span class="n">returns</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span>
-    <span class="n">required_return</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
-    <span class="n">periods_per_year</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">252</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
+    <span class="n">required_return</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
+    <span class="n">frequency</span><span class="p">:</span> <span class="n">FrequencyLike</span> <span class="o">=</span> <span class="n">Frequency</span><span class="o">.</span><span class="n">Day</span><span class="p">,</span>
     <span class="n">window</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">period</span><span class="p">:</span> <span class="n">PeriodLike</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">date</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Annualised Sortino ratio.</span>
 
-<span class="sd">    ``required_return`` may be a scalar per-period threshold or a</span>
-<span class="sd">    :class:`pl.Expr` per-period column. ``window=None`` → scalar;</span>
+<span class="sd">    ``required_return`` may be a scalar annual threshold or a</span>
+<span class="sd">    :class:`pl.Expr` per-observation column. ``window=None`` → scalar;</span>
 <span class="sd">    ``window=N`` → rolling; ``period=...`` → per-bucket.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">observations_per_year</span> <span class="o">=</span> <span class="n">_observations_per_year</span><span class="p">(</span><span class="n">frequency</span><span class="p">)</span>
     <span class="n">_check_window_period</span><span class="p">(</span><span class="n">window</span><span class="p">,</span> <span class="n">period</span><span class="p">)</span>
     <span class="n">bucket</span> <span class="o">=</span> <span class="n">_bucket_or_none</span><span class="p">(</span><span class="n">date</span><span class="p">,</span> <span class="n">period</span><span class="p">)</span>
     <span class="n">clean_returns</span> <span class="o">=</span> <span class="n">_clean_returns</span><span class="p">(</span><span class="n">returns</span><span class="p">)</span>
-    <span class="n">excess</span> <span class="o">=</span> <span class="p">(</span><span class="n">clean_returns</span> <span class="o">-</span> <span class="n">required_return</span><span class="p">)</span><span class="o">.</span><span class="n">fill_nan</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
-    <span class="n">dd</span> <span class="o">=</span> <span class="n">downside_deviation</span><span class="p">(</span><span class="n">clean_returns</span><span class="p">,</span> <span class="n">required_return</span><span class="p">,</span> <span class="n">periods_per_year</span><span class="p">,</span> <span class="n">window</span><span class="o">=</span><span class="n">window</span><span class="p">,</span> <span class="n">period</span><span class="o">=</span><span class="n">period</span><span class="p">,</span> <span class="n">date</span><span class="o">=</span><span class="n">date</span><span class="p">)</span>
+    <span class="n">threshold</span> <span class="o">=</span> <span class="n">_annual_rate_to_observation_rate</span><span class="p">(</span><span class="n">required_return</span><span class="p">,</span> <span class="n">observations_per_year</span><span class="p">)</span>
+    <span class="n">excess</span> <span class="o">=</span> <span class="p">(</span><span class="n">clean_returns</span> <span class="o">-</span> <span class="n">threshold</span><span class="p">)</span><span class="o">.</span><span class="n">fill_nan</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+    <span class="n">dd</span> <span class="o">=</span> <span class="n">downside_deviation</span><span class="p">(</span><span class="n">clean_returns</span><span class="p">,</span> <span class="n">required_return</span><span class="o">=</span><span class="n">required_return</span><span class="p">,</span> <span class="n">frequency</span><span class="o">=</span><span class="n">frequency</span><span class="p">,</span> <span class="n">window</span><span class="o">=</span><span class="n">window</span><span class="p">,</span> <span class="n">period</span><span class="o">=</span><span class="n">period</span><span class="p">,</span> <span class="n">date</span><span class="o">=</span><span class="n">date</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">bucket</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">excess</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">over</span><span class="p">(</span><span class="n">bucket</span><span class="p">)</span> <span class="o">*</span> <span class="n">periods_per_year</span> <span class="o">/</span> <span class="n">dd</span>
+        <span class="k">return</span> <span class="n">excess</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">over</span><span class="p">(</span><span class="n">bucket</span><span class="p">)</span> <span class="o">*</span> <span class="n">observations_per_year</span> <span class="o">/</span> <span class="n">dd</span>
     <span class="k">if</span> <span class="n">window</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">excess</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="o">*</span> <span class="n">periods_per_year</span> <span class="o">/</span> <span class="n">dd</span>
-    <span class="k">return</span> <span class="n">excess</span><span class="o">.</span><span class="n">rolling_mean</span><span class="p">(</span><span class="n">window</span><span class="p">)</span> <span class="o">*</span> <span class="n">periods_per_year</span> <span class="o">/</span> <span class="n">dd</span></div>
+        <span class="k">return</span> <span class="n">excess</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="o">*</span> <span class="n">observations_per_year</span> <span class="o">/</span> <span class="n">dd</span>
+    <span class="k">return</span> <span class="n">excess</span><span class="o">.</span><span class="n">rolling_mean</span><span class="p">(</span><span class="n">window</span><span class="p">)</span> <span class="o">*</span> <span class="n">observations_per_year</span> <span class="o">/</span> <span class="n">dd</span></div>
 
 
 
@@ -453,32 +413,6 @@
         <span class="n">peak</span> <span class="o">=</span> <span class="n">equity</span><span class="o">.</span><span class="n">cum_max</span><span class="p">()</span><span class="o">.</span><span class="n">over</span><span class="p">(</span><span class="n">bucket</span><span class="p">)</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">lower_bound</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">equity</span> <span class="o">/</span> <span class="n">peak</span> <span class="o">-</span> <span class="mf">1.0</span>
     <span class="k">return</span> <span class="n">equity</span> <span class="o">/</span> <span class="n">equity</span><span class="o">.</span><span class="n">cum_max</span><span class="p">()</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">lower_bound</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span> <span class="o">-</span> <span class="mf">1.0</span></div>
-
-
-
-<div class="viewcode-block" id="underwater_series">
-<a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.underwater_series">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">underwater_series</span><span class="p">(</span>
-    <span class="n">returns</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span>
-    <span class="o">*</span><span class="p">,</span>
-    <span class="n">period</span><span class="p">:</span> <span class="n">PeriodLike</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">date</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Alias of :func:`drawdown_series`.&quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">drawdown_series</span><span class="p">(</span><span class="n">returns</span><span class="p">,</span> <span class="n">period</span><span class="o">=</span><span class="n">period</span><span class="p">,</span> <span class="n">date</span><span class="o">=</span><span class="n">date</span><span class="p">)</span></div>
-
-
-
-<div class="viewcode-block" id="to_drawdown_series">
-<a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.to_drawdown_series">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">to_drawdown_series</span><span class="p">(</span>
-    <span class="n">returns</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span>
-    <span class="o">*</span><span class="p">,</span>
-    <span class="n">period</span><span class="p">:</span> <span class="n">PeriodLike</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">date</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compatibility alias for :func:`drawdown_series`.&quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">drawdown_series</span><span class="p">(</span><span class="n">returns</span><span class="p">,</span> <span class="n">period</span><span class="o">=</span><span class="n">period</span><span class="p">,</span> <span class="n">date</span><span class="o">=</span><span class="n">date</span><span class="p">)</span></div>
 
 
 
@@ -522,8 +456,8 @@
 <a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.calmar">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">calmar</span><span class="p">(</span>
     <span class="n">returns</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span>
-    <span class="n">periods_per_year</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">252</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
+    <span class="n">frequency</span><span class="p">:</span> <span class="n">FrequencyLike</span> <span class="o">=</span> <span class="n">Frequency</span><span class="o">.</span><span class="n">Day</span><span class="p">,</span>
     <span class="n">window</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">period</span><span class="p">:</span> <span class="n">PeriodLike</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">date</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -533,7 +467,7 @@
 <span class="sd">    ``window=None`` → scalar; ``window=N`` → rolling;</span>
 <span class="sd">    ``period=...`` → per-bucket.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">ar</span> <span class="o">=</span> <span class="n">annualized_return</span><span class="p">(</span><span class="n">returns</span><span class="p">,</span> <span class="n">periods_per_year</span><span class="p">,</span> <span class="n">window</span><span class="o">=</span><span class="n">window</span><span class="p">,</span> <span class="n">period</span><span class="o">=</span><span class="n">period</span><span class="p">,</span> <span class="n">date</span><span class="o">=</span><span class="n">date</span><span class="p">)</span>
+    <span class="n">ar</span> <span class="o">=</span> <span class="n">annualized_return</span><span class="p">(</span><span class="n">returns</span><span class="p">,</span> <span class="n">frequency</span><span class="o">=</span><span class="n">frequency</span><span class="p">,</span> <span class="n">window</span><span class="o">=</span><span class="n">window</span><span class="p">,</span> <span class="n">period</span><span class="o">=</span><span class="n">period</span><span class="p">,</span> <span class="n">date</span><span class="o">=</span><span class="n">date</span><span class="p">)</span>
     <span class="n">mdd</span> <span class="o">=</span> <span class="n">max_drawdown</span><span class="p">(</span><span class="n">returns</span><span class="p">,</span> <span class="n">window</span><span class="o">=</span><span class="n">window</span><span class="p">,</span> <span class="n">period</span><span class="o">=</span><span class="n">period</span><span class="p">,</span> <span class="n">date</span><span class="o">=</span><span class="n">date</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">ar</span> <span class="o">/</span> <span class="n">mdd</span><span class="o">.</span><span class="n">abs</span><span class="p">()</span></div>
 
@@ -543,8 +477,8 @@
 <a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.value_at_risk">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">value_at_risk</span><span class="p">(</span>
     <span class="n">returns</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span>
-    <span class="n">cutoff</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.05</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
+    <span class="n">tail_probability</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.05</span><span class="p">,</span>
     <span class="n">window</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">period</span><span class="p">:</span> <span class="n">PeriodLike</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">date</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -554,14 +488,15 @@
 <span class="sd">    ``window=None`` → scalar lower-tail quantile; ``window=N`` →</span>
 <span class="sd">    rolling historical VaR. ``period=...`` → per-bucket VaR.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">_validate_probability</span><span class="p">(</span><span class="n">tail_probability</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;tail_probability&quot;</span><span class="p">)</span>
     <span class="n">_check_window_period</span><span class="p">(</span><span class="n">window</span><span class="p">,</span> <span class="n">period</span><span class="p">)</span>
     <span class="n">bucket</span> <span class="o">=</span> <span class="n">_bucket_or_none</span><span class="p">(</span><span class="n">date</span><span class="p">,</span> <span class="n">period</span><span class="p">)</span>
     <span class="n">clean_returns</span> <span class="o">=</span> <span class="n">_clean_returns</span><span class="p">(</span><span class="n">returns</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">bucket</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">clean_returns</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="n">cutoff</span><span class="p">)</span><span class="o">.</span><span class="n">over</span><span class="p">(</span><span class="n">bucket</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">clean_returns</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="n">tail_probability</span><span class="p">)</span><span class="o">.</span><span class="n">over</span><span class="p">(</span><span class="n">bucket</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">window</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">clean_returns</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="n">cutoff</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">clean_returns</span><span class="o">.</span><span class="n">rolling_quantile</span><span class="p">(</span><span class="n">quantile</span><span class="o">=</span><span class="n">cutoff</span><span class="p">,</span> <span class="n">window_size</span><span class="o">=</span><span class="n">window</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">clean_returns</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="n">tail_probability</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">clean_returns</span><span class="o">.</span><span class="n">rolling_quantile</span><span class="p">(</span><span class="n">quantile</span><span class="o">=</span><span class="n">tail_probability</span><span class="p">,</span> <span class="n">window_size</span><span class="o">=</span><span class="n">window</span><span class="p">)</span></div>
 
 
 
@@ -569,8 +504,8 @@
 <a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.conditional_value_at_risk">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">conditional_value_at_risk</span><span class="p">(</span>
     <span class="n">returns</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span>
-    <span class="n">cutoff</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.05</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
+    <span class="n">tail_probability</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.05</span><span class="p">,</span>
     <span class="n">window</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">period</span><span class="p">:</span> <span class="n">PeriodLike</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">date</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -580,18 +515,19 @@
 <span class="sd">    ``window=None`` → scalar; ``window=N`` → rolling mean of returns at</span>
 <span class="sd">    or below the rolling VaR. ``period=...`` → per-bucket CVaR.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">_validate_probability</span><span class="p">(</span><span class="n">tail_probability</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;tail_probability&quot;</span><span class="p">)</span>
     <span class="n">_check_window_period</span><span class="p">(</span><span class="n">window</span><span class="p">,</span> <span class="n">period</span><span class="p">)</span>
     <span class="n">bucket</span> <span class="o">=</span> <span class="n">_bucket_or_none</span><span class="p">(</span><span class="n">date</span><span class="p">,</span> <span class="n">period</span><span class="p">)</span>
     <span class="n">clean_returns</span> <span class="o">=</span> <span class="n">_clean_returns</span><span class="p">(</span><span class="n">returns</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">bucket</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">threshold</span> <span class="o">=</span> <span class="n">clean_returns</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="n">cutoff</span><span class="p">)</span><span class="o">.</span><span class="n">over</span><span class="p">(</span><span class="n">bucket</span><span class="p">)</span>
+        <span class="n">threshold</span> <span class="o">=</span> <span class="n">clean_returns</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="n">tail_probability</span><span class="p">)</span><span class="o">.</span><span class="n">over</span><span class="p">(</span><span class="n">bucket</span><span class="p">)</span>
         <span class="n">tail</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">when</span><span class="p">(</span><span class="n">clean_returns</span> <span class="o">&lt;=</span> <span class="n">threshold</span><span class="p">)</span><span class="o">.</span><span class="n">then</span><span class="p">(</span><span class="n">clean_returns</span><span class="p">)</span><span class="o">.</span><span class="n">otherwise</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">tail</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">over</span><span class="p">(</span><span class="n">bucket</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">window</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">threshold</span> <span class="o">=</span> <span class="n">clean_returns</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="n">cutoff</span><span class="p">)</span>
+        <span class="n">threshold</span> <span class="o">=</span> <span class="n">clean_returns</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="n">tail_probability</span><span class="p">)</span>
         <span class="n">tail</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">when</span><span class="p">(</span><span class="n">clean_returns</span> <span class="o">&lt;=</span> <span class="n">threshold</span><span class="p">)</span><span class="o">.</span><span class="n">then</span><span class="p">(</span><span class="n">clean_returns</span><span class="p">)</span><span class="o">.</span><span class="n">otherwise</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">tail</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
-    <span class="n">var</span> <span class="o">=</span> <span class="n">clean_returns</span><span class="o">.</span><span class="n">rolling_quantile</span><span class="p">(</span><span class="n">quantile</span><span class="o">=</span><span class="n">cutoff</span><span class="p">,</span> <span class="n">window_size</span><span class="o">=</span><span class="n">window</span><span class="p">)</span>
+    <span class="n">var</span> <span class="o">=</span> <span class="n">clean_returns</span><span class="o">.</span><span class="n">rolling_quantile</span><span class="p">(</span><span class="n">quantile</span><span class="o">=</span><span class="n">tail_probability</span><span class="p">,</span> <span class="n">window_size</span><span class="o">=</span><span class="n">window</span><span class="p">)</span>
     <span class="n">masked</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">when</span><span class="p">(</span><span class="n">clean_returns</span> <span class="o">&lt;=</span> <span class="n">var</span><span class="p">)</span><span class="o">.</span><span class="n">then</span><span class="p">(</span><span class="n">clean_returns</span><span class="p">)</span><span class="o">.</span><span class="n">otherwise</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">masked</span><span class="o">.</span><span class="n">rolling_mean</span><span class="p">(</span><span class="n">window_size</span><span class="o">=</span><span class="n">window</span><span class="p">,</span> <span class="n">min_samples</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span></div>
 
@@ -601,38 +537,43 @@
 <a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.expected_shortfall">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">expected_shortfall</span><span class="p">(</span>
     <span class="n">returns</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span>
-    <span class="n">cutoff</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.05</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
+    <span class="n">tail_probability</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.05</span><span class="p">,</span>
     <span class="n">window</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">period</span><span class="p">:</span> <span class="n">PeriodLike</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">date</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compatibility alias for :func:`conditional_value_at_risk`.&quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">conditional_value_at_risk</span><span class="p">(</span><span class="n">returns</span><span class="p">,</span> <span class="n">cutoff</span><span class="p">,</span> <span class="n">window</span><span class="o">=</span><span class="n">window</span><span class="p">,</span> <span class="n">period</span><span class="o">=</span><span class="n">period</span><span class="p">,</span> <span class="n">date</span><span class="o">=</span><span class="n">date</span><span class="p">)</span></div>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Historical expected shortfall, also known as conditional VaR.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">conditional_value_at_risk</span><span class="p">(</span><span class="n">returns</span><span class="p">,</span> <span class="n">tail_probability</span><span class="o">=</span><span class="n">tail_probability</span><span class="p">,</span> <span class="n">window</span><span class="o">=</span><span class="n">window</span><span class="p">,</span> <span class="n">period</span><span class="o">=</span><span class="n">period</span><span class="p">,</span> <span class="n">date</span><span class="o">=</span><span class="n">date</span><span class="p">)</span></div>
 
 
 
-<div class="viewcode-block" id="parametric_var">
-<a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.parametric_var">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">parametric_var</span><span class="p">(</span>
+<div class="viewcode-block" id="value_at_risk_parametric">
+<a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.value_at_risk_parametric">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">value_at_risk_parametric</span><span class="p">(</span>
     <span class="n">returns</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span>
-    <span class="n">cutoff</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.05</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
+    <span class="n">tail_probability</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.05</span><span class="p">,</span>
+    <span class="n">window</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">period</span><span class="p">:</span> <span class="n">PeriodLike</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">date</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Gaussian (parametric) VaR :math:`\mu + \sigma \Phi^{-1}(p)`.</span>
 
-<span class="sd">    ``cutoff`` must be one of ``{0.01, 0.025, 0.05, 0.1}``.</span>
+<span class="sd">    ``tail_probability`` must be one of ``{0.01, 0.025, 0.05, 0.1}``.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">cutoff</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_Z_TABLE</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;parametric_var: cutoff=</span><span class="si">{</span><span class="n">cutoff</span><span class="si">}</span><span class="s2"> not in </span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="n">_Z_TABLE</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="n">z</span> <span class="o">=</span> <span class="n">_Z_TABLE</span><span class="p">[</span><span class="n">cutoff</span><span class="p">]</span>
+    <span class="n">_validate_probability</span><span class="p">(</span><span class="n">tail_probability</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;tail_probability&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">tail_probability</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_Z_TABLE</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;value_at_risk_parametric: tail_probability=</span><span class="si">{</span><span class="n">tail_probability</span><span class="si">}</span><span class="s2"> not in </span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="n">_Z_TABLE</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">z</span> <span class="o">=</span> <span class="n">_Z_TABLE</span><span class="p">[</span><span class="n">tail_probability</span><span class="p">]</span>
+    <span class="n">_check_window_period</span><span class="p">(</span><span class="n">window</span><span class="p">,</span> <span class="n">period</span><span class="p">)</span>
     <span class="n">bucket</span> <span class="o">=</span> <span class="n">_bucket_or_none</span><span class="p">(</span><span class="n">date</span><span class="p">,</span> <span class="n">period</span><span class="p">)</span>
     <span class="n">clean_returns</span> <span class="o">=</span> <span class="n">_clean_returns</span><span class="p">(</span><span class="n">returns</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">bucket</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">clean_returns</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">over</span><span class="p">(</span><span class="n">bucket</span><span class="p">)</span> <span class="o">+</span> <span class="n">clean_returns</span><span class="o">.</span><span class="n">std</span><span class="p">()</span><span class="o">.</span><span class="n">over</span><span class="p">(</span><span class="n">bucket</span><span class="p">)</span> <span class="o">*</span> <span class="n">z</span>
-    <span class="k">return</span> <span class="n">clean_returns</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="o">+</span> <span class="n">clean_returns</span><span class="o">.</span><span class="n">std</span><span class="p">()</span> <span class="o">*</span> <span class="n">z</span></div>
+    <span class="k">if</span> <span class="n">window</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">clean_returns</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="o">+</span> <span class="n">clean_returns</span><span class="o">.</span><span class="n">std</span><span class="p">()</span> <span class="o">*</span> <span class="n">z</span>
+    <span class="k">return</span> <span class="n">clean_returns</span><span class="o">.</span><span class="n">rolling_mean</span><span class="p">(</span><span class="n">window</span><span class="p">)</span> <span class="o">+</span> <span class="n">clean_returns</span><span class="o">.</span><span class="n">rolling_std</span><span class="p">(</span><span class="n">window</span><span class="p">)</span> <span class="o">*</span> <span class="n">z</span></div>
 
 </pre></div>
         </article>
@@ -666,7 +607,7 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=37f418d5"></script>
+</div><script src="../../_static/documentation_options.js?v=e259d695"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=46bd48cc"></script>

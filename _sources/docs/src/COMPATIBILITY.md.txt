@@ -4,23 +4,25 @@
 and definitions while retaining Polars expressions, explicit missing-value
 semantics, and composability in lazy queries.
 
-The following names have compatible definitions:
+The following concepts have compatible definitions. `finance-calcs` exposes
+only its canonical names; it does not export additional QuantStats spellings.
 
-| QuantStats name       | finance-calcs API                                       |
-| --------------------- | ------------------------------------------------------- |
-| `best`, `worst`       | Aliases for `best_return`, `worst_return`               |
-| `avg_win`, `avg_loss` | Aliases for `average_win`, `average_loss`               |
-| `cagr`                | Alias for `annualized_return`                           |
-| `expected_shortfall`  | Alias for `conditional_value_at_risk`                   |
-| `to_drawdown_series`  | Alias for `drawdown_series`                             |
-| `r_squared`           | Squared strategy/benchmark Pearson correlation          |
-| `gain_to_pain_ratio`  | Arithmetic net return divided by absolute summed losses |
-| `recovery_factor`     | Absolute arithmetic net return divided by max drawdown  |
-| `kelly_criterion`     | Active-period win rate and average win/loss payoff      |
+| QuantStats name       | finance-calcs API             |
+| --------------------- | ----------------------------- |
+| `best`, `worst`       | `best_return`, `worst_return` |
+| `avg_win`, `avg_loss` | `average_win`, `average_loss` |
+| `cagr`                | `annualized_return`           |
+| `expected_shortfall`  | `expected_shortfall`          |
+| `to_drawdown_series`  | `drawdown_series`             |
+| `r_squared`           | `r_squared`                   |
+| `gain_to_pain_ratio`  | `gain_to_pain_ratio`          |
+| `recovery_factor`     | `recovery_factor`             |
+| `kelly_criterion`     | `kelly_criterion`             |
 
 Intentional interface differences:
 
-- `expected_shortfall` accepts a lower-tail `cutoff`, so 5% is `cutoff=0.05`,
+- `expected_shortfall` accepts `tail_probability`, so 5% is
+  `tail_probability=0.05`,
   rather than a confidence value of 95%.
 - `drawdown_details` accepts periodic returns and optional dates directly. It
   returns native Polars date/index values and decimal drawdowns rather than

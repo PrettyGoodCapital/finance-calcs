@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="Examples" href="docs/src/EXAMPLES.html">
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2025.12.19 -->
-        <title>finance calcs v0.2.1</title>
+        <title>finance calcs v0.3.0</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
@@ -167,7 +167,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="#"><div class="brand">finance calcs <code style='font-size: var(--font-size--small--4);color: var(--sd-color-primary);'>v0.2.1</code></div></a>
+      <a href="#"><div class="brand">finance calcs <code style='font-size: var(--font-size--small--4);color: var(--sd-color-primary);'>v0.3.0</code></div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -188,7 +188,7 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="#">
   
-  <span class="sidebar-brand-text">finance calcs <code style='font-size: var(--font-size--small--4);color: var(--sd-color-primary);'>v0.2.1</code></span>
+  <span class="sidebar-brand-text">finance calcs <code style='font-size: var(--font-size--small--4);color: var(--sd-color-primary);'>v0.3.0</code></span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -284,13 +284,13 @@ post-trade summaries accept concrete <code class="docutils literal notranslate">
 </thead>
 <tbody>
 <tr class="row-even"><td><p>Returns and periods</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">period_bucket</span></code>, <code class="docutils literal notranslate"><span class="pre">simple_returns</span></code>, <code class="docutils literal notranslate"><span class="pre">log_returns</span></code>, <code class="docutils literal notranslate"><span class="pre">cum_returns</span></code>, <code class="docutils literal notranslate"><span class="pre">cum_returns_final</span></code>, <code class="docutils literal notranslate"><span class="pre">returns</span></code>, <code class="docutils literal notranslate"><span class="pre">aggregate_returns</span></code>, <code class="docutils literal notranslate"><span class="pre">annualized_return</span></code>, <code class="docutils literal notranslate"><span class="pre">annualized_volatility</span></code>, <code class="docutils literal notranslate"><span class="pre">cagr</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">period_bucket</span></code>, <code class="docutils literal notranslate"><span class="pre">simple_returns</span></code>, <code class="docutils literal notranslate"><span class="pre">log_returns</span></code>, <code class="docutils literal notranslate"><span class="pre">cumulative_returns</span></code>, <code class="docutils literal notranslate"><span class="pre">cumulative_return</span></code>, <code class="docutils literal notranslate"><span class="pre">annualized_return</span></code>, <code class="docutils literal notranslate"><span class="pre">annualized_volatility</span></code></p></td>
 </tr>
 <tr class="row-odd"><td><p>Risk and drawdown</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">volatility</span></code>, <code class="docutils literal notranslate"><span class="pre">sharpe</span></code>, <code class="docutils literal notranslate"><span class="pre">sortino</span></code>, <code class="docutils literal notranslate"><span class="pre">calmar</span></code>, <code class="docutils literal notranslate"><span class="pre">downside_deviation</span></code>, <code class="docutils literal notranslate"><span class="pre">drawdown_series</span></code>, <code class="docutils literal notranslate"><span class="pre">max_drawdown</span></code>, <code class="docutils literal notranslate"><span class="pre">drawdown_details</span></code>, <code class="docutils literal notranslate"><span class="pre">value_at_risk</span></code>, <code class="docutils literal notranslate"><span class="pre">conditional_value_at_risk</span></code>, <code class="docutils literal notranslate"><span class="pre">expected_shortfall</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">sharpe</span></code>, <code class="docutils literal notranslate"><span class="pre">sortino</span></code>, <code class="docutils literal notranslate"><span class="pre">calmar</span></code>, <code class="docutils literal notranslate"><span class="pre">downside_deviation</span></code>, <code class="docutils literal notranslate"><span class="pre">drawdown_series</span></code>, <code class="docutils literal notranslate"><span class="pre">max_drawdown</span></code>, <code class="docutils literal notranslate"><span class="pre">drawdown_details</span></code>, and historical, parametric, and generalized-Pareto tail risk</p></td>
 </tr>
 <tr class="row-even"><td><p>Report metrics</p></td>
-<td><p>Best/worst returns, average wins/losses, gain-to-pain, recovery factor, Kelly criterion, and QuantStats-compatible naming aliases</p></td>
+<td><p>Best/worst returns, average wins/losses, gain-to-pain, recovery factor, and Kelly criterion</p></td>
 </tr>
 <tr class="row-odd"><td><p>Technical indicators</p></td>
 <td><p>Moving averages, Bollinger/Donchian channels, momentum oscillators, range volatility, and volume indicators</p></td>
@@ -328,9 +328,9 @@ return and risk metrics as Polars expressions.</p>
 <span class="n">out</span> <span class="o">=</span> <span class="n">prices</span><span class="o">.</span><span class="n">with_columns</span><span class="p">(</span>
     <span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;price&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">fcalcs</span><span class="o">.</span><span class="n">simple_returns</span><span class="p">()</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">&quot;ret&quot;</span><span class="p">),</span>
 <span class="p">)</span><span class="o">.</span><span class="n">select</span><span class="p">(</span>
-    <span class="n">fc</span><span class="o">.</span><span class="n">returns</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;ret&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">&quot;total_return&quot;</span><span class="p">),</span>
-    <span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;ret&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">fcalcs</span><span class="o">.</span><span class="n">annualized_return</span><span class="p">()</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">&quot;ann_return&quot;</span><span class="p">),</span>
-    <span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;ret&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">fcalcs</span><span class="o">.</span><span class="n">volatility</span><span class="p">()</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">&quot;ann_vol&quot;</span><span class="p">),</span>
+    <span class="n">fc</span><span class="o">.</span><span class="n">cumulative_return</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;ret&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">&quot;total_return&quot;</span><span class="p">),</span>
+    <span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;ret&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">fcalcs</span><span class="o">.</span><span class="n">annualized_return</span><span class="p">()</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">&quot;annualized_return&quot;</span><span class="p">),</span>
+    <span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;ret&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">fcalcs</span><span class="o">.</span><span class="n">annualized_volatility</span><span class="p">()</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">&quot;annualized_volatility&quot;</span><span class="p">),</span>
     <span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;ret&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">fcalcs</span><span class="o">.</span><span class="n">sharpe</span><span class="p">()</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">&quot;sharpe&quot;</span><span class="p">),</span>
     <span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;ret&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">fcalcs</span><span class="o">.</span><span class="n">max_drawdown</span><span class="p">()</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">&quot;max_drawdown&quot;</span><span class="p">),</span>
 <span class="p">)</span>
@@ -363,7 +363,7 @@ precomputed bucket expression.</p>
     <span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;price&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">fcalcs</span><span class="o">.</span><span class="n">simple_returns</span><span class="p">()</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">&quot;ret&quot;</span><span class="p">),</span>
 <span class="p">)</span><span class="o">.</span><span class="n">with_columns</span><span class="p">(</span>
     <span class="n">fc</span><span class="o">.</span><span class="n">period_bucket</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;timestamp&quot;</span><span class="p">),</span> <span class="n">Frequency</span><span class="o">.</span><span class="n">Month</span><span class="p">)</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">&quot;month&quot;</span><span class="p">),</span>
-    <span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;ret&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">fcalcs</span><span class="o">.</span><span class="n">returns</span><span class="p">(</span><span class="n">period</span><span class="o">=</span><span class="s2">&quot;month&quot;</span><span class="p">,</span> <span class="n">date</span><span class="o">=</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;timestamp&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">&quot;month_return&quot;</span><span class="p">),</span>
+    <span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;ret&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">fcalcs</span><span class="o">.</span><span class="n">cumulative_return</span><span class="p">(</span><span class="n">period</span><span class="o">=</span><span class="s2">&quot;month&quot;</span><span class="p">,</span> <span class="n">date</span><span class="o">=</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;timestamp&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">&quot;month_return&quot;</span><span class="p">),</span>
     <span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;ret&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">fcalcs</span><span class="o">.</span><span class="n">sharpe</span><span class="p">(</span><span class="n">period</span><span class="o">=</span><span class="s2">&quot;1q&quot;</span><span class="p">,</span> <span class="n">date</span><span class="o">=</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;timestamp&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">&quot;quarter_sharpe&quot;</span><span class="p">),</span>
 <span class="p">)</span>
 </pre></div>
@@ -374,7 +374,7 @@ pass the bucket expression directly:</p>
     <span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;price&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">fcalcs</span><span class="o">.</span><span class="n">simple_returns</span><span class="p">()</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">&quot;ret&quot;</span><span class="p">),</span>
     <span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;timestamp&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">year</span><span class="p">()</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">&quot;fiscal_year&quot;</span><span class="p">),</span>
 <span class="p">)</span><span class="o">.</span><span class="n">with_columns</span><span class="p">(</span>
-    <span class="n">fc</span><span class="o">.</span><span class="n">returns</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;ret&quot;</span><span class="p">),</span> <span class="n">period</span><span class="o">=</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;fiscal_year&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">&quot;fiscal_return&quot;</span><span class="p">),</span>
+    <span class="n">fc</span><span class="o">.</span><span class="n">cumulative_return</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;ret&quot;</span><span class="p">),</span> <span class="n">period</span><span class="o">=</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;fiscal_year&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">&quot;fiscal_return&quot;</span><span class="p">),</span>
 <span class="p">)</span>
 </pre></div>
 </div>
@@ -431,7 +431,7 @@ string parsing, or calendar repair.</p>
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=37f418d5"></script>
+</div><script src="_static/documentation_options.js?v=e259d695"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=46bd48cc"></script>

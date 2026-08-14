@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html"><link rel="search" title="Search" href="../../search.html">
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2025.12.19 -->
-        <title>finance_calcs.stats - finance calcs v0.2.1</title>
+        <title>finance_calcs.stats - finance calcs v0.3.0</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
@@ -166,7 +166,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">finance calcs <code style='font-size: var(--font-size--small--4);color: var(--sd-color-primary);'>v0.2.1</code></div></a>
+      <a href="../../index.html"><div class="brand">finance calcs <code style='font-size: var(--font-size--small--4);color: var(--sd-color-primary);'>v0.3.0</code></div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -187,7 +187,7 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
-  <span class="sidebar-brand-text">finance calcs <code style='font-size: var(--font-size--small--4);color: var(--sd-color-primary);'>v0.2.1</code></span>
+  <span class="sidebar-brand-text">finance calcs <code style='font-size: var(--font-size--small--4);color: var(--sd-color-primary);'>v0.3.0</code></span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -245,6 +245,9 @@
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">polars</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pl</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">finance_enums</span><span class="w"> </span><span class="kn">import</span> <span class="n">Frequency</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">._periods</span><span class="w"> </span><span class="kn">import</span> <span class="n">FrequencyLike</span><span class="p">,</span> <span class="n">_observations_per_year</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
     <span class="s2">&quot;common_sense_ratio&quot;</span><span class="p">,</span>
@@ -288,17 +291,17 @@
 <div class="viewcode-block" id="higher_moments">
 <a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.higher_moments">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">higher_moments</span><span class="p">(</span><span class="n">returns</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Bundled struct of ``{skew, kurt}`` for ``returns``.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Bundled struct of skewness and kurtosis for ``returns``.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        returns: Returns expression.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        Struct expression with fields ``skew`` and ``kurt``.</span>
+<span class="sd">        Struct expression with fields ``skewness`` and ``kurtosis``.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">pl</span><span class="o">.</span><span class="n">struct</span><span class="p">(</span>
-        <span class="n">skew</span><span class="o">=</span><span class="n">returns</span><span class="o">.</span><span class="n">skew</span><span class="p">(),</span>
-        <span class="n">kurt</span><span class="o">=</span><span class="n">returns</span><span class="o">.</span><span class="n">kurtosis</span><span class="p">(),</span>
+        <span class="n">skewness</span><span class="o">=</span><span class="n">returns</span><span class="o">.</span><span class="n">skew</span><span class="p">(),</span>
+        <span class="n">kurtosis</span><span class="o">=</span><span class="n">returns</span><span class="o">.</span><span class="n">kurtosis</span><span class="p">(),</span>
     <span class="p">)</span></div>
 
 
@@ -351,10 +354,10 @@
 
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_sharpe</span><span class="p">(</span><span class="n">arr</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">periods_per_year</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">252</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_sharpe</span><span class="p">(</span><span class="n">arr</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">observations_per_year</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
     <span class="k">if</span> <span class="n">arr</span><span class="o">.</span><span class="n">size</span> <span class="o">&lt;</span> <span class="mi">2</span> <span class="ow">or</span> <span class="n">arr</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">ddof</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">return</span> <span class="mf">0.0</span>
-    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">arr</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="o">/</span> <span class="n">arr</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">ddof</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">periods_per_year</span><span class="p">))</span>
+    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">arr</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="o">/</span> <span class="n">arr</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">ddof</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">observations_per_year</span><span class="p">))</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_norm_cdf</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
@@ -386,33 +389,35 @@
     <span class="k">return</span> <span class="o">-</span><span class="p">(((((</span><span class="n">c</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">q</span> <span class="o">+</span> <span class="n">c</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">*</span> <span class="n">q</span> <span class="o">+</span> <span class="n">c</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="o">*</span> <span class="n">q</span> <span class="o">+</span> <span class="n">c</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span> <span class="o">*</span> <span class="n">q</span> <span class="o">+</span> <span class="n">c</span><span class="p">[</span><span class="mi">4</span><span class="p">])</span> <span class="o">*</span> <span class="n">q</span> <span class="o">+</span> <span class="n">c</span><span class="p">[</span><span class="mi">5</span><span class="p">])</span> <span class="o">/</span> <span class="p">((((</span><span class="n">d</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">q</span> <span class="o">+</span> <span class="n">d</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">*</span> <span class="n">q</span> <span class="o">+</span> <span class="n">d</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="o">*</span> <span class="n">q</span> <span class="o">+</span> <span class="n">d</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span> <span class="o">*</span> <span class="n">q</span> <span class="o">+</span> <span class="mf">1.0</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="probabilistic_sharpe">
-<a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.probabilistic_sharpe">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">probabilistic_sharpe</span><span class="p">(</span>
+<div class="viewcode-block" id="sharpe_probability">
+<a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.sharpe_probability">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">sharpe_probability</span><span class="p">(</span>
     <span class="n">returns</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span>
-    <span class="n">benchmark_sr</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
-    <span class="n">periods_per_year</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">252</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">benchmark_sharpe</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
+    <span class="n">frequency</span><span class="p">:</span> <span class="n">FrequencyLike</span> <span class="o">=</span> <span class="n">Frequency</span><span class="o">.</span><span class="n">Day</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Lopez de Prado probabilistic Sharpe ratio.</span>
 
 <span class="sd">    Probability that the observed Sharpe is greater than</span>
-<span class="sd">    ``benchmark_sr``, accounting for sample skew and kurtosis.</span>
+<span class="sd">    ``benchmark_sharpe``, accounting for sample skew and kurtosis.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        returns: Periodic returns.</span>
-<span class="sd">        benchmark_sr: Annualised threshold Sharpe.</span>
-<span class="sd">        periods_per_year: Periods per year.</span>
+<span class="sd">        benchmark_sharpe: Annualised threshold Sharpe.</span>
+<span class="sd">        frequency: Observation frequency alias, enum, or observations per year.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        ``Pr(SR_true &gt; benchmark_sr)`` in ``[0, 1]``.</span>
+<span class="sd">        ``Pr(SR_true &gt; benchmark_sharpe)`` in ``[0, 1]``.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">arr</span> <span class="o">=</span> <span class="n">returns</span><span class="o">.</span><span class="n">drop_nulls</span><span class="p">()</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
     <span class="n">n</span> <span class="o">=</span> <span class="n">arr</span><span class="o">.</span><span class="n">size</span>
     <span class="k">if</span> <span class="n">n</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">:</span>
         <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;nan&quot;</span><span class="p">)</span>
-    <span class="n">sr_hat</span> <span class="o">=</span> <span class="n">_sharpe</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span> <span class="n">periods_per_year</span><span class="p">)</span>
-    <span class="n">sr_per</span> <span class="o">=</span> <span class="n">sr_hat</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">periods_per_year</span><span class="p">)</span>
-    <span class="n">bench_per</span> <span class="o">=</span> <span class="n">benchmark_sr</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">periods_per_year</span><span class="p">)</span>
+    <span class="n">observations_per_year</span> <span class="o">=</span> <span class="n">_observations_per_year</span><span class="p">(</span><span class="n">frequency</span><span class="p">)</span>
+    <span class="n">sr_hat</span> <span class="o">=</span> <span class="n">_sharpe</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span> <span class="n">observations_per_year</span><span class="p">)</span>
+    <span class="n">sr_per</span> <span class="o">=</span> <span class="n">sr_hat</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">observations_per_year</span><span class="p">)</span>
+    <span class="n">bench_per</span> <span class="o">=</span> <span class="n">benchmark_sharpe</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">observations_per_year</span><span class="p">)</span>
     <span class="n">skew</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(((</span><span class="n">arr</span> <span class="o">-</span> <span class="n">arr</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span> <span class="o">**</span> <span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="o">/</span> <span class="p">(</span><span class="n">arr</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">ddof</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">**</span> <span class="mi">3</span> <span class="o">+</span> <span class="mf">1e-30</span><span class="p">))</span>
     <span class="n">kurt</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(((</span><span class="n">arr</span> <span class="o">-</span> <span class="n">arr</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span> <span class="o">**</span> <span class="mi">4</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="o">/</span> <span class="p">(</span><span class="n">arr</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">ddof</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">**</span> <span class="mi">4</span> <span class="o">+</span> <span class="mf">1e-30</span><span class="p">))</span> <span class="o">-</span> <span class="mf">3.0</span>
     <span class="n">num</span> <span class="o">=</span> <span class="p">(</span><span class="n">sr_per</span> <span class="o">-</span> <span class="n">bench_per</span><span class="p">)</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
@@ -421,56 +426,58 @@
 
 
 
-<div class="viewcode-block" id="deflated_sharpe">
-<a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.deflated_sharpe">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">deflated_sharpe</span><span class="p">(</span>
+<div class="viewcode-block" id="sharpe_deflated_probability">
+<a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.sharpe_deflated_probability">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">sharpe_deflated_probability</span><span class="p">(</span>
     <span class="n">returns</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span>
-    <span class="n">n_trials</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-    <span class="n">sr_variance</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">periods_per_year</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">252</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">trial_count</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">sharpe_variance</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">frequency</span><span class="p">:</span> <span class="n">FrequencyLike</span> <span class="o">=</span> <span class="n">Frequency</span><span class="o">.</span><span class="n">Day</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Deflated Sharpe ratio (Bailey &amp; Lopez de Prado).</span>
 
 <span class="sd">    Adjusts the probabilistic Sharpe for multiple-testing across</span>
-<span class="sd">    ``n_trials`` candidate strategies.</span>
+<span class="sd">    ``trial_count`` candidate strategies.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        returns: Periodic returns.</span>
-<span class="sd">        n_trials: Number of independent strategies tried.</span>
-<span class="sd">        sr_variance: Variance of the trial Sharpes. If ``None`` a</span>
+<span class="sd">        trial_count: Number of independent strategies tried.</span>
+<span class="sd">        sharpe_variance: Variance of the trial Sharpes. If ``None`` a</span>
 <span class="sd">            conservative default of ``1.0`` is used (worst case).</span>
-<span class="sd">        periods_per_year: Periods per year.</span>
+<span class="sd">        frequency: Observation frequency alias, enum, or observations per year.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        ``Pr(SR_true &gt; expected_max_SR_under_null)`` in ``[0, 1]``.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">n_trials</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;n_trials must be &gt;= 1&quot;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">sr_variance</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">sr_variance</span> <span class="o">=</span> <span class="mf">1.0</span>
+    <span class="k">if</span> <span class="n">trial_count</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;trial_count must be &gt;= 2&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">sharpe_variance</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">sharpe_variance</span> <span class="o">=</span> <span class="mf">1.0</span>
+    <span class="n">observations_per_year</span> <span class="o">=</span> <span class="n">_observations_per_year</span><span class="p">(</span><span class="n">frequency</span><span class="p">)</span>
     <span class="n">euler_mascheroni</span> <span class="o">=</span> <span class="mf">0.5772156649015329</span>
-    <span class="n">expected_max_z</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">euler_mascheroni</span><span class="p">)</span> <span class="o">*</span> <span class="n">_norm_ppf</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">n_trials</span><span class="p">)</span> <span class="o">+</span> <span class="n">euler_mascheroni</span> <span class="o">*</span> <span class="n">_norm_ppf</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="p">(</span><span class="n">n_trials</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">e</span><span class="p">))</span>
-    <span class="n">threshold_sr_per</span> <span class="o">=</span> <span class="n">expected_max_z</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">sr_variance</span><span class="p">)</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">periods_per_year</span><span class="p">)</span>
-    <span class="n">threshold_sr_ann</span> <span class="o">=</span> <span class="n">threshold_sr_per</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">periods_per_year</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">probabilistic_sharpe</span><span class="p">(</span><span class="n">returns</span><span class="p">,</span> <span class="n">threshold_sr_ann</span><span class="p">,</span> <span class="n">periods_per_year</span><span class="p">)</span></div>
+    <span class="n">expected_max_z</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">euler_mascheroni</span><span class="p">)</span> <span class="o">*</span> <span class="n">_norm_ppf</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">trial_count</span><span class="p">)</span> <span class="o">+</span> <span class="n">euler_mascheroni</span> <span class="o">*</span> <span class="n">_norm_ppf</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="p">(</span><span class="n">trial_count</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">e</span><span class="p">))</span>
+    <span class="n">threshold_sharpe</span> <span class="o">=</span> <span class="n">expected_max_z</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">sharpe_variance</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">sharpe_probability</span><span class="p">(</span><span class="n">returns</span><span class="p">,</span> <span class="n">benchmark_sharpe</span><span class="o">=</span><span class="n">threshold_sharpe</span><span class="p">,</span> <span class="n">frequency</span><span class="o">=</span><span class="n">observations_per_year</span><span class="p">)</span></div>
 
 
 
-<div class="viewcode-block" id="minimum_track_record_length">
-<a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.minimum_track_record_length">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">minimum_track_record_length</span><span class="p">(</span>
+<div class="viewcode-block" id="sharpe_minimum_track_record_length">
+<a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.sharpe_minimum_track_record_length">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">sharpe_minimum_track_record_length</span><span class="p">(</span>
     <span class="n">returns</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span>
-    <span class="n">benchmark_sr</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
-    <span class="n">alpha</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.05</span><span class="p">,</span>
-    <span class="n">periods_per_year</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">252</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">benchmark_sharpe</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
+    <span class="n">significance_level</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.05</span><span class="p">,</span>
+    <span class="n">frequency</span><span class="p">:</span> <span class="n">FrequencyLike</span> <span class="o">=</span> <span class="n">Frequency</span><span class="o">.</span><span class="n">Day</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Minimum number of observations for ``SR &gt; benchmark_sr`` at confidence ``1-alpha``.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Minimum observations for Sharpe above benchmark at requested confidence.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        returns: Periodic returns.</span>
-<span class="sd">        benchmark_sr: Annualised threshold Sharpe.</span>
-<span class="sd">        alpha: Significance level (``0.05`` → 95% confidence).</span>
-<span class="sd">        periods_per_year: Periods per year.</span>
+<span class="sd">        benchmark_sharpe: Annualised threshold Sharpe.</span>
+<span class="sd">        significance_level: Significance level (``0.05`` → 95% confidence).</span>
+<span class="sd">        frequency: Observation frequency alias, enum, or observations per year.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Minimum number of observations (float; round up in practice).</span>
@@ -478,36 +485,38 @@
     <span class="n">arr</span> <span class="o">=</span> <span class="n">returns</span><span class="o">.</span><span class="n">drop_nulls</span><span class="p">()</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">arr</span><span class="o">.</span><span class="n">size</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">:</span>
         <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;nan&quot;</span><span class="p">)</span>
-    <span class="n">sr_hat</span> <span class="o">=</span> <span class="n">_sharpe</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span> <span class="n">periods_per_year</span><span class="p">)</span>
-    <span class="n">sr_per</span> <span class="o">=</span> <span class="n">sr_hat</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">periods_per_year</span><span class="p">)</span>
-    <span class="n">bench_per</span> <span class="o">=</span> <span class="n">benchmark_sr</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">periods_per_year</span><span class="p">)</span>
+    <span class="n">observations_per_year</span> <span class="o">=</span> <span class="n">_observations_per_year</span><span class="p">(</span><span class="n">frequency</span><span class="p">)</span>
+    <span class="n">sr_hat</span> <span class="o">=</span> <span class="n">_sharpe</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span> <span class="n">observations_per_year</span><span class="p">)</span>
+    <span class="n">sr_per</span> <span class="o">=</span> <span class="n">sr_hat</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">observations_per_year</span><span class="p">)</span>
+    <span class="n">bench_per</span> <span class="o">=</span> <span class="n">benchmark_sharpe</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">observations_per_year</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">sr_per</span> <span class="o">&lt;=</span> <span class="n">bench_per</span><span class="p">:</span>
         <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;inf&quot;</span><span class="p">)</span>
     <span class="n">skew</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(((</span><span class="n">arr</span> <span class="o">-</span> <span class="n">arr</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span> <span class="o">**</span> <span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="o">/</span> <span class="p">(</span><span class="n">arr</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">ddof</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">**</span> <span class="mi">3</span> <span class="o">+</span> <span class="mf">1e-30</span><span class="p">))</span>
     <span class="n">kurt</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(((</span><span class="n">arr</span> <span class="o">-</span> <span class="n">arr</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span> <span class="o">**</span> <span class="mi">4</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="o">/</span> <span class="p">(</span><span class="n">arr</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">ddof</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">**</span> <span class="mi">4</span> <span class="o">+</span> <span class="mf">1e-30</span><span class="p">))</span> <span class="o">-</span> <span class="mf">3.0</span>
-    <span class="n">z</span> <span class="o">=</span> <span class="n">_norm_ppf</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">alpha</span><span class="p">)</span>
+    <span class="n">z</span> <span class="o">=</span> <span class="n">_norm_ppf</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">significance_level</span><span class="p">)</span>
     <span class="n">num</span> <span class="o">=</span> <span class="n">z</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">skew</span> <span class="o">*</span> <span class="n">sr_per</span> <span class="o">+</span> <span class="p">(</span><span class="n">kurt</span> <span class="o">/</span> <span class="mf">4.0</span><span class="p">)</span> <span class="o">*</span> <span class="n">sr_per</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
     <span class="n">den</span> <span class="o">=</span> <span class="p">(</span><span class="n">sr_per</span> <span class="o">-</span> <span class="n">bench_per</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
     <span class="k">return</span> <span class="mf">1.0</span> <span class="o">+</span> <span class="n">num</span> <span class="o">/</span> <span class="n">den</span></div>
 
 
 
-<div class="viewcode-block" id="sharpe_ci_bootstrap">
-<a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.sharpe_ci_bootstrap">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">sharpe_ci_bootstrap</span><span class="p">(</span>
+<div class="viewcode-block" id="sharpe_bootstrap_confidence_interval">
+<a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.sharpe_bootstrap_confidence_interval">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">sharpe_bootstrap_confidence_interval</span><span class="p">(</span>
     <span class="n">returns</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span>
-    <span class="n">n_bootstrap</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span>
-    <span class="n">confidence</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.95</span><span class="p">,</span>
-    <span class="n">periods_per_year</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">252</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">bootstrap_samples</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span>
+    <span class="n">confidence_level</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.95</span><span class="p">,</span>
+    <span class="n">frequency</span><span class="p">:</span> <span class="n">FrequencyLike</span> <span class="o">=</span> <span class="n">Frequency</span><span class="o">.</span><span class="n">Day</span><span class="p">,</span>
     <span class="n">seed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Bootstrap confidence interval for the Sharpe ratio.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        returns: Periodic returns.</span>
-<span class="sd">        n_bootstrap: Number of bootstrap resamples.</span>
-<span class="sd">        confidence: Two-sided confidence level.</span>
-<span class="sd">        periods_per_year: Periods per year.</span>
+<span class="sd">        bootstrap_samples: Number of bootstrap resamples.</span>
+<span class="sd">        confidence_level: Two-sided confidence level.</span>
+<span class="sd">        frequency: Observation frequency alias, enum, or observations per year.</span>
 <span class="sd">        seed: RNG seed.</span>
 
 <span class="sd">    Returns:</span>
@@ -518,25 +527,27 @@
     <span class="k">if</span> <span class="n">n</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">:</span>
         <span class="k">return</span> <span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="s2">&quot;nan&quot;</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;nan&quot;</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;nan&quot;</span><span class="p">))</span>
     <span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
-    <span class="n">samples</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">n_bootstrap</span><span class="p">)</span>
-    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_bootstrap</span><span class="p">):</span>
+    <span class="n">observations_per_year</span> <span class="o">=</span> <span class="n">_observations_per_year</span><span class="p">(</span><span class="n">frequency</span><span class="p">)</span>
+    <span class="n">samples</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">bootstrap_samples</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">bootstrap_samples</span><span class="p">):</span>
         <span class="n">idx</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">integers</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">n</span><span class="p">)</span>
-        <span class="n">samples</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">_sharpe</span><span class="p">(</span><span class="n">arr</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span> <span class="n">periods_per_year</span><span class="p">)</span>
-    <span class="n">alpha</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">confidence</span><span class="p">)</span> <span class="o">/</span> <span class="mf">2.0</span>
+        <span class="n">samples</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">_sharpe</span><span class="p">(</span><span class="n">arr</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span> <span class="n">observations_per_year</span><span class="p">)</span>
+    <span class="n">alpha</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">confidence_level</span><span class="p">)</span> <span class="o">/</span> <span class="mf">2.0</span>
     <span class="n">lo</span><span class="p">,</span> <span class="n">hi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span> <span class="p">[</span><span class="n">alpha</span><span class="p">,</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="n">alpha</span><span class="p">])</span>
-    <span class="k">return</span> <span class="p">(</span><span class="n">_sharpe</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span> <span class="n">periods_per_year</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">lo</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">hi</span><span class="p">))</span></div>
+    <span class="k">return</span> <span class="p">(</span><span class="n">_sharpe</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span> <span class="n">observations_per_year</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">lo</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">hi</span><span class="p">))</span></div>
 
 
 
-<div class="viewcode-block" id="sharpe_with_ci">
-<a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.sharpe_with_ci">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">sharpe_with_ci</span><span class="p">(</span>
+<div class="viewcode-block" id="sharpe_confidence_interval">
+<a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.sharpe_confidence_interval">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">sharpe_confidence_interval</span><span class="p">(</span>
     <span class="n">returns</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
     <span class="n">risk_free</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">pl</span><span class="o">.</span><span class="n">Series</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
-    <span class="n">periods_per_year</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">252</span><span class="p">,</span>
-    <span class="n">confidence</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.95</span><span class="p">,</span>
+    <span class="n">frequency</span><span class="p">:</span> <span class="n">FrequencyLike</span> <span class="o">=</span> <span class="n">Frequency</span><span class="o">.</span><span class="n">Day</span><span class="p">,</span>
+    <span class="n">confidence_level</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.95</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Sharpe with HAC-style asymptotic confidence interval.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Sharpe with a Mertens-style asymptotic confidence interval.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        returns: Periodic returns.</span>
@@ -544,8 +555,8 @@
 <span class="sd">            scalar, or a per-period rate series (``pl.Series`` /</span>
 <span class="sd">            ``np.ndarray``) aligned to ``returns`` for a time-varying</span>
 <span class="sd">            risk-free rate.</span>
-<span class="sd">        periods_per_year: Periods per year.</span>
-<span class="sd">        confidence: Two-sided confidence level.</span>
+<span class="sd">        frequency: Observation frequency alias, enum, or observations per year.</span>
+<span class="sd">        confidence_level: Two-sided confidence level.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Tuple ``(sharpe, lower, upper)`` where the bounds are derived</span>
@@ -555,20 +566,21 @@
     <span class="n">n</span> <span class="o">=</span> <span class="n">arr</span><span class="o">.</span><span class="n">size</span>
     <span class="k">if</span> <span class="n">n</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">:</span>
         <span class="k">return</span> <span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="s2">&quot;nan&quot;</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;nan&quot;</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;nan&quot;</span><span class="p">))</span>
+    <span class="n">observations_per_year</span> <span class="o">=</span> <span class="n">_observations_per_year</span><span class="p">(</span><span class="n">frequency</span><span class="p">)</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">risk_free</span><span class="p">,</span> <span class="n">pl</span><span class="o">.</span><span class="n">Series</span><span class="p">):</span>
         <span class="n">rf</span> <span class="o">=</span> <span class="n">risk_free</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
     <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">risk_free</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
         <span class="n">rf</span> <span class="o">=</span> <span class="n">risk_free</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">rf</span> <span class="o">=</span> <span class="n">risk_free</span> <span class="o">/</span> <span class="n">periods_per_year</span>
+        <span class="n">rf</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="n">risk_free</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="n">observations_per_year</span><span class="p">)</span> <span class="o">-</span> <span class="mf">1.0</span>
     <span class="n">excess</span> <span class="o">=</span> <span class="n">arr</span> <span class="o">-</span> <span class="n">rf</span>
     <span class="n">sr_per</span> <span class="o">=</span> <span class="n">excess</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="o">/</span> <span class="p">(</span><span class="n">excess</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">ddof</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="mf">1e-30</span><span class="p">)</span>
-    <span class="n">sr_ann</span> <span class="o">=</span> <span class="n">sr_per</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">periods_per_year</span><span class="p">)</span>
+    <span class="n">sr_ann</span> <span class="o">=</span> <span class="n">sr_per</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">observations_per_year</span><span class="p">)</span>
     <span class="n">skew</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(((</span><span class="n">excess</span> <span class="o">-</span> <span class="n">excess</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span> <span class="o">**</span> <span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="o">/</span> <span class="p">(</span><span class="n">excess</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">ddof</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">**</span> <span class="mi">3</span> <span class="o">+</span> <span class="mf">1e-30</span><span class="p">))</span>
     <span class="n">kurt</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(((</span><span class="n">excess</span> <span class="o">-</span> <span class="n">excess</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span> <span class="o">**</span> <span class="mi">4</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="o">/</span> <span class="p">(</span><span class="n">excess</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">ddof</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">**</span> <span class="mi">4</span> <span class="o">+</span> <span class="mf">1e-30</span><span class="p">))</span> <span class="o">-</span> <span class="mf">3.0</span>
     <span class="n">var_sr</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">sr_per</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="n">skew</span> <span class="o">*</span> <span class="n">sr_per</span> <span class="o">+</span> <span class="p">(</span><span class="n">kurt</span> <span class="o">/</span> <span class="mf">4.0</span><span class="p">)</span> <span class="o">*</span> <span class="n">sr_per</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="n">n</span>
-    <span class="n">se</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">var_sr</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">))</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">periods_per_year</span><span class="p">)</span>
-    <span class="n">z</span> <span class="o">=</span> <span class="n">_norm_ppf</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">confidence</span><span class="p">)</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">)</span>
+    <span class="n">se</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">var_sr</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">))</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">observations_per_year</span><span class="p">)</span>
+    <span class="n">z</span> <span class="o">=</span> <span class="n">_norm_ppf</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">confidence_level</span><span class="p">)</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">)</span>
     <span class="k">return</span> <span class="p">(</span><span class="n">sr_ann</span><span class="p">,</span> <span class="n">sr_ann</span> <span class="o">-</span> <span class="n">z</span> <span class="o">*</span> <span class="n">se</span><span class="p">,</span> <span class="n">sr_ann</span> <span class="o">+</span> <span class="n">z</span> <span class="o">*</span> <span class="n">se</span><span class="p">)</span></div>
 
 </pre></div>
@@ -603,7 +615,7 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=37f418d5"></script>
+</div><script src="../../_static/documentation_options.js?v=e259d695"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=46bd48cc"></script>

@@ -23,10 +23,10 @@ prices = generate_prices(symbol="ACME", seed=7)
 metrics = prices.with_columns(
     pl.col("price").fcalcs.simple_returns().alias("ret"),
 ).select(
-    fc.returns(pl.col("ret")).alias("total_return"),
-    fc.annualized_return(pl.col("ret")).alias("ann_return"),
-    fc.volatility(pl.col("ret")).alias("ann_vol"),
-    fc.sharpe(pl.col("ret")).alias("sharpe"),
+    fc.cumulative_return(pl.col("ret")).alias("total_return"),
+    fc.annualized_return(pl.col("ret"), frequency="daily").alias("annualized_return"),
+    fc.annualized_volatility(pl.col("ret"), frequency="daily").alias("annualized_volatility"),
+    fc.sharpe(pl.col("ret"), frequency="daily").alias("sharpe"),
     fc.max_drawdown(pl.col("ret")).alias("max_drawdown"),
 )
 ```
@@ -34,6 +34,11 @@ metrics = prices.with_columns(
 The direct function style and namespace style are equivalent for expression
 metrics. Prefer the namespace when it improves pipeline readability, and use the
 top-level functions when several input columns are involved.
+
+For intraday or custom schedules, pass the raw number of observations per year.
+For example, a five-minute series with 78 observations across 252 sessions uses
+`frequency=78 * 252`. The caller chooses this value because market hours differ
+across equities, futures, and continuously traded assets.
 
 ______________________________________________________________________
 
@@ -57,7 +62,7 @@ returns = prices.with_columns(
 
 monthly = returns.with_columns(
     fc.period_bucket(pl.col("timestamp"), Frequency.Month).alias("month"),
-    pl.col("ret").fcalcs.returns(period=Frequency.Month, date=pl.col("timestamp")).alias("month_return"),
+    pl.col("ret").fcalcs.cumulative_return(period=Frequency.Month, date=pl.col("timestamp")).alias("month_return"),
     pl.col("ret").fcalcs.sharpe(period="1q", date=pl.col("timestamp")).alias("quarter_sharpe"),
 )
 ```
@@ -97,8 +102,8 @@ features = bars.with_columns(
     pl.col("close").fcalcs.ema(20).alias("ema_20"),
     pl.col("close").fcalcs.rsi(14).alias("rsi_14"),
     pl.col("close").fcalcs.macd_line().alias("macd"),
-    fc.atr(pl.col("high"), pl.col("low"), pl.col("close"), period=14).alias("atr_14"),
-    fc.natr(pl.col("high"), pl.col("low"), pl.col("close"), period=14).alias("natr_14"),
+    fc.atr(pl.col("high"), pl.col("low"), pl.col("close"), window=14).alias("atr_14"),
+    fc.natr(pl.col("high"), pl.col("low"), pl.col("close"), window=14).alias("natr_14"),
     fc.obv(pl.col("close"), pl.col("volume")).alias("obv"),
     fc.adosc(pl.col("high"), pl.col("low"), pl.col("close"), pl.col("volume")).alias("adosc"),
 )
@@ -108,9 +113,9 @@ For OHLC volatility estimators, use the same bars:
 
 ```python
 vol_features = bars.with_columns(
-    fc.parkinson_vol(pl.col("high"), pl.col("low"), period=20).alias("parkinson"),
-    fc.garman_klass_vol(pl.col("open"), pl.col("high"), pl.col("low"), pl.col("close"), period=20).alias("gk"),
-    fc.yang_zhang_vol(pl.col("open"), pl.col("high"), pl.col("low"), pl.col("close"), period=20).alias("yz"),
+    fc.parkinson_volatility(pl.col("high"), pl.col("low"), window=20, frequency="daily").alias("parkinson"),
+    fc.garman_klass_volatility(pl.col("open"), pl.col("high"), pl.col("low"), pl.col("close"), window=20, frequency="daily").alias("gk"),
+    fc.yang_zhang_volatility(pl.col("open"), pl.col("high"), pl.col("low"), pl.col("close"), window=20, frequency="daily").alias("yz"),
 )
 ```
 
@@ -139,13 +144,13 @@ ranked = signals.with_columns(
 )
 
 ic = ranked.group_by("date").agg(
-    fc.spearman_ic(pl.col("signal"), pl.col("fwd_returns")).alias("ic"),
-    fc.conditional_ic(pl.col("signal"), pl.col("fwd_returns"), pl.col("signal") > 0).alias("positive_signal_ic"),
+    fc.information_coefficient_spearman(pl.col("signal"), pl.col("fwd_returns")).alias("ic"),
+    fc.information_coefficient_conditional(pl.col("signal"), pl.col("fwd_returns"), pl.col("signal") > 0).alias("positive_signal_ic"),
     fc.hit_rate(pl.col("signal"), pl.col("fwd_returns")).alias("hit_rate"),
     fc.long_short_spread(pl.col("fwd_returns"), pl.col("quantile"), upper=4, lower=0).alias("q5_q1_spread"),
 )
 
-ic_summary = fc.ic_summary_stats(ic["ic"])
+ic_summary = fc.information_coefficient_statistics(ic["ic"])
 
 quantile_returns = ranked.group_by("date").agg(
     *fc.mean_return_by_quantile(pl.col("fwd_returns"), pl.col("quantile"), n_quantiles=5),
@@ -155,8 +160,8 @@ horizon_panel = ranked.with_columns(
     (pl.col("fwd_returns") * 0.8).alias("fwd_1"),
     (pl.col("fwd_returns") * 0.5).alias("fwd_5"),
 )
-horizon_ic = horizon_panel.group_by("date").agg(
-    *fc.ic_decay(pl.col("signal"), {1: pl.col("fwd_1"), 5: pl.col("fwd_5")}),
+information_coefficients_by_horizon = horizon_panel.group_by("date").agg(
+    *fc.information_coefficient_decay(pl.col("signal"), {1: pl.col("fwd_1"), 5: pl.col("fwd_5")}),
 )
 ```
 
@@ -363,10 +368,10 @@ import finance_calcs as fc
 prices = generate_prices(n_steps=756, sigma=0.25, seed=12)
 returns = prices.select(pl.col("price").fcalcs.simple_returns().alias("ret"))["ret"].drop_nulls()
 
-psr = fc.probabilistic_sharpe(returns, benchmark_sr=0.0)
-ds = fc.deflated_sharpe(returns, n_trials=20)
-min_obs = fc.minimum_track_record_length(returns, benchmark_sr=0.5)
-sharpe, lower, upper = fc.sharpe_ci_bootstrap(returns, seed=12)
-gpd_var = fc.gpd_var(returns, var_p=0.01)
-gpd_cvar = fc.gpd_cvar(returns, var_p=0.01)
+psr = fc.sharpe_probability(returns, benchmark_sharpe=0.0)
+ds = fc.sharpe_deflated_probability(returns, trial_count=20)
+min_obs = fc.sharpe_minimum_track_record_length(returns, benchmark_sharpe=0.5)
+sharpe, lower, upper = fc.sharpe_bootstrap_confidence_interval(returns, seed=12)
+generalized_pareto_var = fc.value_at_risk_generalized_pareto(returns, tail_probability=0.01)
+generalized_pareto_cvar = fc.conditional_value_at_risk_generalized_pareto(returns, tail_probability=0.01)
 ```

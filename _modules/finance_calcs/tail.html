@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html"><link rel="search" title="Search" href="../../search.html">
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2025.12.19 -->
-        <title>finance_calcs.tail - finance calcs v0.2.1</title>
+        <title>finance_calcs.tail - finance calcs v0.3.0</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
@@ -166,7 +166,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">finance calcs <code style='font-size: var(--font-size--small--4);color: var(--sd-color-primary);'>v0.2.1</code></div></a>
+      <a href="../../index.html"><div class="brand">finance calcs <code style='font-size: var(--font-size--small--4);color: var(--sd-color-primary);'>v0.3.0</code></div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -187,7 +187,7 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
-  <span class="sidebar-brand-text">finance calcs <code style='font-size: var(--font-size--small--4);color: var(--sd-color-primary);'>v0.2.1</code></span>
+  <span class="sidebar-brand-text">finance calcs <code style='font-size: var(--font-size--small--4);color: var(--sd-color-primary);'>v0.3.0</code></span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -237,7 +237,7 @@
 <span class="sd">Lightweight expression-level helpers for tail-shape statistics</span>
 <span class="sd">(:func:`tail_ratio`, :func:`ulcer_index`, :func:`omega_ratio`), plus a</span>
 <span class="sd">``pl.Series``-level GPD peak-over-threshold fit for extreme VaR/CVaR</span>
-<span class="sd">estimates that need an MLE.</span>
+<span class="sd">estimates that need an eager distribution fit.</span>
 
 <span class="sd">Rolling forms of historical VaR / CVaR live on</span>
 <span class="sd">:func:`finance_calcs.value_at_risk` / :func:`finance_calcs.conditional_value_at_risk`</span>
@@ -251,13 +251,21 @@
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">polars</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pl</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">finance_enums</span><span class="w"> </span><span class="kn">import</span> <span class="n">Frequency</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">._periods</span><span class="w"> </span><span class="kn">import</span> <span class="n">PeriodLike</span><span class="p">,</span> <span class="n">_bucket_or_none</span><span class="p">,</span> <span class="n">_check_window_period</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">._periods</span><span class="w"> </span><span class="kn">import</span> <span class="n">FrequencyLike</span><span class="p">,</span> <span class="n">PeriodLike</span><span class="p">,</span> <span class="n">_annual_rate_to_observation_rate</span><span class="p">,</span> <span class="n">_bucket_or_none</span><span class="p">,</span> <span class="n">_check_window_period</span><span class="p">,</span> <span class="n">_observations_per_year</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">._validation</span><span class="w"> </span><span class="kn">import</span> <span class="n">_validate_probability</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.returns</span><span class="w"> </span><span class="kn">import</span> <span class="n">_clean_returns</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="s2">&quot;gpd_cvar&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;gpd_var&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;conditional_value_at_risk_generalized_pareto&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;omega_ratio&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;tail_ratio&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ulcer_index&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;value_at_risk_generalized_pareto&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="n">__finance_namespace__</span> <span class="o">=</span> <span class="p">[</span>
     <span class="s2">&quot;omega_ratio&quot;</span><span class="p">,</span>
     <span class="s2">&quot;tail_ratio&quot;</span><span class="p">,</span>
     <span class="s2">&quot;ulcer_index&quot;</span><span class="p">,</span>
@@ -328,20 +336,23 @@
 <a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.omega_ratio">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">omega_ratio</span><span class="p">(</span>
     <span class="n">returns</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span>
-    <span class="n">required_return</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
+    <span class="n">required_return</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
+    <span class="n">frequency</span><span class="p">:</span> <span class="n">FrequencyLike</span> <span class="o">=</span> <span class="n">Frequency</span><span class="o">.</span><span class="n">Day</span><span class="p">,</span>
     <span class="n">window</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">period</span><span class="p">:</span> <span class="n">PeriodLike</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">date</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Omega ratio — gain/loss probability-weighted ratio.</span>
 
-<span class="sd">    ``required_return`` may be a scalar per-period threshold or a</span>
-<span class="sd">    :class:`pl.Expr` per-period column for a time-varying threshold.</span>
+<span class="sd">    ``required_return`` may be a scalar annual threshold or a</span>
+<span class="sd">    :class:`pl.Expr` per-observation column for a time-varying threshold.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">observations_per_year</span> <span class="o">=</span> <span class="n">_observations_per_year</span><span class="p">(</span><span class="n">frequency</span><span class="p">)</span>
     <span class="n">_check_window_period</span><span class="p">(</span><span class="n">window</span><span class="p">,</span> <span class="n">period</span><span class="p">)</span>
     <span class="n">bucket</span> <span class="o">=</span> <span class="n">_bucket_or_none</span><span class="p">(</span><span class="n">date</span><span class="p">,</span> <span class="n">period</span><span class="p">)</span>
-    <span class="n">excess</span> <span class="o">=</span> <span class="p">(</span><span class="n">_clean_returns</span><span class="p">(</span><span class="n">returns</span><span class="p">)</span> <span class="o">-</span> <span class="n">required_return</span><span class="p">)</span><span class="o">.</span><span class="n">fill_nan</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+    <span class="n">threshold</span> <span class="o">=</span> <span class="n">_annual_rate_to_observation_rate</span><span class="p">(</span><span class="n">required_return</span><span class="p">,</span> <span class="n">observations_per_year</span><span class="p">)</span>
+    <span class="n">excess</span> <span class="o">=</span> <span class="p">(</span><span class="n">_clean_returns</span><span class="p">(</span><span class="n">returns</span><span class="p">)</span> <span class="o">-</span> <span class="n">threshold</span><span class="p">)</span><span class="o">.</span><span class="n">fill_nan</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
     <span class="n">gains</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">when</span><span class="p">(</span><span class="n">excess</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">then</span><span class="p">(</span><span class="n">excess</span><span class="p">)</span><span class="o">.</span><span class="n">otherwise</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span>
     <span class="n">losses</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">when</span><span class="p">(</span><span class="n">excess</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">then</span><span class="p">(</span><span class="o">-</span><span class="n">excess</span><span class="p">)</span><span class="o">.</span><span class="n">otherwise</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">bucket</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -377,88 +388,106 @@
     <span class="k">return</span> <span class="p">(</span><span class="n">xi</span><span class="p">,</span> <span class="n">beta</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="gpd_var">
-<a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.gpd_var">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">gpd_var</span><span class="p">(</span><span class="n">returns</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span> <span class="n">var_p</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.01</span><span class="p">,</span> <span class="n">threshold_p</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.10</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;GPD-fitted extreme VaR (positive number, magnitude of loss).</span>
+<div class="viewcode-block" id="value_at_risk_generalized_pareto">
+<a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.value_at_risk_generalized_pareto">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">value_at_risk_generalized_pareto</span><span class="p">(</span>
+    <span class="n">returns</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">tail_probability</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.01</span><span class="p">,</span>
+    <span class="n">threshold_probability</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.10</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;GPD-fitted extreme VaR as a lower-tail return.</span>
 
 <span class="sd">    Fits a Generalized Pareto Distribution to the excess of losses</span>
 <span class="sd">    over a threshold (peak-over-threshold) and inverts to obtain the</span>
-<span class="sd">    ``var_p`` quantile.</span>
+<span class="sd">    ``tail_probability`` quantile.</span>
 
 <span class="sd">    Closed form:</span>
 <span class="sd">        :math:`VaR_p = u + \frac{\beta}{\xi}\left(\left(\frac{n}{n_u} p\right)^{-\xi} - 1\right)`</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        returns: Periodic returns (``pl.Series``).</span>
-<span class="sd">        var_p: Tail probability (``0.01`` → 1% VaR).</span>
-<span class="sd">        threshold_p: Probability mass beyond the threshold ``u``</span>
+<span class="sd">        tail_probability: Tail probability (``0.01`` → 1% VaR).</span>
+<span class="sd">        threshold_probability: Probability mass beyond the threshold ``u``</span>
 <span class="sd">            used for the GPD fit (``0.10`` → top-10% of losses).</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        VaR magnitude as a positive float.</span>
+<span class="sd">        VaR as a negative return.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">_validate_probability</span><span class="p">(</span><span class="n">tail_probability</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;tail_probability&quot;</span><span class="p">)</span>
+    <span class="n">_validate_probability</span><span class="p">(</span><span class="n">threshold_probability</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;threshold_probability&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">tail_probability</span> <span class="o">&gt;=</span> <span class="n">threshold_probability</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;tail_probability must be less than threshold_probability&quot;</span><span class="p">)</span>
     <span class="n">arr</span> <span class="o">=</span> <span class="n">returns</span><span class="o">.</span><span class="n">drop_nulls</span><span class="p">()</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
     <span class="n">arr</span> <span class="o">=</span> <span class="n">arr</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">arr</span><span class="p">)]</span>
     <span class="k">if</span> <span class="n">arr</span><span class="o">.</span><span class="n">size</span> <span class="o">&lt;</span> <span class="mi">20</span><span class="p">:</span>
         <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;nan&quot;</span><span class="p">)</span>
     <span class="n">losses</span> <span class="o">=</span> <span class="o">-</span><span class="n">arr</span>
-    <span class="n">u</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="n">losses</span><span class="p">,</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="n">threshold_p</span><span class="p">))</span>
+    <span class="n">u</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="n">losses</span><span class="p">,</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="n">threshold_probability</span><span class="p">))</span>
     <span class="n">excess</span> <span class="o">=</span> <span class="n">losses</span><span class="p">[</span><span class="n">losses</span> <span class="o">&gt;</span> <span class="n">u</span><span class="p">]</span> <span class="o">-</span> <span class="n">u</span>
     <span class="k">if</span> <span class="n">excess</span><span class="o">.</span><span class="n">size</span> <span class="o">&lt;</span> <span class="mi">5</span><span class="p">:</span>
-        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="n">losses</span><span class="p">,</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="n">var_p</span><span class="p">))</span>
+        <span class="k">return</span> <span class="o">-</span><span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="n">losses</span><span class="p">,</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="n">tail_probability</span><span class="p">))</span>
     <span class="n">xi</span><span class="p">,</span> <span class="n">beta</span> <span class="o">=</span> <span class="n">_fit_gpd</span><span class="p">(</span><span class="n">excess</span><span class="p">)</span>
     <span class="n">n</span> <span class="o">=</span> <span class="n">arr</span><span class="o">.</span><span class="n">size</span>
     <span class="n">nu</span> <span class="o">=</span> <span class="n">excess</span><span class="o">.</span><span class="n">size</span>
-    <span class="n">ratio</span> <span class="o">=</span> <span class="p">(</span><span class="n">n</span> <span class="o">/</span> <span class="n">nu</span><span class="p">)</span> <span class="o">*</span> <span class="n">var_p</span>
+    <span class="n">ratio</span> <span class="o">=</span> <span class="p">(</span><span class="n">n</span> <span class="o">/</span> <span class="n">nu</span><span class="p">)</span> <span class="o">*</span> <span class="n">tail_probability</span>
     <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">xi</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">1e-8</span><span class="p">:</span>
         <span class="n">var</span> <span class="o">=</span> <span class="n">u</span> <span class="o">+</span> <span class="n">beta</span> <span class="o">*</span> <span class="p">(</span><span class="o">-</span><span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">ratio</span><span class="p">))</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">var</span> <span class="o">=</span> <span class="n">u</span> <span class="o">+</span> <span class="p">(</span><span class="n">beta</span> <span class="o">/</span> <span class="n">xi</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">ratio</span> <span class="o">**</span> <span class="p">(</span><span class="o">-</span><span class="n">xi</span><span class="p">)</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">)</span>
-    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">var</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="o">-</span><span class="nb">float</span><span class="p">(</span><span class="n">var</span><span class="p">)</span></div>
 
 
 
-<div class="viewcode-block" id="gpd_cvar">
-<a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.gpd_cvar">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">gpd_cvar</span><span class="p">(</span><span class="n">returns</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span> <span class="n">var_p</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.01</span><span class="p">,</span> <span class="n">threshold_p</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.10</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;GPD-fitted extreme CVaR (expected shortfall beyond ``var_p``).</span>
+<div class="viewcode-block" id="conditional_value_at_risk_generalized_pareto">
+<a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.conditional_value_at_risk_generalized_pareto">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">conditional_value_at_risk_generalized_pareto</span><span class="p">(</span>
+    <span class="n">returns</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">tail_probability</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.01</span><span class="p">,</span>
+    <span class="n">threshold_probability</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.10</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;GPD-fitted extreme CVaR as a lower-tail return.</span>
 
 <span class="sd">    Closed form for the GPD tail (xi &lt; 1):</span>
 <span class="sd">        :math:`CVaR_p = \frac{VaR_p}{1 - \xi} + \frac{\beta - \xi u}{1 - \xi}`</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        returns: Periodic returns.</span>
-<span class="sd">        var_p: Tail probability.</span>
-<span class="sd">        threshold_p: Mass beyond the threshold used for the fit.</span>
+<span class="sd">        tail_probability: Tail probability.</span>
+<span class="sd">        threshold_probability: Mass beyond the threshold used for the fit.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        CVaR magnitude as a positive float.</span>
+<span class="sd">        CVaR as a negative return.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">_validate_probability</span><span class="p">(</span><span class="n">tail_probability</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;tail_probability&quot;</span><span class="p">)</span>
+    <span class="n">_validate_probability</span><span class="p">(</span><span class="n">threshold_probability</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;threshold_probability&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">tail_probability</span> <span class="o">&gt;=</span> <span class="n">threshold_probability</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;tail_probability must be less than threshold_probability&quot;</span><span class="p">)</span>
     <span class="n">arr</span> <span class="o">=</span> <span class="n">returns</span><span class="o">.</span><span class="n">drop_nulls</span><span class="p">()</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
     <span class="n">arr</span> <span class="o">=</span> <span class="n">arr</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">arr</span><span class="p">)]</span>
     <span class="k">if</span> <span class="n">arr</span><span class="o">.</span><span class="n">size</span> <span class="o">&lt;</span> <span class="mi">20</span><span class="p">:</span>
         <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;nan&quot;</span><span class="p">)</span>
     <span class="n">losses</span> <span class="o">=</span> <span class="o">-</span><span class="n">arr</span>
-    <span class="n">u</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="n">losses</span><span class="p">,</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="n">threshold_p</span><span class="p">))</span>
+    <span class="n">u</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="n">losses</span><span class="p">,</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="n">threshold_probability</span><span class="p">))</span>
     <span class="n">excess</span> <span class="o">=</span> <span class="n">losses</span><span class="p">[</span><span class="n">losses</span> <span class="o">&gt;</span> <span class="n">u</span><span class="p">]</span> <span class="o">-</span> <span class="n">u</span>
     <span class="k">if</span> <span class="n">excess</span><span class="o">.</span><span class="n">size</span> <span class="o">&lt;</span> <span class="mi">5</span><span class="p">:</span>
-        <span class="n">var_fallback</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="n">losses</span><span class="p">,</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="n">var_p</span><span class="p">))</span>
+        <span class="n">var_fallback</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="n">losses</span><span class="p">,</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="n">tail_probability</span><span class="p">))</span>
         <span class="n">tail</span> <span class="o">=</span> <span class="n">losses</span><span class="p">[</span><span class="n">losses</span> <span class="o">&gt;=</span> <span class="n">var_fallback</span><span class="p">]</span>
-        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">tail</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span> <span class="k">if</span> <span class="n">tail</span><span class="o">.</span><span class="n">size</span> <span class="k">else</span> <span class="n">var_fallback</span>
+        <span class="k">return</span> <span class="o">-</span><span class="nb">float</span><span class="p">(</span><span class="n">tail</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span> <span class="k">if</span> <span class="n">tail</span><span class="o">.</span><span class="n">size</span> <span class="k">else</span> <span class="o">-</span><span class="n">var_fallback</span>
     <span class="n">xi</span><span class="p">,</span> <span class="n">beta</span> <span class="o">=</span> <span class="n">_fit_gpd</span><span class="p">(</span><span class="n">excess</span><span class="p">)</span>
     <span class="n">n</span> <span class="o">=</span> <span class="n">arr</span><span class="o">.</span><span class="n">size</span>
     <span class="n">nu</span> <span class="o">=</span> <span class="n">excess</span><span class="o">.</span><span class="n">size</span>
-    <span class="n">ratio</span> <span class="o">=</span> <span class="p">(</span><span class="n">n</span> <span class="o">/</span> <span class="n">nu</span><span class="p">)</span> <span class="o">*</span> <span class="n">var_p</span>
+    <span class="n">ratio</span> <span class="o">=</span> <span class="p">(</span><span class="n">n</span> <span class="o">/</span> <span class="n">nu</span><span class="p">)</span> <span class="o">*</span> <span class="n">tail_probability</span>
     <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">xi</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">1e-8</span><span class="p">:</span>
         <span class="n">var</span> <span class="o">=</span> <span class="n">u</span> <span class="o">+</span> <span class="n">beta</span> <span class="o">*</span> <span class="p">(</span><span class="o">-</span><span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">ratio</span><span class="p">))</span>
         <span class="n">cvar</span> <span class="o">=</span> <span class="n">var</span> <span class="o">+</span> <span class="n">beta</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">var</span> <span class="o">=</span> <span class="n">u</span> <span class="o">+</span> <span class="p">(</span><span class="n">beta</span> <span class="o">/</span> <span class="n">xi</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">ratio</span> <span class="o">**</span> <span class="p">(</span><span class="o">-</span><span class="n">xi</span><span class="p">)</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">xi</span> <span class="o">&gt;=</span> <span class="mf">1.0</span><span class="p">:</span>
-            <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;inf&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;-inf&quot;</span><span class="p">)</span>
         <span class="n">cvar</span> <span class="o">=</span> <span class="n">var</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">xi</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">beta</span> <span class="o">-</span> <span class="n">xi</span> <span class="o">*</span> <span class="n">u</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">xi</span><span class="p">)</span>
-    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">cvar</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="o">-</span><span class="nb">float</span><span class="p">(</span><span class="n">cvar</span><span class="p">)</span></div>
 
 </pre></div>
         </article>
@@ -492,7 +521,7 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=37f418d5"></script>
+</div><script src="../../_static/documentation_options.js?v=e259d695"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=46bd48cc"></script>

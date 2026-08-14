@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../../genindex.html"><link rel="search" title="Search" href="../../search.html"><link rel="prev" title="API" href="API.html">
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2025.12.19 -->
-        <title>QuantStats Compatibility - finance calcs v0.2.1</title>
+        <title>QuantStats Compatibility - finance calcs v0.3.0</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
@@ -167,7 +167,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">finance calcs <code style='font-size: var(--font-size--small--4);color: var(--sd-color-primary);'>v0.2.1</code></div></a>
+      <a href="../../index.html"><div class="brand">finance calcs <code style='font-size: var(--font-size--small--4);color: var(--sd-color-primary);'>v0.3.0</code></div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -188,7 +188,7 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
-  <span class="sidebar-brand-text">finance calcs <code style='font-size: var(--font-size--small--4);color: var(--sd-color-primary);'>v0.2.1</code></span>
+  <span class="sidebar-brand-text">finance calcs <code style='font-size: var(--font-size--small--4);color: var(--sd-color-primary);'>v0.3.0</code></span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -243,7 +243,8 @@
 <p><code class="docutils literal notranslate"><span class="pre">finance-calcs</span></code> uses QuantStats as a reference for report-oriented metric names
 and definitions while retaining Polars expressions, explicit missing-value
 semantics, and composability in lazy queries.</p>
-<p>The following names have compatible definitions:</p>
+<p>The following concepts have compatible definitions. <code class="docutils literal notranslate"><span class="pre">finance-calcs</span></code> exposes
+only its canonical names; it does not export additional QuantStats spellings.</p>
 <div class="table-wrapper colwidths-auto docutils container">
 <table class="docutils align-default">
 <thead>
@@ -253,38 +254,39 @@ semantics, and composability in lazy queries.</p>
 </thead>
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">best</span></code>, <code class="docutils literal notranslate"><span class="pre">worst</span></code></p></td>
-<td><p>Aliases for <code class="docutils literal notranslate"><span class="pre">best_return</span></code>, <code class="docutils literal notranslate"><span class="pre">worst_return</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">best_return</span></code>, <code class="docutils literal notranslate"><span class="pre">worst_return</span></code></p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">avg_win</span></code>, <code class="docutils literal notranslate"><span class="pre">avg_loss</span></code></p></td>
-<td><p>Aliases for <code class="docutils literal notranslate"><span class="pre">average_win</span></code>, <code class="docutils literal notranslate"><span class="pre">average_loss</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">average_win</span></code>, <code class="docutils literal notranslate"><span class="pre">average_loss</span></code></p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cagr</span></code></p></td>
-<td><p>Alias for <code class="docutils literal notranslate"><span class="pre">annualized_return</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">annualized_return</span></code></p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">expected_shortfall</span></code></p></td>
-<td><p>Alias for <code class="docutils literal notranslate"><span class="pre">conditional_value_at_risk</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">expected_shortfall</span></code></p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">to_drawdown_series</span></code></p></td>
-<td><p>Alias for <code class="docutils literal notranslate"><span class="pre">drawdown_series</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">drawdown_series</span></code></p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">r_squared</span></code></p></td>
-<td><p>Squared strategy/benchmark Pearson correlation</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">r_squared</span></code></p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">gain_to_pain_ratio</span></code></p></td>
-<td><p>Arithmetic net return divided by absolute summed losses</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">gain_to_pain_ratio</span></code></p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">recovery_factor</span></code></p></td>
-<td><p>Absolute arithmetic net return divided by max drawdown</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">recovery_factor</span></code></p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">kelly_criterion</span></code></p></td>
-<td><p>Active-period win rate and average win/loss payoff</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">kelly_criterion</span></code></p></td>
 </tr>
 </tbody>
 </table>
 </div>
 <p>Intentional interface differences:</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">expected_shortfall</span></code> accepts a lower-tail <code class="docutils literal notranslate"><span class="pre">cutoff</span></code>, so 5% is <code class="docutils literal notranslate"><span class="pre">cutoff=0.05</span></code>,
+<li><p><code class="docutils literal notranslate"><span class="pre">expected_shortfall</span></code> accepts <code class="docutils literal notranslate"><span class="pre">tail_probability</span></code>, so 5% is
+<code class="docutils literal notranslate"><span class="pre">tail_probability=0.05</span></code>,
 rather than a confidence value of 95%.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">drawdown_details</span></code> accepts periodic returns and optional dates directly. It
 returns native Polars date/index values and decimal drawdowns rather than
@@ -341,7 +343,7 @@ for the comparison implementation.</p>
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=37f418d5"></script>
+</div><script src="../../_static/documentation_options.js?v=e259d695"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=46bd48cc"></script>

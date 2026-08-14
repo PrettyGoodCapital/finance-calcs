@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html"><link rel="search" title="Search" href="../../search.html">
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2025.12.19 -->
-        <title>finance_calcs.returns - finance calcs v0.2.1</title>
+        <title>finance_calcs.returns - finance calcs v0.3.0</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
@@ -166,7 +166,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">finance calcs <code style='font-size: var(--font-size--small--4);color: var(--sd-color-primary);'>v0.2.1</code></div></a>
+      <a href="../../index.html"><div class="brand">finance calcs <code style='font-size: var(--font-size--small--4);color: var(--sd-color-primary);'>v0.3.0</code></div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -187,7 +187,7 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
-  <span class="sidebar-brand-text">finance calcs <code style='font-size: var(--font-size--small--4);color: var(--sd-color-primary);'>v0.2.1</code></span>
+  <span class="sidebar-brand-text">finance calcs <code style='font-size: var(--font-size--small--4);color: var(--sd-color-primary);'>v0.3.0</code></span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -249,19 +249,17 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">polars</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pl</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">finance_enums</span><span class="w"> </span><span class="kn">import</span> <span class="n">Frequency</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">._periods</span><span class="w"> </span><span class="kn">import</span> <span class="n">PeriodLike</span><span class="p">,</span> <span class="n">_bucket_or_none</span><span class="p">,</span> <span class="n">_check_window_period</span><span class="p">,</span> <span class="n">period_bucket</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">._periods</span><span class="w"> </span><span class="kn">import</span> <span class="n">FrequencyLike</span><span class="p">,</span> <span class="n">PeriodLike</span><span class="p">,</span> <span class="n">_bucket_or_none</span><span class="p">,</span> <span class="n">_check_window_period</span><span class="p">,</span> <span class="n">_observations_per_year</span><span class="p">,</span> <span class="n">period_bucket</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="s2">&quot;aggregate_returns&quot;</span><span class="p">,</span>
     <span class="s2">&quot;annualized_return&quot;</span><span class="p">,</span>
     <span class="s2">&quot;annualized_volatility&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;cagr&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;cum_returns&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;cum_returns_final&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;cumulative_return&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;cumulative_returns&quot;</span><span class="p">,</span>
     <span class="s2">&quot;log_returns&quot;</span><span class="p">,</span>
     <span class="s2">&quot;period_bucket&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;returns&quot;</span><span class="p">,</span>
     <span class="s2">&quot;simple_returns&quot;</span><span class="p">,</span>
 <span class="p">]</span>
 
@@ -296,9 +294,9 @@
 
 
 
-<div class="viewcode-block" id="cum_returns">
-<a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.cum_returns">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">cum_returns</span><span class="p">(</span>
+<div class="viewcode-block" id="cumulative_returns">
+<a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.cumulative_returns">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">cumulative_returns</span><span class="p">(</span>
     <span class="n">returns</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span>
     <span class="n">starting_value</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
@@ -329,9 +327,9 @@
 
 
 
-<div class="viewcode-block" id="cum_returns_final">
-<a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.cum_returns_final">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">cum_returns_final</span><span class="p">(</span>
+<div class="viewcode-block" id="cumulative_return">
+<a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.cumulative_return">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">cumulative_return</span><span class="p">(</span>
     <span class="n">returns</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">window</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -355,39 +353,12 @@
 
 
 
-<div class="viewcode-block" id="returns">
-<a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.returns">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">returns</span><span class="p">(</span>
-    <span class="n">returns</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span>
-    <span class="o">*</span><span class="p">,</span>
-    <span class="n">window</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">period</span><span class="p">:</span> <span class="n">PeriodLike</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">date</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compound return over a trailing window or full sample.</span>
-
-<span class="sd">    ``window=None, period=None`` returns the full-sample compound return.</span>
-<span class="sd">    ``window=N`` returns trailing compounded returns over ``N`` rows.</span>
-<span class="sd">    ``period=...`` returns the compounded return for each period bucket.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">cum_returns_final</span><span class="p">(</span><span class="n">returns</span><span class="p">,</span> <span class="n">window</span><span class="o">=</span><span class="n">window</span><span class="p">,</span> <span class="n">period</span><span class="o">=</span><span class="n">period</span><span class="p">,</span> <span class="n">date</span><span class="o">=</span><span class="n">date</span><span class="p">)</span></div>
-
-
-
-<div class="viewcode-block" id="aggregate_returns">
-<a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.aggregate_returns">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">aggregate_returns</span><span class="p">(</span><span class="n">returns</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span> <span class="n">date</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span> <span class="n">period</span><span class="p">:</span> <span class="n">PeriodLike</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compound returns by a calendar or custom period bucket.&quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">cum_returns_final</span><span class="p">(</span><span class="n">returns</span><span class="p">,</span> <span class="n">period</span><span class="o">=</span><span class="n">period</span><span class="p">,</span> <span class="n">date</span><span class="o">=</span><span class="n">date</span><span class="p">)</span></div>
-
-
-
 <div class="viewcode-block" id="annualized_return">
 <a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.annualized_return">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">annualized_return</span><span class="p">(</span>
     <span class="n">returns</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span>
-    <span class="n">periods_per_year</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">252</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
+    <span class="n">frequency</span><span class="p">:</span> <span class="n">FrequencyLike</span> <span class="o">=</span> <span class="n">Frequency</span><span class="o">.</span><span class="n">Day</span><span class="p">,</span>
     <span class="n">window</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">period</span><span class="p">:</span> <span class="n">PeriodLike</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">date</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -395,11 +366,13 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Annualised geometric return.</span>
 
 <span class="sd">    ``window=None`` → scalar lifetime CAGR. ``window=N`` → rolling</span>
-<span class="sd">    CAGR annualised by ``periods_per_year / window``. ``period=...`` →</span>
+<span class="sd">    CAGR annualised by the observations per year implied by ``frequency``.</span>
+<span class="sd">    ``period=...`` →</span>
 <span class="sd">    CAGR for each period bucket. Annualisation uses the count of non-missing</span>
 <span class="sd">    observations, not elapsed calendar time; ``date`` is used only to build a</span>
 <span class="sd">    period bucket.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">observations_per_year</span> <span class="o">=</span> <span class="n">_observations_per_year</span><span class="p">(</span><span class="n">frequency</span><span class="p">)</span>
     <span class="n">_check_window_period</span><span class="p">(</span><span class="n">window</span><span class="p">,</span> <span class="n">period</span><span class="p">)</span>
     <span class="n">bucket</span> <span class="o">=</span> <span class="n">_bucket_or_none</span><span class="p">(</span><span class="n">date</span><span class="p">,</span> <span class="n">period</span><span class="p">)</span>
     <span class="n">clean_returns</span> <span class="o">=</span> <span class="n">_clean_returns</span><span class="p">(</span><span class="n">returns</span><span class="p">)</span>
@@ -407,29 +380,14 @@
     <span class="k">if</span> <span class="n">bucket</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">observation_count</span> <span class="o">=</span> <span class="n">clean_returns</span><span class="o">.</span><span class="n">is_not_null</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">over</span><span class="p">(</span><span class="n">bucket</span><span class="p">)</span>
         <span class="n">total_growth</span> <span class="o">=</span> <span class="n">one_plus</span><span class="o">.</span><span class="n">product</span><span class="p">()</span><span class="o">.</span><span class="n">over</span><span class="p">(</span><span class="n">bucket</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">total_growth</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">lit</span><span class="p">(</span><span class="n">periods_per_year</span><span class="p">)</span> <span class="o">/</span> <span class="n">observation_count</span><span class="p">)</span> <span class="o">-</span> <span class="mf">1.0</span>
+        <span class="k">return</span> <span class="n">total_growth</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">lit</span><span class="p">(</span><span class="n">observations_per_year</span><span class="p">)</span> <span class="o">/</span> <span class="n">observation_count</span><span class="p">)</span> <span class="o">-</span> <span class="mf">1.0</span>
     <span class="k">if</span> <span class="n">window</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">n</span> <span class="o">=</span> <span class="n">clean_returns</span><span class="o">.</span><span class="n">is_not_null</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
         <span class="n">total_growth</span> <span class="o">=</span> <span class="n">one_plus</span><span class="o">.</span><span class="n">product</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">total_growth</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">lit</span><span class="p">(</span><span class="n">periods_per_year</span><span class="p">)</span> <span class="o">/</span> <span class="n">n</span><span class="p">)</span> <span class="o">-</span> <span class="mf">1.0</span>
+        <span class="k">return</span> <span class="n">total_growth</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">lit</span><span class="p">(</span><span class="n">observations_per_year</span><span class="p">)</span> <span class="o">/</span> <span class="n">n</span><span class="p">)</span> <span class="o">-</span> <span class="mf">1.0</span>
     <span class="n">growth</span> <span class="o">=</span> <span class="n">_rolling_product</span><span class="p">(</span><span class="n">one_plus</span><span class="p">,</span> <span class="n">window</span><span class="p">)</span>
     <span class="n">observation_count</span> <span class="o">=</span> <span class="n">clean_returns</span><span class="o">.</span><span class="n">is_not_null</span><span class="p">()</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">UInt32</span><span class="p">)</span><span class="o">.</span><span class="n">rolling_sum</span><span class="p">(</span><span class="n">window</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">growth</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="n">periods_per_year</span> <span class="o">/</span> <span class="n">observation_count</span><span class="p">)</span> <span class="o">-</span> <span class="mf">1.0</span></div>
-
-
-
-<div class="viewcode-block" id="cagr">
-<a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.cagr">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">cagr</span><span class="p">(</span>
-    <span class="n">returns</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span>
-    <span class="n">periods_per_year</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">252</span><span class="p">,</span>
-    <span class="o">*</span><span class="p">,</span>
-    <span class="n">window</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">period</span><span class="p">:</span> <span class="n">PeriodLike</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">date</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compatibility alias for :func:`annualized_return`.&quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">annualized_return</span><span class="p">(</span><span class="n">returns</span><span class="p">,</span> <span class="n">periods_per_year</span><span class="p">,</span> <span class="n">window</span><span class="o">=</span><span class="n">window</span><span class="p">,</span> <span class="n">period</span><span class="o">=</span><span class="n">period</span><span class="p">,</span> <span class="n">date</span><span class="o">=</span><span class="n">date</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">growth</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="n">observations_per_year</span> <span class="o">/</span> <span class="n">observation_count</span><span class="p">)</span> <span class="o">-</span> <span class="mf">1.0</span></div>
 
 
 
@@ -437,8 +395,8 @@
 <a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.annualized_volatility">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">annualized_volatility</span><span class="p">(</span>
     <span class="n">returns</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span>
-    <span class="n">periods_per_year</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">252</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
+    <span class="n">frequency</span><span class="p">:</span> <span class="n">FrequencyLike</span> <span class="o">=</span> <span class="n">Frequency</span><span class="o">.</span><span class="n">Day</span><span class="p">,</span>
     <span class="n">window</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">period</span><span class="p">:</span> <span class="n">PeriodLike</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">date</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -449,14 +407,15 @@
 <span class="sd">    rolling annualised volatility; ``period=...`` → volatility for each</span>
 <span class="sd">    period bucket.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">observations_per_year</span> <span class="o">=</span> <span class="n">_observations_per_year</span><span class="p">(</span><span class="n">frequency</span><span class="p">)</span>
     <span class="n">_check_window_period</span><span class="p">(</span><span class="n">window</span><span class="p">,</span> <span class="n">period</span><span class="p">)</span>
     <span class="n">bucket</span> <span class="o">=</span> <span class="n">_bucket_or_none</span><span class="p">(</span><span class="n">date</span><span class="p">,</span> <span class="n">period</span><span class="p">)</span>
     <span class="n">clean_returns</span> <span class="o">=</span> <span class="n">_clean_returns</span><span class="p">(</span><span class="n">returns</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">bucket</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">clean_returns</span><span class="o">.</span><span class="n">std</span><span class="p">()</span><span class="o">.</span><span class="n">over</span><span class="p">(</span><span class="n">bucket</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">periods_per_year</span><span class="o">**</span><span class="mf">0.5</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">clean_returns</span><span class="o">.</span><span class="n">std</span><span class="p">()</span><span class="o">.</span><span class="n">over</span><span class="p">(</span><span class="n">bucket</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">observations_per_year</span><span class="o">**</span><span class="mf">0.5</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">window</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">clean_returns</span><span class="o">.</span><span class="n">std</span><span class="p">()</span> <span class="o">*</span> <span class="p">(</span><span class="n">periods_per_year</span><span class="o">**</span><span class="mf">0.5</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">clean_returns</span><span class="o">.</span><span class="n">rolling_std</span><span class="p">(</span><span class="n">window</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">periods_per_year</span><span class="o">**</span><span class="mf">0.5</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">clean_returns</span><span class="o">.</span><span class="n">std</span><span class="p">()</span> <span class="o">*</span> <span class="p">(</span><span class="n">observations_per_year</span><span class="o">**</span><span class="mf">0.5</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">clean_returns</span><span class="o">.</span><span class="n">rolling_std</span><span class="p">(</span><span class="n">window</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">observations_per_year</span><span class="o">**</span><span class="mf">0.5</span><span class="p">)</span></div>
 
 </pre></div>
         </article>
@@ -490,7 +449,7 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=37f418d5"></script>
+</div><script src="../../_static/documentation_options.js?v=e259d695"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=46bd48cc"></script>
