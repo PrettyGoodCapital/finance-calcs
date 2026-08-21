@@ -232,33 +232,33 @@
         </div>
         <article role="main" id="furo-main-content">
           <h1>Source code for finance_calcs.overlap</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Overlap studies / moving averages as polars expressions.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Overlap studies / moving averages as polars expressions."""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">polars</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pl</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="s2">&quot;bbands_lower&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;bbands_middle&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;bbands_upper&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dema&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;donchian_lower&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;donchian_middle&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;donchian_upper&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;ema&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;midpoint&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;midprice&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;sma&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;tema&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;wma&quot;</span><span class="p">,</span>
+    <span class="s2">"bbands_lower"</span><span class="p">,</span>
+    <span class="s2">"bbands_middle"</span><span class="p">,</span>
+    <span class="s2">"bbands_upper"</span><span class="p">,</span>
+    <span class="s2">"dema"</span><span class="p">,</span>
+    <span class="s2">"donchian_lower"</span><span class="p">,</span>
+    <span class="s2">"donchian_middle"</span><span class="p">,</span>
+    <span class="s2">"donchian_upper"</span><span class="p">,</span>
+    <span class="s2">"ema"</span><span class="p">,</span>
+    <span class="s2">"midpoint"</span><span class="p">,</span>
+    <span class="s2">"midprice"</span><span class="p">,</span>
+    <span class="s2">"sma"</span><span class="p">,</span>
+    <span class="s2">"tema"</span><span class="p">,</span>
+    <span class="s2">"wma"</span><span class="p">,</span>
 <span class="p">]</span>
 
 
 <div class="viewcode-block" id="sma">
 <a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.sma">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">sma</span><span class="p">(</span><span class="n">close</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span> <span class="n">window</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">20</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Simple moving average over ``window`` observations.</span>
+<span class="w">    </span><span class="sd">"""Simple moving average over ``window`` observations.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        close: Price (or any series) to average.</span>
@@ -266,7 +266,7 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Rolling mean expression.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="n">close</span><span class="o">.</span><span class="n">rolling_mean</span><span class="p">(</span><span class="n">window</span><span class="p">)</span></div>
 
 
@@ -274,7 +274,7 @@
 <div class="viewcode-block" id="ema">
 <a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.ema">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">ema</span><span class="p">(</span><span class="n">close</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span> <span class="n">window</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">20</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Exponential moving average with ``span = window``.</span>
+<span class="w">    </span><span class="sd">"""Exponential moving average with ``span = window``.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        close: Series to smooth.</span>
@@ -282,7 +282,7 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        EWMA expression.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="n">close</span><span class="o">.</span><span class="n">ewm_mean</span><span class="p">(</span><span class="n">span</span><span class="o">=</span><span class="n">window</span><span class="p">,</span> <span class="n">adjust</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ignore_nulls</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
 
 
@@ -290,7 +290,7 @@
 <div class="viewcode-block" id="wma">
 <a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.wma">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">wma</span><span class="p">(</span><span class="n">close</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span> <span class="n">window</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">20</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Linearly-weighted moving average.</span>
+<span class="w">    </span><span class="sd">"""Linearly-weighted moving average.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        close: Series to smooth.</span>
@@ -299,7 +299,7 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        Expression yielding the WMA. Recent observations have higher</span>
 <span class="sd">        weight: weight ``i`` = ``i + 1`` for ``i in 0..window-1``.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">weights</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">window</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">close</span><span class="o">.</span><span class="n">rolling_mean</span><span class="p">(</span><span class="n">window_size</span><span class="o">=</span><span class="n">window</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">weights</span><span class="p">)</span></div>
 
@@ -308,7 +308,7 @@
 <div class="viewcode-block" id="dema">
 <a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.dema">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">dema</span><span class="p">(</span><span class="n">close</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span> <span class="n">window</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">20</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Double exponential moving average: ``2 * EMA - EMA(EMA)``.</span>
+<span class="w">    </span><span class="sd">"""Double exponential moving average: ``2 * EMA - EMA(EMA)``.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        close: Series to smooth.</span>
@@ -316,7 +316,7 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        DEMA expression.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">e1</span> <span class="o">=</span> <span class="n">ema</span><span class="p">(</span><span class="n">close</span><span class="p">,</span> <span class="n">window</span><span class="p">)</span>
     <span class="n">e2</span> <span class="o">=</span> <span class="n">e1</span><span class="o">.</span><span class="n">ewm_mean</span><span class="p">(</span><span class="n">span</span><span class="o">=</span><span class="n">window</span><span class="p">,</span> <span class="n">adjust</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ignore_nulls</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="k">return</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">e1</span> <span class="o">-</span> <span class="n">e2</span></div>
@@ -326,7 +326,7 @@
 <div class="viewcode-block" id="tema">
 <a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.tema">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">tema</span><span class="p">(</span><span class="n">close</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span> <span class="n">window</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">20</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Triple exponential moving average ``3*EMA - 3*EMA(EMA) + EMA(EMA(EMA))``.</span>
+<span class="w">    </span><span class="sd">"""Triple exponential moving average ``3*EMA - 3*EMA(EMA) + EMA(EMA(EMA))``.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        close: Series to smooth.</span>
@@ -334,7 +334,7 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        TEMA expression.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">e1</span> <span class="o">=</span> <span class="n">ema</span><span class="p">(</span><span class="n">close</span><span class="p">,</span> <span class="n">window</span><span class="p">)</span>
     <span class="n">e2</span> <span class="o">=</span> <span class="n">e1</span><span class="o">.</span><span class="n">ewm_mean</span><span class="p">(</span><span class="n">span</span><span class="o">=</span><span class="n">window</span><span class="p">,</span> <span class="n">adjust</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ignore_nulls</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">e3</span> <span class="o">=</span> <span class="n">e2</span><span class="o">.</span><span class="n">ewm_mean</span><span class="p">(</span><span class="n">span</span><span class="o">=</span><span class="n">window</span><span class="p">,</span> <span class="n">adjust</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ignore_nulls</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -345,7 +345,7 @@
 <div class="viewcode-block" id="midpoint">
 <a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.midpoint">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">midpoint</span><span class="p">(</span><span class="n">close</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span> <span class="n">window</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">14</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;``(rolling_max(close) + rolling_min(close)) / 2``.</span>
+<span class="w">    </span><span class="sd">"""``(rolling_max(close) + rolling_min(close)) / 2``.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        close: Price series.</span>
@@ -353,7 +353,7 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Midpoint expression.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="p">(</span><span class="n">close</span><span class="o">.</span><span class="n">rolling_max</span><span class="p">(</span><span class="n">window</span><span class="p">)</span> <span class="o">+</span> <span class="n">close</span><span class="o">.</span><span class="n">rolling_min</span><span class="p">(</span><span class="n">window</span><span class="p">))</span> <span class="o">/</span> <span class="mf">2.0</span></div>
 
 
@@ -361,7 +361,7 @@
 <div class="viewcode-block" id="midprice">
 <a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.midprice">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">midprice</span><span class="p">(</span><span class="n">high</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span> <span class="n">low</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span> <span class="n">window</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">14</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;``(rolling_max(high) + rolling_min(low)) / 2``.</span>
+<span class="w">    </span><span class="sd">"""``(rolling_max(high) + rolling_min(low)) / 2``.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        high: Bar high.</span>
@@ -370,7 +370,7 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Midprice expression.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="p">(</span><span class="n">high</span><span class="o">.</span><span class="n">rolling_max</span><span class="p">(</span><span class="n">window</span><span class="p">)</span> <span class="o">+</span> <span class="n">low</span><span class="o">.</span><span class="n">rolling_min</span><span class="p">(</span><span class="n">window</span><span class="p">))</span> <span class="o">/</span> <span class="mf">2.0</span></div>
 
 
@@ -378,7 +378,7 @@
 <div class="viewcode-block" id="bbands_middle">
 <a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.bbands_middle">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">bbands_middle</span><span class="p">(</span><span class="n">close</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span> <span class="n">window</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">20</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Bollinger middle band — SMA of close.</span>
+<span class="w">    </span><span class="sd">"""Bollinger middle band — SMA of close.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        close: Price series.</span>
@@ -386,7 +386,7 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Rolling mean expression.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="n">sma</span><span class="p">(</span><span class="n">close</span><span class="p">,</span> <span class="n">window</span><span class="p">)</span></div>
 
 
@@ -398,7 +398,7 @@
     <span class="n">window</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">20</span><span class="p">,</span>
     <span class="n">upper_deviations</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">2.0</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Bollinger upper band ``SMA + upper_deviations * std``.</span>
+<span class="w">    </span><span class="sd">"""Bollinger upper band ``SMA + upper_deviations * std``.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        close: Price series.</span>
@@ -407,7 +407,7 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Upper-band expression.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="n">sma</span><span class="p">(</span><span class="n">close</span><span class="p">,</span> <span class="n">window</span><span class="p">)</span> <span class="o">+</span> <span class="n">upper_deviations</span> <span class="o">*</span> <span class="n">close</span><span class="o">.</span><span class="n">rolling_std</span><span class="p">(</span><span class="n">window</span><span class="p">)</span></div>
 
 
@@ -419,7 +419,7 @@
     <span class="n">window</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">20</span><span class="p">,</span>
     <span class="n">lower_deviations</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">2.0</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Bollinger lower band ``SMA - lower_deviations * std``.</span>
+<span class="w">    </span><span class="sd">"""Bollinger lower band ``SMA - lower_deviations * std``.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        close: Price series.</span>
@@ -428,7 +428,7 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Lower-band expression.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="n">sma</span><span class="p">(</span><span class="n">close</span><span class="p">,</span> <span class="n">window</span><span class="p">)</span> <span class="o">-</span> <span class="n">lower_deviations</span> <span class="o">*</span> <span class="n">close</span><span class="o">.</span><span class="n">rolling_std</span><span class="p">(</span><span class="n">window</span><span class="p">)</span></div>
 
 
@@ -436,7 +436,7 @@
 <div class="viewcode-block" id="donchian_upper">
 <a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.donchian_upper">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">donchian_upper</span><span class="p">(</span><span class="n">high</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span> <span class="n">window</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">20</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Donchian upper channel — rolling maximum of ``high``.</span>
+<span class="w">    </span><span class="sd">"""Donchian upper channel — rolling maximum of ``high``.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        high: Bar high.</span>
@@ -444,7 +444,7 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Rolling max expression.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="n">high</span><span class="o">.</span><span class="n">rolling_max</span><span class="p">(</span><span class="n">window</span><span class="p">)</span></div>
 
 
@@ -452,7 +452,7 @@
 <div class="viewcode-block" id="donchian_lower">
 <a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.donchian_lower">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">donchian_lower</span><span class="p">(</span><span class="n">low</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span> <span class="n">window</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">20</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Donchian lower channel — rolling minimum of ``low``.</span>
+<span class="w">    </span><span class="sd">"""Donchian lower channel — rolling minimum of ``low``.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        low: Bar low.</span>
@@ -460,7 +460,7 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Rolling min expression.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="n">low</span><span class="o">.</span><span class="n">rolling_min</span><span class="p">(</span><span class="n">window</span><span class="p">)</span></div>
 
 
@@ -468,7 +468,7 @@
 <div class="viewcode-block" id="donchian_middle">
 <a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.donchian_middle">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">donchian_middle</span><span class="p">(</span><span class="n">high</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span> <span class="n">low</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span> <span class="n">window</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">20</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Donchian midline.</span>
+<span class="w">    </span><span class="sd">"""Donchian midline.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        high: Bar high.</span>
@@ -477,7 +477,7 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Average of the upper and lower Donchian channels.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="p">(</span><span class="n">donchian_upper</span><span class="p">(</span><span class="n">high</span><span class="p">,</span> <span class="n">window</span><span class="p">)</span> <span class="o">+</span> <span class="n">donchian_lower</span><span class="p">(</span><span class="n">low</span><span class="p">,</span> <span class="n">window</span><span class="p">))</span> <span class="o">/</span> <span class="mf">2.0</span></div>
 
 </pre></div>

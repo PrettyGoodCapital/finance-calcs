@@ -232,7 +232,7 @@
         </div>
         <article role="main" id="furo-main-content">
           <h1>Source code for finance_calcs.volatility</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Volatility indicators as polars expressions.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Volatility indicators as polars expressions."""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
@@ -244,22 +244,22 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">._periods</span><span class="w"> </span><span class="kn">import</span> <span class="n">FrequencyLike</span><span class="p">,</span> <span class="n">_observations_per_year</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="s2">&quot;atr&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;exponentially_weighted_volatility&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;garman_klass_volatility&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;natr&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;parkinson_volatility&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;realized_volatility&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;rogers_satchell_volatility&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;true_range&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;yang_zhang_volatility&quot;</span><span class="p">,</span>
+    <span class="s2">"atr"</span><span class="p">,</span>
+    <span class="s2">"exponentially_weighted_volatility"</span><span class="p">,</span>
+    <span class="s2">"garman_klass_volatility"</span><span class="p">,</span>
+    <span class="s2">"natr"</span><span class="p">,</span>
+    <span class="s2">"parkinson_volatility"</span><span class="p">,</span>
+    <span class="s2">"realized_volatility"</span><span class="p">,</span>
+    <span class="s2">"rogers_satchell_volatility"</span><span class="p">,</span>
+    <span class="s2">"true_range"</span><span class="p">,</span>
+    <span class="s2">"yang_zhang_volatility"</span><span class="p">,</span>
 <span class="p">]</span>
 
 
 <div class="viewcode-block" id="true_range">
 <a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.true_range">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">true_range</span><span class="p">(</span><span class="n">high</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span> <span class="n">low</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span> <span class="n">close</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Wilder&#39;s true range.</span>
+<span class="w">    </span><span class="sd">"""Wilder's true range.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        high: Bar high.</span>
@@ -269,7 +269,7 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        Per-bar TR expression</span>
 <span class="sd">        ``max(H-L, |H - C[-1]|, |L - C[-1]|)``.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">prev_close</span> <span class="o">=</span> <span class="n">close</span><span class="o">.</span><span class="n">shift</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">pl</span><span class="o">.</span><span class="n">max_horizontal</span><span class="p">(</span>
         <span class="n">high</span> <span class="o">-</span> <span class="n">low</span><span class="p">,</span>
@@ -287,7 +287,7 @@
     <span class="n">close</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span>
     <span class="n">window</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">14</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Average True Range using Wilder smoothing.</span>
+<span class="w">    </span><span class="sd">"""Average True Range using Wilder smoothing.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        high: Bar high.</span>
@@ -297,7 +297,7 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        ATR expression.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="n">true_range</span><span class="p">(</span><span class="n">high</span><span class="p">,</span> <span class="n">low</span><span class="p">,</span> <span class="n">close</span><span class="p">)</span><span class="o">.</span><span class="n">ewm_mean</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="mf">1.0</span> <span class="o">/</span> <span class="n">window</span><span class="p">,</span> <span class="n">adjust</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ignore_nulls</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
 
 
@@ -310,7 +310,7 @@
     <span class="n">close</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span>
     <span class="n">window</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">14</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Normalised ATR — ``100 * ATR / close``.</span>
+<span class="w">    </span><span class="sd">"""Normalised ATR — ``100 * ATR / close``.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        high: Bar high.</span>
@@ -320,7 +320,7 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        NATR expression in percent.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="mf">100.0</span> <span class="o">*</span> <span class="n">atr</span><span class="p">(</span><span class="n">high</span><span class="p">,</span> <span class="n">low</span><span class="p">,</span> <span class="n">close</span><span class="p">,</span> <span class="n">window</span><span class="p">)</span> <span class="o">/</span> <span class="n">close</span></div>
 
 
@@ -334,7 +334,7 @@
     <span class="o">*</span><span class="p">,</span>
     <span class="n">frequency</span><span class="p">:</span> <span class="n">FrequencyLike</span> <span class="o">=</span> <span class="n">Frequency</span><span class="o">.</span><span class="n">Day</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Parkinson high-low range volatility estimator.</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">"""Parkinson high-low range volatility estimator.</span>
 
 <span class="sd">    .. math::</span>
 <span class="sd">        \\hat{\\sigma}^2 = \\frac{1}{4 \\ln 2} \\cdot \\overline{\\left(\\ln(H/L)\\right)^2}</span>
@@ -346,7 +346,7 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Annualized rolling volatility expression.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">log_hl</span> <span class="o">=</span> <span class="p">(</span><span class="n">high</span> <span class="o">/</span> <span class="n">low</span><span class="p">)</span><span class="o">.</span><span class="n">log</span><span class="p">()</span>
     <span class="k">return</span> <span class="p">(</span><span class="n">log_hl</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">rolling_mean</span><span class="p">(</span><span class="n">window</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mf">4.0</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mf">2.0</span><span class="p">)))</span><span class="o">.</span><span class="n">sqrt</span><span class="p">()</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">_observations_per_year</span><span class="p">(</span><span class="n">frequency</span><span class="p">))</span></div>
 
@@ -363,7 +363,7 @@
     <span class="o">*</span><span class="p">,</span>
     <span class="n">frequency</span><span class="p">:</span> <span class="n">FrequencyLike</span> <span class="o">=</span> <span class="n">Frequency</span><span class="o">.</span><span class="n">Day</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Garman-Klass OHLC volatility estimator.</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">"""Garman-Klass OHLC volatility estimator.</span>
 
 <span class="sd">    .. math::</span>
 <span class="sd">        \\hat{\\sigma}^2 = \\overline{\\tfrac{1}{2}(\\ln H/L)^2 - (2\\ln 2 - 1)(\\ln C/O)^2}</span>
@@ -377,7 +377,7 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Annualized rolling Garman-Klass volatility expression.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">log_hl</span> <span class="o">=</span> <span class="p">(</span><span class="n">high</span> <span class="o">/</span> <span class="n">low</span><span class="p">)</span><span class="o">.</span><span class="n">log</span><span class="p">()</span>
     <span class="n">log_co</span> <span class="o">=</span> <span class="p">(</span><span class="n">close</span> <span class="o">/</span> <span class="n">open_</span><span class="p">)</span><span class="o">.</span><span class="n">log</span><span class="p">()</span>
     <span class="n">term</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">log_hl</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="o">-</span> <span class="p">(</span><span class="mf">2.0</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mf">2.0</span><span class="p">)</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">)</span> <span class="o">*</span> <span class="n">log_co</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
@@ -404,7 +404,7 @@
     <span class="o">*</span><span class="p">,</span>
     <span class="n">frequency</span><span class="p">:</span> <span class="n">FrequencyLike</span> <span class="o">=</span> <span class="n">Frequency</span><span class="o">.</span><span class="n">Day</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Rogers-Satchell drift-independent volatility.</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">"""Rogers-Satchell drift-independent volatility.</span>
 
 <span class="sd">    .. math::</span>
 <span class="sd">        \\hat{\\sigma}^2 = \\overline{\\ln(H/C)\\ln(H/O) + \\ln(L/C)\\ln(L/O)}</span>
@@ -418,7 +418,7 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Annualized rolling Rogers-Satchell volatility expression.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="n">_rogers_satchell_variance</span><span class="p">(</span><span class="n">open_</span><span class="p">,</span> <span class="n">high</span><span class="p">,</span> <span class="n">low</span><span class="p">,</span> <span class="n">close</span><span class="p">,</span> <span class="n">window</span><span class="p">)</span><span class="o">.</span><span class="n">sqrt</span><span class="p">()</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">_observations_per_year</span><span class="p">(</span><span class="n">frequency</span><span class="p">))</span></div>
 
 
@@ -435,7 +435,7 @@
     <span class="n">weight</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">frequency</span><span class="p">:</span> <span class="n">FrequencyLike</span> <span class="o">=</span> <span class="n">Frequency</span><span class="o">.</span><span class="n">Day</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Yang-Zhang volatility — minimum-variance combination of overnight,</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">"""Yang-Zhang volatility — minimum-variance combination of overnight,</span>
 <span class="sd">    open-to-close, and Rogers-Satchell drift-independent components.</span>
 
 <span class="sd">    Args:</span>
@@ -449,7 +449,7 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        YZ volatility expression (rolling).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="n">weight</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">weight</span> <span class="o">=</span> <span class="mf">0.34</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.34</span> <span class="o">+</span> <span class="p">(</span><span class="n">window</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">window</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span>
     <span class="n">prev_close</span> <span class="o">=</span> <span class="n">close</span><span class="o">.</span><span class="n">shift</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
@@ -470,7 +470,7 @@
     <span class="o">*</span><span class="p">,</span>
     <span class="n">frequency</span><span class="p">:</span> <span class="n">FrequencyLike</span> <span class="o">=</span> <span class="n">Frequency</span><span class="o">.</span><span class="n">Day</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Exponentially weighted standard deviation.</span>
+<span class="w">    </span><span class="sd">"""Exponentially weighted standard deviation.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        returns: Return series.</span>
@@ -478,7 +478,7 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Square root of the EWMA variance of ``returns``.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="n">returns</span><span class="o">.</span><span class="n">ewm_std</span><span class="p">(</span><span class="n">span</span><span class="o">=</span><span class="n">window</span><span class="p">,</span> <span class="n">adjust</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ignore_nulls</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">_observations_per_year</span><span class="p">(</span><span class="n">frequency</span><span class="p">))</span></div>
 
 
@@ -491,7 +491,7 @@
     <span class="o">*</span><span class="p">,</span>
     <span class="n">frequency</span><span class="p">:</span> <span class="n">FrequencyLike</span> <span class="o">=</span> <span class="n">Frequency</span><span class="o">.</span><span class="n">Day</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Rolling realised volatility (sample standard deviation).</span>
+<span class="w">    </span><span class="sd">"""Rolling realised volatility (sample standard deviation).</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        returns: Return series.</span>
@@ -499,7 +499,7 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Annualized rolling standard deviation expression.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="n">returns</span><span class="o">.</span><span class="n">rolling_std</span><span class="p">(</span><span class="n">window</span><span class="p">)</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">_observations_per_year</span><span class="p">(</span><span class="n">frequency</span><span class="p">))</span></div>
 
 </pre></div>

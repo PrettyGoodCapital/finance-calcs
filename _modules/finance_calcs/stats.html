@@ -232,12 +232,12 @@
         </div>
         <article role="main" id="furo-main-content">
           <h1>Source code for finance_calcs.stats</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Statistical-validity calculations.</span>
+<span></span><span class="sd">"""Statistical-validity calculations.</span>
 
 <span class="sd">Combines polars-expression metrics (skew/kurtosis/stability) with</span>
 <span class="sd">``pl.Series``-level helpers for bootstrap and probabilistic-Sharpe</span>
 <span class="sd">analyses that need numerical work outside the expression engine.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
@@ -250,25 +250,25 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">._periods</span><span class="w"> </span><span class="kn">import</span> <span class="n">FrequencyLike</span><span class="p">,</span> <span class="n">_observations_per_year</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="s2">&quot;common_sense_ratio&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;higher_moments&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;kurtosis&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;skewness&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;stability_of_timeseries&quot;</span><span class="p">,</span>
+    <span class="s2">"common_sense_ratio"</span><span class="p">,</span>
+    <span class="s2">"higher_moments"</span><span class="p">,</span>
+    <span class="s2">"kurtosis"</span><span class="p">,</span>
+    <span class="s2">"skewness"</span><span class="p">,</span>
+    <span class="s2">"stability_of_timeseries"</span><span class="p">,</span>
 <span class="p">]</span>
 
 
 <div class="viewcode-block" id="skewness">
 <a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.skewness">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">skewness</span><span class="p">(</span><span class="n">returns</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Sample skewness of ``returns``.</span>
+<span class="w">    </span><span class="sd">"""Sample skewness of ``returns``.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        returns: Returns expression.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Scalar skewness.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="n">returns</span><span class="o">.</span><span class="n">skew</span><span class="p">()</span></div>
 
 
@@ -276,14 +276,14 @@
 <div class="viewcode-block" id="kurtosis">
 <a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.kurtosis">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">kurtosis</span><span class="p">(</span><span class="n">returns</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Excess kurtosis of ``returns`` (Fisher definition).</span>
+<span class="w">    </span><span class="sd">"""Excess kurtosis of ``returns`` (Fisher definition).</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        returns: Returns expression.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Scalar excess kurtosis.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="n">returns</span><span class="o">.</span><span class="n">kurtosis</span><span class="p">()</span></div>
 
 
@@ -291,14 +291,14 @@
 <div class="viewcode-block" id="higher_moments">
 <a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.higher_moments">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">higher_moments</span><span class="p">(</span><span class="n">returns</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Bundled struct of skewness and kurtosis for ``returns``.</span>
+<span class="w">    </span><span class="sd">"""Bundled struct of skewness and kurtosis for ``returns``.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        returns: Returns expression.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Struct expression with fields ``skewness`` and ``kurtosis``.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="n">pl</span><span class="o">.</span><span class="n">struct</span><span class="p">(</span>
         <span class="n">skewness</span><span class="o">=</span><span class="n">returns</span><span class="o">.</span><span class="n">skew</span><span class="p">(),</span>
         <span class="n">kurtosis</span><span class="o">=</span><span class="n">returns</span><span class="o">.</span><span class="n">kurtosis</span><span class="p">(),</span>
@@ -309,9 +309,9 @@
 <div class="viewcode-block" id="stability_of_timeseries">
 <a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.stability_of_timeseries">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">stability_of_timeseries</span><span class="p">(</span><span class="n">returns</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Coefficient of determination of cumulative log returns vs time.</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">"""Coefficient of determination of cumulative log returns vs time.</span>
 
-<span class="sd">    Implements pyfolio&#39;s ``stability_of_timeseries`` — fit</span>
+<span class="sd">    Implements pyfolio's ``stability_of_timeseries`` — fit</span>
 <span class="sd">    :math:`y_t = a + b \cdot t` to the log-equity curve and return</span>
 <span class="sd">    ``R^2``. Closer to 1 means more linear (steady) growth.</span>
 
@@ -320,7 +320,7 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Scalar ``R^2`` expression.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">log_eq</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="n">returns</span><span class="p">)</span><span class="o">.</span><span class="n">log</span><span class="p">()</span><span class="o">.</span><span class="n">cum_sum</span><span class="p">()</span>
     <span class="n">n</span> <span class="o">=</span> <span class="n">log_eq</span><span class="o">.</span><span class="n">count</span><span class="p">()</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">Float64</span><span class="p">)</span>
     <span class="n">t</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">int_range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">log_eq</span><span class="o">.</span><span class="n">len</span><span class="p">())</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">Float64</span><span class="p">)</span>
@@ -338,14 +338,14 @@
 <div class="viewcode-block" id="common_sense_ratio">
 <a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.common_sense_ratio">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">common_sense_ratio</span><span class="p">(</span><span class="n">returns</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;``tail_ratio * (1 + cumulative_return)`` — sanity sniff test.</span>
+<span class="w">    </span><span class="sd">"""``tail_ratio * (1 + cumulative_return)`` — sanity sniff test.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        returns: Periodic returns expression.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Scalar expression.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">p95</span> <span class="o">=</span> <span class="n">returns</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="mf">0.95</span><span class="p">)</span><span class="o">.</span><span class="n">abs</span><span class="p">()</span>
     <span class="n">p05</span> <span class="o">=</span> <span class="n">returns</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="mf">0.05</span><span class="p">)</span><span class="o">.</span><span class="n">abs</span><span class="p">()</span>
     <span class="n">tail</span> <span class="o">=</span> <span class="n">p95</span> <span class="o">/</span> <span class="n">p05</span>
@@ -367,7 +367,7 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">_norm_ppf</span><span class="p">(</span><span class="n">p</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
     <span class="c1"># Beasley-Springer-Moro inverse normal CDF, sufficient for our needs.</span>
     <span class="k">if</span> <span class="n">p</span> <span class="o">&lt;=</span> <span class="mf">0.0</span> <span class="ow">or</span> <span class="n">p</span> <span class="o">&gt;=</span> <span class="mf">1.0</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;p must be in (0, 1)&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"p must be in (0, 1)"</span><span class="p">)</span>
     <span class="n">a</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mf">3.969683028665376e1</span><span class="p">,</span> <span class="mf">2.209460984245205e2</span><span class="p">,</span> <span class="o">-</span><span class="mf">2.759285104469687e2</span><span class="p">,</span> <span class="mf">1.383577518672690e2</span><span class="p">,</span> <span class="o">-</span><span class="mf">3.066479806614716e1</span><span class="p">,</span> <span class="mf">2.506628277459239e0</span><span class="p">]</span>
     <span class="n">b</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mf">5.447609879822406e1</span><span class="p">,</span> <span class="mf">1.615858368580409e2</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.556989798598866e2</span><span class="p">,</span> <span class="mf">6.680131188771972e1</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.328068155288572e1</span><span class="p">]</span>
     <span class="n">c</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mf">7.784894002430293e-3</span><span class="p">,</span> <span class="o">-</span><span class="mf">3.223964580411365e-1</span><span class="p">,</span> <span class="o">-</span><span class="mf">2.400758277161838</span><span class="p">,</span> <span class="o">-</span><span class="mf">2.549732539343734</span><span class="p">,</span> <span class="mf">4.374664141464968</span><span class="p">,</span> <span class="mf">2.938163982698783</span><span class="p">]</span>
@@ -397,7 +397,7 @@
     <span class="n">benchmark_sharpe</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
     <span class="n">frequency</span><span class="p">:</span> <span class="n">FrequencyLike</span> <span class="o">=</span> <span class="n">Frequency</span><span class="o">.</span><span class="n">Day</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Lopez de Prado probabilistic Sharpe ratio.</span>
+<span class="w">    </span><span class="sd">"""Lopez de Prado probabilistic Sharpe ratio.</span>
 
 <span class="sd">    Probability that the observed Sharpe is greater than</span>
 <span class="sd">    ``benchmark_sharpe``, accounting for sample skew and kurtosis.</span>
@@ -409,11 +409,11 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        ``Pr(SR_true &gt; benchmark_sharpe)`` in ``[0, 1]``.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">arr</span> <span class="o">=</span> <span class="n">returns</span><span class="o">.</span><span class="n">drop_nulls</span><span class="p">()</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
     <span class="n">n</span> <span class="o">=</span> <span class="n">arr</span><span class="o">.</span><span class="n">size</span>
     <span class="k">if</span> <span class="n">n</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">:</span>
-        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;nan&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="s2">"nan"</span><span class="p">)</span>
     <span class="n">observations_per_year</span> <span class="o">=</span> <span class="n">_observations_per_year</span><span class="p">(</span><span class="n">frequency</span><span class="p">)</span>
     <span class="n">sr_hat</span> <span class="o">=</span> <span class="n">_sharpe</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span> <span class="n">observations_per_year</span><span class="p">)</span>
     <span class="n">sr_per</span> <span class="o">=</span> <span class="n">sr_hat</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">observations_per_year</span><span class="p">)</span>
@@ -435,7 +435,7 @@
     <span class="n">sharpe_variance</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">frequency</span><span class="p">:</span> <span class="n">FrequencyLike</span> <span class="o">=</span> <span class="n">Frequency</span><span class="o">.</span><span class="n">Day</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Deflated Sharpe ratio (Bailey &amp; Lopez de Prado).</span>
+<span class="w">    </span><span class="sd">"""Deflated Sharpe ratio (Bailey &amp; Lopez de Prado).</span>
 
 <span class="sd">    Adjusts the probabilistic Sharpe for multiple-testing across</span>
 <span class="sd">    ``trial_count`` candidate strategies.</span>
@@ -449,9 +449,9 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        ``Pr(SR_true &gt; expected_max_SR_under_null)`` in ``[0, 1]``.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="n">trial_count</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;trial_count must be &gt;= 2&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"trial_count must be &gt;= 2"</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">sharpe_variance</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">sharpe_variance</span> <span class="o">=</span> <span class="mf">1.0</span>
     <span class="n">observations_per_year</span> <span class="o">=</span> <span class="n">_observations_per_year</span><span class="p">(</span><span class="n">frequency</span><span class="p">)</span>
@@ -471,7 +471,7 @@
     <span class="n">significance_level</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.05</span><span class="p">,</span>
     <span class="n">frequency</span><span class="p">:</span> <span class="n">FrequencyLike</span> <span class="o">=</span> <span class="n">Frequency</span><span class="o">.</span><span class="n">Day</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Minimum observations for Sharpe above benchmark at requested confidence.</span>
+<span class="w">    </span><span class="sd">"""Minimum observations for Sharpe above benchmark at requested confidence.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        returns: Periodic returns.</span>
@@ -481,16 +481,16 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Minimum number of observations (float; round up in practice).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">arr</span> <span class="o">=</span> <span class="n">returns</span><span class="o">.</span><span class="n">drop_nulls</span><span class="p">()</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">arr</span><span class="o">.</span><span class="n">size</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">:</span>
-        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;nan&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="s2">"nan"</span><span class="p">)</span>
     <span class="n">observations_per_year</span> <span class="o">=</span> <span class="n">_observations_per_year</span><span class="p">(</span><span class="n">frequency</span><span class="p">)</span>
     <span class="n">sr_hat</span> <span class="o">=</span> <span class="n">_sharpe</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span> <span class="n">observations_per_year</span><span class="p">)</span>
     <span class="n">sr_per</span> <span class="o">=</span> <span class="n">sr_hat</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">observations_per_year</span><span class="p">)</span>
     <span class="n">bench_per</span> <span class="o">=</span> <span class="n">benchmark_sharpe</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">observations_per_year</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">sr_per</span> <span class="o">&lt;=</span> <span class="n">bench_per</span><span class="p">:</span>
-        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;inf&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="s2">"inf"</span><span class="p">)</span>
     <span class="n">skew</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(((</span><span class="n">arr</span> <span class="o">-</span> <span class="n">arr</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span> <span class="o">**</span> <span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="o">/</span> <span class="p">(</span><span class="n">arr</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">ddof</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">**</span> <span class="mi">3</span> <span class="o">+</span> <span class="mf">1e-30</span><span class="p">))</span>
     <span class="n">kurt</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(((</span><span class="n">arr</span> <span class="o">-</span> <span class="n">arr</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span> <span class="o">**</span> <span class="mi">4</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="o">/</span> <span class="p">(</span><span class="n">arr</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">ddof</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">**</span> <span class="mi">4</span> <span class="o">+</span> <span class="mf">1e-30</span><span class="p">))</span> <span class="o">-</span> <span class="mf">3.0</span>
     <span class="n">z</span> <span class="o">=</span> <span class="n">_norm_ppf</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">significance_level</span><span class="p">)</span>
@@ -510,7 +510,7 @@
     <span class="n">frequency</span><span class="p">:</span> <span class="n">FrequencyLike</span> <span class="o">=</span> <span class="n">Frequency</span><span class="o">.</span><span class="n">Day</span><span class="p">,</span>
     <span class="n">seed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Bootstrap confidence interval for the Sharpe ratio.</span>
+<span class="w">    </span><span class="sd">"""Bootstrap confidence interval for the Sharpe ratio.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        returns: Periodic returns.</span>
@@ -521,11 +521,11 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Tuple ``(sharpe, lower, upper)``.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">arr</span> <span class="o">=</span> <span class="n">returns</span><span class="o">.</span><span class="n">drop_nulls</span><span class="p">()</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
     <span class="n">n</span> <span class="o">=</span> <span class="n">arr</span><span class="o">.</span><span class="n">size</span>
     <span class="k">if</span> <span class="n">n</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">:</span>
-        <span class="k">return</span> <span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="s2">&quot;nan&quot;</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;nan&quot;</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;nan&quot;</span><span class="p">))</span>
+        <span class="k">return</span> <span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="s2">"nan"</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="s2">"nan"</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="s2">"nan"</span><span class="p">))</span>
     <span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
     <span class="n">observations_per_year</span> <span class="o">=</span> <span class="n">_observations_per_year</span><span class="p">(</span><span class="n">frequency</span><span class="p">)</span>
     <span class="n">samples</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">bootstrap_samples</span><span class="p">)</span>
@@ -547,7 +547,7 @@
     <span class="n">frequency</span><span class="p">:</span> <span class="n">FrequencyLike</span> <span class="o">=</span> <span class="n">Frequency</span><span class="o">.</span><span class="n">Day</span><span class="p">,</span>
     <span class="n">confidence_level</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.95</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Sharpe with a Mertens-style asymptotic confidence interval.</span>
+<span class="w">    </span><span class="sd">"""Sharpe with a Mertens-style asymptotic confidence interval.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        returns: Periodic returns.</span>
@@ -561,11 +561,11 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        Tuple ``(sharpe, lower, upper)`` where the bounds are derived</span>
 <span class="sd">        from the Mertens (2002) asymptotic variance of the Sharpe.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">arr</span> <span class="o">=</span> <span class="n">returns</span><span class="o">.</span><span class="n">drop_nulls</span><span class="p">()</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
     <span class="n">n</span> <span class="o">=</span> <span class="n">arr</span><span class="o">.</span><span class="n">size</span>
     <span class="k">if</span> <span class="n">n</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">:</span>
-        <span class="k">return</span> <span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="s2">&quot;nan&quot;</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;nan&quot;</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;nan&quot;</span><span class="p">))</span>
+        <span class="k">return</span> <span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="s2">"nan"</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="s2">"nan"</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="s2">"nan"</span><span class="p">))</span>
     <span class="n">observations_per_year</span> <span class="o">=</span> <span class="n">_observations_per_year</span><span class="p">(</span><span class="n">frequency</span><span class="p">)</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">risk_free</span><span class="p">,</span> <span class="n">pl</span><span class="o">.</span><span class="n">Series</span><span class="p">):</span>
         <span class="n">rf</span> <span class="o">=</span> <span class="n">risk_free</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>

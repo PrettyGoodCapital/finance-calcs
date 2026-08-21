@@ -232,7 +232,7 @@
         </div>
         <article role="main" id="furo-main-content">
           <h1>Source code for finance_calcs.factor</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Alpha / beta and capture-ratio calculations.</span>
+<span></span><span class="sd">"""Alpha / beta and capture-ratio calculations.</span>
 
 <span class="sd">Two-input expressions: ``returns`` is the asset/portfolio series and</span>
 <span class="sd">``benchmark`` is the corresponding benchmark series, sampled at the</span>
@@ -243,7 +243,7 @@
 <span class="sd">lifetime value, an integer ``N`` produces a rolling expression, and</span>
 <span class="sd">``period=`` computes inside each period bucket. There are no</span>
 <span class="sd">``rolling_*`` siblings.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
@@ -256,19 +256,19 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">.returns</span><span class="w"> </span><span class="kn">import</span> <span class="n">_clean_returns</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="s2">&quot;alpha&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;batting_average&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;beta&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;down_alpha&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;down_beta&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;down_capture&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;information_ratio&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;r_squared&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;tracking_error&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;up_alpha&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;up_beta&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;up_capture&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;up_down_capture&quot;</span><span class="p">,</span>
+    <span class="s2">"alpha"</span><span class="p">,</span>
+    <span class="s2">"batting_average"</span><span class="p">,</span>
+    <span class="s2">"beta"</span><span class="p">,</span>
+    <span class="s2">"down_alpha"</span><span class="p">,</span>
+    <span class="s2">"down_beta"</span><span class="p">,</span>
+    <span class="s2">"down_capture"</span><span class="p">,</span>
+    <span class="s2">"information_ratio"</span><span class="p">,</span>
+    <span class="s2">"r_squared"</span><span class="p">,</span>
+    <span class="s2">"tracking_error"</span><span class="p">,</span>
+    <span class="s2">"up_alpha"</span><span class="p">,</span>
+    <span class="s2">"up_beta"</span><span class="p">,</span>
+    <span class="s2">"up_capture"</span><span class="p">,</span>
+    <span class="s2">"up_down_capture"</span><span class="p">,</span>
 <span class="p">]</span>
 
 
@@ -282,11 +282,11 @@
     <span class="n">period</span><span class="p">:</span> <span class="n">PeriodLike</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">date</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;OLS market beta — ``cov(r, b) / var(b)``.</span>
+<span class="w">    </span><span class="sd">"""OLS market beta — ``cov(r, b) / var(b)``.</span>
 
 <span class="sd">    ``window=None`` → scalar; ``window=N`` → rolling beta;</span>
 <span class="sd">    ``period=...`` → per-bucket beta.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">_check_window_period</span><span class="p">(</span><span class="n">window</span><span class="p">,</span> <span class="n">period</span><span class="p">)</span>
     <span class="n">bucket</span> <span class="o">=</span> <span class="n">_bucket_or_none</span><span class="p">(</span><span class="n">date</span><span class="p">,</span> <span class="n">period</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">bucket</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -308,12 +308,12 @@
     <span class="n">period</span><span class="p">:</span> <span class="n">PeriodLike</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">date</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Coefficient of determination against benchmark returns.</span>
+<span class="w">    </span><span class="sd">"""Coefficient of determination against benchmark returns.</span>
 
 <span class="sd">    This is squared Pearson correlation. ``window=None`` returns a scalar,</span>
 <span class="sd">    ``window=N`` returns a rolling expression, and ``period=...`` computes</span>
 <span class="sd">    inside each bucket.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">_check_window_period</span><span class="p">(</span><span class="n">window</span><span class="p">,</span> <span class="n">period</span><span class="p">)</span>
     <span class="n">bucket</span> <span class="o">=</span> <span class="n">_bucket_or_none</span><span class="p">(</span><span class="n">date</span><span class="p">,</span> <span class="n">period</span><span class="p">)</span>
     <span class="n">clean_returns</span> <span class="o">=</span> <span class="n">_clean_returns</span><span class="p">(</span><span class="n">returns</span><span class="p">)</span>
@@ -338,13 +338,13 @@
     <span class="n">period</span><span class="p">:</span> <span class="n">PeriodLike</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">date</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Annualised Jensen&#39;s alpha.</span>
+<span class="w">    </span><span class="sd">"""Annualised Jensen's alpha.</span>
 
 <span class="sd">    ``risk_free`` may be a scalar annual rate (divided to per-period)</span>
 <span class="sd">    or a :class:`pl.Expr` per-period rate column for a time-varying</span>
 <span class="sd">    risk-free rate. ``window=None`` → scalar; ``window=N`` → rolling</span>
 <span class="sd">    annualised alpha; ``period=...`` → per-bucket alpha.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">observations_per_year</span> <span class="o">=</span> <span class="n">_observations_per_year</span><span class="p">(</span><span class="n">frequency</span><span class="p">)</span>
     <span class="n">_check_window_period</span><span class="p">(</span><span class="n">window</span><span class="p">,</span> <span class="n">period</span><span class="p">)</span>
     <span class="n">bucket</span> <span class="o">=</span> <span class="n">_bucket_or_none</span><span class="p">(</span><span class="n">date</span><span class="p">,</span> <span class="n">period</span><span class="p">)</span>
@@ -378,7 +378,7 @@
     <span class="n">period</span><span class="p">:</span> <span class="n">PeriodLike</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">date</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Beta restricted to bars where ``benchmark &gt; 0``.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Beta restricted to bars where ``benchmark &gt; 0``."""</span>
     <span class="n">_check_window_period</span><span class="p">(</span><span class="n">window</span><span class="p">,</span> <span class="n">period</span><span class="p">)</span>
     <span class="n">bucket</span> <span class="o">=</span> <span class="n">_bucket_or_none</span><span class="p">(</span><span class="n">date</span><span class="p">,</span> <span class="n">period</span><span class="p">)</span>
     <span class="n">r_up</span><span class="p">,</span> <span class="n">b_up</span> <span class="o">=</span> <span class="n">_filter_capture</span><span class="p">(</span><span class="n">returns</span><span class="p">,</span> <span class="n">benchmark</span><span class="p">,</span> <span class="n">benchmark</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="n">window</span><span class="p">)</span>
@@ -401,7 +401,7 @@
     <span class="n">period</span><span class="p">:</span> <span class="n">PeriodLike</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">date</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Beta restricted to bars where ``benchmark &lt; 0``.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Beta restricted to bars where ``benchmark &lt; 0``."""</span>
     <span class="n">_check_window_period</span><span class="p">(</span><span class="n">window</span><span class="p">,</span> <span class="n">period</span><span class="p">)</span>
     <span class="n">bucket</span> <span class="o">=</span> <span class="n">_bucket_or_none</span><span class="p">(</span><span class="n">date</span><span class="p">,</span> <span class="n">period</span><span class="p">)</span>
     <span class="n">r_dn</span><span class="p">,</span> <span class="n">b_dn</span> <span class="o">=</span> <span class="n">_filter_capture</span><span class="p">(</span><span class="n">returns</span><span class="p">,</span> <span class="n">benchmark</span><span class="p">,</span> <span class="n">benchmark</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">,</span> <span class="n">window</span><span class="p">)</span>
@@ -426,7 +426,7 @@
     <span class="n">period</span><span class="p">:</span> <span class="n">PeriodLike</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">date</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Annualised alpha on up-market bars only.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Annualised alpha on up-market bars only."""</span>
     <span class="n">observations_per_year</span> <span class="o">=</span> <span class="n">_observations_per_year</span><span class="p">(</span><span class="n">frequency</span><span class="p">)</span>
     <span class="n">_check_window_period</span><span class="p">(</span><span class="n">window</span><span class="p">,</span> <span class="n">period</span><span class="p">)</span>
     <span class="n">bucket</span> <span class="o">=</span> <span class="n">_bucket_or_none</span><span class="p">(</span><span class="n">date</span><span class="p">,</span> <span class="n">period</span><span class="p">)</span>
@@ -455,7 +455,7 @@
     <span class="n">period</span><span class="p">:</span> <span class="n">PeriodLike</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">date</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Annualised alpha on down-market bars only.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Annualised alpha on down-market bars only."""</span>
     <span class="n">observations_per_year</span> <span class="o">=</span> <span class="n">_observations_per_year</span><span class="p">(</span><span class="n">frequency</span><span class="p">)</span>
     <span class="n">_check_window_period</span><span class="p">(</span><span class="n">window</span><span class="p">,</span> <span class="n">period</span><span class="p">)</span>
     <span class="n">bucket</span> <span class="o">=</span> <span class="n">_bucket_or_none</span><span class="p">(</span><span class="n">date</span><span class="p">,</span> <span class="n">period</span><span class="p">)</span>
@@ -482,7 +482,7 @@
     <span class="n">period</span><span class="p">:</span> <span class="n">PeriodLike</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">date</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Mean asset return / mean benchmark return on up-market bars.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Mean asset return / mean benchmark return on up-market bars."""</span>
     <span class="n">_check_window_period</span><span class="p">(</span><span class="n">window</span><span class="p">,</span> <span class="n">period</span><span class="p">)</span>
     <span class="n">bucket</span> <span class="o">=</span> <span class="n">_bucket_or_none</span><span class="p">(</span><span class="n">date</span><span class="p">,</span> <span class="n">period</span><span class="p">)</span>
     <span class="n">mask</span> <span class="o">=</span> <span class="n">benchmark</span> <span class="o">&gt;</span> <span class="mi">0</span>
@@ -506,7 +506,7 @@
     <span class="n">period</span><span class="p">:</span> <span class="n">PeriodLike</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">date</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Mean asset return / mean benchmark return on down-market bars.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Mean asset return / mean benchmark return on down-market bars."""</span>
     <span class="n">_check_window_period</span><span class="p">(</span><span class="n">window</span><span class="p">,</span> <span class="n">period</span><span class="p">)</span>
     <span class="n">bucket</span> <span class="o">=</span> <span class="n">_bucket_or_none</span><span class="p">(</span><span class="n">date</span><span class="p">,</span> <span class="n">period</span><span class="p">)</span>
     <span class="n">mask</span> <span class="o">=</span> <span class="n">benchmark</span> <span class="o">&lt;</span> <span class="mi">0</span>
@@ -530,7 +530,7 @@
     <span class="n">period</span><span class="p">:</span> <span class="n">PeriodLike</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">date</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;``up_capture / down_capture``.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""``up_capture / down_capture``."""</span>
     <span class="k">return</span> <span class="n">up_capture</span><span class="p">(</span><span class="n">returns</span><span class="p">,</span> <span class="n">benchmark</span><span class="p">,</span> <span class="n">window</span><span class="o">=</span><span class="n">window</span><span class="p">,</span> <span class="n">period</span><span class="o">=</span><span class="n">period</span><span class="p">,</span> <span class="n">date</span><span class="o">=</span><span class="n">date</span><span class="p">)</span> <span class="o">/</span> <span class="n">down_capture</span><span class="p">(</span>
         <span class="n">returns</span><span class="p">,</span> <span class="n">benchmark</span><span class="p">,</span> <span class="n">window</span><span class="o">=</span><span class="n">window</span><span class="p">,</span> <span class="n">period</span><span class="o">=</span><span class="n">period</span><span class="p">,</span> <span class="n">date</span><span class="o">=</span><span class="n">date</span>
     <span class="p">)</span></div>
@@ -547,7 +547,7 @@
     <span class="n">period</span><span class="p">:</span> <span class="n">PeriodLike</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">date</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Fraction of periods where ``returns &gt; benchmark``.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Fraction of periods where ``returns &gt; benchmark``."""</span>
     <span class="n">_check_window_period</span><span class="p">(</span><span class="n">window</span><span class="p">,</span> <span class="n">period</span><span class="p">)</span>
     <span class="n">bucket</span> <span class="o">=</span> <span class="n">_bucket_or_none</span><span class="p">(</span><span class="n">date</span><span class="p">,</span> <span class="n">period</span><span class="p">)</span>
     <span class="n">hit</span> <span class="o">=</span> <span class="p">(</span><span class="n">returns</span> <span class="o">&gt;</span> <span class="n">benchmark</span><span class="p">)</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">Float64</span><span class="p">)</span>
@@ -570,7 +570,7 @@
     <span class="n">period</span><span class="p">:</span> <span class="n">PeriodLike</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">date</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Annualised tracking error scaled by ``frequency``.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Annualised tracking error scaled by ``frequency``."""</span>
     <span class="n">_check_window_period</span><span class="p">(</span><span class="n">window</span><span class="p">,</span> <span class="n">period</span><span class="p">)</span>
     <span class="n">bucket</span> <span class="o">=</span> <span class="n">_bucket_or_none</span><span class="p">(</span><span class="n">date</span><span class="p">,</span> <span class="n">period</span><span class="p">)</span>
     <span class="n">active</span> <span class="o">=</span> <span class="n">returns</span> <span class="o">-</span> <span class="n">benchmark</span>
@@ -594,7 +594,7 @@
     <span class="n">period</span><span class="p">:</span> <span class="n">PeriodLike</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">date</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Annualised information ratio scaled by ``frequency``.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Annualised information ratio scaled by ``frequency``."""</span>
     <span class="n">_check_window_period</span><span class="p">(</span><span class="n">window</span><span class="p">,</span> <span class="n">period</span><span class="p">)</span>
     <span class="n">bucket</span> <span class="o">=</span> <span class="n">_bucket_or_none</span><span class="p">(</span><span class="n">date</span><span class="p">,</span> <span class="n">period</span><span class="p">)</span>
     <span class="n">active</span> <span class="o">=</span> <span class="n">returns</span> <span class="o">-</span> <span class="n">benchmark</span>

@@ -232,7 +232,7 @@
         </div>
         <article role="main" id="furo-main-content">
           <h1>Source code for finance_calcs.volume</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Volume indicators as polars expressions.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Volume indicators as polars expressions."""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
@@ -240,13 +240,13 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">.overlap</span><span class="w"> </span><span class="kn">import</span> <span class="n">ema</span>
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;ad&quot;</span><span class="p">,</span> <span class="s2">&quot;adosc&quot;</span><span class="p">,</span> <span class="s2">&quot;obv&quot;</span><span class="p">]</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"ad"</span><span class="p">,</span> <span class="s2">"adosc"</span><span class="p">,</span> <span class="s2">"obv"</span><span class="p">]</span>
 
 
 <div class="viewcode-block" id="obv">
 <a class="viewcode-back" href="../../docs/src/API.html#finance_calcs.obv">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">obv</span><span class="p">(</span><span class="n">close</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span> <span class="n">volume</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;On-Balance Volume.</span>
+<span class="w">    </span><span class="sd">"""On-Balance Volume.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        close: Price series.</span>
@@ -255,7 +255,7 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        Running cumulative signed volume. The first bar contributes zero</span>
 <span class="sd">        because the prior close is unknown.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">diff</span> <span class="o">=</span> <span class="n">close</span><span class="o">.</span><span class="n">diff</span><span class="p">()</span>
     <span class="n">direction</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">when</span><span class="p">(</span><span class="n">diff</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">then</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)</span><span class="o">.</span><span class="n">when</span><span class="p">(</span><span class="n">diff</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">then</span><span class="p">(</span><span class="o">-</span><span class="mf">1.0</span><span class="p">)</span><span class="o">.</span><span class="n">otherwise</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span>
     <span class="k">return</span> <span class="p">(</span><span class="n">direction</span> <span class="o">*</span> <span class="n">volume</span><span class="p">)</span><span class="o">.</span><span class="n">fill_null</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span><span class="o">.</span><span class="n">cum_sum</span><span class="p">()</span></div>
@@ -270,7 +270,7 @@
     <span class="n">close</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span>
     <span class="n">volume</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Chaikin Accumulation/Distribution line.</span>
+<span class="w">    </span><span class="sd">"""Chaikin Accumulation/Distribution line.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        high: Bar high.</span>
@@ -280,7 +280,7 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Running A/D line. Bars with zero range contribute zero flow.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">rng</span> <span class="o">=</span> <span class="n">high</span> <span class="o">-</span> <span class="n">low</span>
     <span class="n">mfm</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">when</span><span class="p">(</span><span class="n">rng</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">then</span><span class="p">(((</span><span class="n">close</span> <span class="o">-</span> <span class="n">low</span><span class="p">)</span> <span class="o">-</span> <span class="p">(</span><span class="n">high</span> <span class="o">-</span> <span class="n">close</span><span class="p">))</span> <span class="o">/</span> <span class="n">rng</span><span class="p">)</span><span class="o">.</span><span class="n">otherwise</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span>
     <span class="k">return</span> <span class="p">(</span><span class="n">mfm</span> <span class="o">*</span> <span class="n">volume</span><span class="p">)</span><span class="o">.</span><span class="n">cum_sum</span><span class="p">()</span></div>
@@ -297,7 +297,7 @@
     <span class="n">fast_window</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span>
     <span class="n">slow_window</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Chaikin A/D Oscillator — ``EMA(AD, fast) - EMA(AD, slow)``.</span>
+<span class="w">    </span><span class="sd">"""Chaikin A/D Oscillator — ``EMA(AD, fast) - EMA(AD, slow)``.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        high: Bar high.</span>
@@ -309,7 +309,7 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        ADOSC expression.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">line</span> <span class="o">=</span> <span class="n">ad</span><span class="p">(</span><span class="n">high</span><span class="p">,</span> <span class="n">low</span><span class="p">,</span> <span class="n">close</span><span class="p">,</span> <span class="n">volume</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">ema</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="n">fast_window</span><span class="p">)</span> <span class="o">-</span> <span class="n">ema</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="n">slow_window</span><span class="p">)</span></div>
 
