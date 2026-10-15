@@ -127,8 +127,8 @@ def test_period_tracking_error_matches_grouped_monthly_result():
 def test_namespace_factor():
     df = _toy_returns()
     out = df.select(
-        pl.col("ret").fcalcs.beta(pl.col("bench")).alias("b"),
-        pl.col("ret").fcalcs.tracking_error(pl.col("bench")).alias("te"),
+        pl.col("ret").fcalcs.beta(pl.col("bench")).alias("b"),  # ty: ignore[unresolved-attribute]
+        pl.col("ret").fcalcs.tracking_error(pl.col("bench")).alias("te"),  # ty: ignore[unresolved-attribute]
     )
     assert math.isfinite(out["b"][0])
     assert out["te"][0] > 0

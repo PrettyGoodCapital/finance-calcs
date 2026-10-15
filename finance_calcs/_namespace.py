@@ -10,6 +10,7 @@ calculations can be invoked fluently::
 from __future__ import annotations
 
 import importlib
+from collections.abc import Callable
 
 import polars as pl
 
@@ -32,7 +33,7 @@ _volume = importlib.import_module(".volume", __package__)
 
 
 def _bind(target_register, modules):
-    funcs: dict[str, callable] = {}
+    funcs: dict[str, Callable] = {}
     for module in modules:
         for name in getattr(module, "__finance_namespace__", module.__all__):
             funcs[name] = getattr(module, name)

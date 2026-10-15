@@ -174,7 +174,7 @@ def cost_attribution(
         (notional * (_optional_col(transactions, spread_bps_col) / 10_000.0)).sum().alias("spread"),
         (notional * (_optional_col(transactions, market_impact_bps_col) / 10_000.0)).sum().alias("market_impact"),
     )
-    rows = [{"component": name, "total": float(components[name][0] or 0.0)} for name in components.columns]
+    rows: list[dict[str, Any]] = [{"component": name, "total": float(components[name][0] or 0.0)} for name in components.columns]
     rows = [row for row in rows if row["total"] != 0.0 or row["component"] in {"commission", "fees", slippage_component}]
     total = sum(row["total"] for row in rows)
     for row in rows:

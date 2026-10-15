@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import math
 from datetime import date
+from typing import cast
 
 import finance_dates as fd
 import polars as pl
@@ -67,7 +68,7 @@ def test_annualized_return(constant_returns):
 def test_annualized_volatility():
     rets = pl.Series("r", [0.01, -0.01] * 126)
     out = pl.select(fc.annualized_volatility(pl.lit(rets))).item()
-    assert out == pytest.approx(rets.std() * math.sqrt(252))
+    assert out == pytest.approx(cast(float, rets.std()) * math.sqrt(252))
 
 
 def test_frequency_accepts_alias_enum_and_raw_observations_per_year():
@@ -215,7 +216,7 @@ def test_namespace_period_returns():
         }
     )
 
-    out = df.with_columns(pl.col("r").fcalcs.cumulative_return(period="month", date=pl.col("date")).alias("period_return"))
+    out = df.with_columns(pl.col("r").fcalcs.cumulative_return(period="month", date=pl.col("date")).alias("period_return"))  # ty: ignore[unresolved-attribute]
 
     assert out["period_return"].to_list() == pytest.approx([1.10 * 0.95 - 1.0] * 2 + [1.02 * 1.03 - 1.0] * 2)
 
@@ -342,13 +343,13 @@ def test_value_at_risk_parametric_supports_rolling_windows():
 
     assert out[0] is None
     assert out[1] is None
-    expected = returns[:3].mean() + returns[:3].std() * -1.6448536269514722
+    expected = cast(float, returns[:3].mean()) + cast(float, returns[:3].std()) * -1.6448536269514722
     assert out[2] == pytest.approx(expected)
 
 
 def test_namespace_on_expr(prices):
     df = pl.DataFrame({"p": prices})
-    out = df.select(pl.col("p").fcalcs.log_returns().alias("ret"))["ret"]
+    out = df.select(pl.col("p").fcalcs.log_returns().alias("ret"))["ret"]  # ty: ignore[unresolved-attribute]
     assert out[0] is None
     assert out[1] == pytest.approx(math.log(101 / 100))
 
@@ -360,17 +361,17 @@ def test_namespace_on_series(constant_returns):
 
 def test_namespace_sharpe_handles_exact_zero_variance_series():
     rets = pl.Series("r", [1.0] * 252)
-    val = rets.fcalcs.sharpe()
+    val = rets.fcalcs.sharpe()  # ty: ignore[unresolved-attribute]
     assert math.isinf(val)
 
 
 def test_namespace_pipeline(prices):
     df = pl.DataFrame({"p": prices})
     out = df.with_columns(
-        pl.col("p").fcalcs.simple_returns().alias("r"),
+        pl.col("p").fcalcs.simple_returns().alias("r"),  # ty: ignore[unresolved-attribute]
     ).select(
-        pl.col("r").fcalcs.max_drawdown().alias("mdd"),
-        pl.col("r").fcalcs.cumulative_return().alias("total"),
+        pl.col("r").fcalcs.max_drawdown().alias("mdd"),  # ty: ignore[unresolved-attribute]
+        pl.col("r").fcalcs.cumulative_return().alias("total"),  # ty: ignore[unresolved-attribute]
     )
     assert out["total"][0] == pytest.approx(prices[-1] / prices[0] - 1.0)
     assert out["mdd"][0] <= 0.0

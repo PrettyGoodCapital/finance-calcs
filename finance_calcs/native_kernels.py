@@ -11,6 +11,7 @@ from __future__ import annotations
 from collections.abc import Sequence
 
 import numpy as np
+import numpy.typing as npt
 
 from . import finance_calcs as _native
 
@@ -101,7 +102,7 @@ def _garch11_fallback(returns: np.ndarray, omega: float, alpha: float, beta: flo
     return out
 
 
-def native_adx(high: Sequence[float], low: Sequence[float], close: Sequence[float], window: int = 14) -> np.ndarray:
+def native_adx(high: npt.ArrayLike, low: npt.ArrayLike, close: npt.ArrayLike, window: int = 14) -> np.ndarray:
     h = np.asarray(high, dtype=float).reshape(-1)
     low_values = np.asarray(low, dtype=float).reshape(-1)
     c = np.asarray(close, dtype=float).reshape(-1)
@@ -110,7 +111,7 @@ def native_adx(high: Sequence[float], low: Sequence[float], close: Sequence[floa
     return _adx_fallback(h, low_values, c, int(window))
 
 
-def native_parabolic_sar(high: Sequence[float], low: Sequence[float], af_step: float = 0.02, af_max: float = 0.2) -> np.ndarray:
+def native_parabolic_sar(high: npt.ArrayLike, low: npt.ArrayLike, af_step: float = 0.02, af_max: float = 0.2) -> np.ndarray:
     h = np.asarray(high, dtype=float).reshape(-1)
     low_values = np.asarray(low, dtype=float).reshape(-1)
     if hasattr(_native, "native_parabolic_sar"):
@@ -119,7 +120,7 @@ def native_parabolic_sar(high: Sequence[float], low: Sequence[float], af_step: f
 
 
 def native_garch11_variance(
-    returns: Sequence[float],
+    returns: npt.ArrayLike,
     *,
     omega: float = 1e-6,
     alpha: float = 0.1,

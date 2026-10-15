@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import math
+from typing import cast
 
 import polars as pl
 import pytest
@@ -73,8 +74,8 @@ def test_signal_preprocessing_helpers() -> None:
         fc.winsorize(pl.col("signal"), cutoff=1.0).over("date").alias("winsorized"),
     )
 
-    assert neutral.group_by("sector").agg(pl.col("signal_neutralized").mean().abs().alias("mean"))["mean"].max() < 1e-12
+    assert cast(float, neutral.group_by("sector").agg(pl.col("signal_neutralized").mean().abs().alias("mean"))["mean"].max()) < 1e-12
     assert abs(orthogonal.select(pl.corr("signal_orthogonalized", "beta")).item()) < 1e-12
-    assert preprocessed["ranked"].min() >= -0.5
-    assert preprocessed["ranked"].max() <= 0.5
-    assert math.isfinite(preprocessed["winsorized"].mean())
+    assert cast(float, preprocessed["ranked"].min()) >= -0.5
+    assert cast(float, preprocessed["ranked"].max()) <= 0.5
+    assert math.isfinite(cast(float, preprocessed["winsorized"].mean()))

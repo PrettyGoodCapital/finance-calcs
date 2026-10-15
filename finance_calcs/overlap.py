@@ -58,7 +58,7 @@ def wma(close: pl.Expr, window: int = 20) -> pl.Expr:
         Expression yielding the WMA. Recent observations have higher
         weight: weight ``i`` = ``i + 1`` for ``i in 0..window-1``.
     """
-    weights = list(range(1, window + 1))
+    weights = [float(i) for i in range(1, window + 1)]
     return close.rolling_mean(window_size=window, weights=weights)
 
 

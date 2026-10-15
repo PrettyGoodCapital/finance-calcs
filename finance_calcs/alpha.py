@@ -8,6 +8,7 @@ aggregated across time with :func:`information_coefficient_ratio` and friends.
 from __future__ import annotations
 
 from collections.abc import Mapping
+from typing import Literal, cast
 
 import polars as pl
 
@@ -78,7 +79,7 @@ def information_coefficient_spearman(signal: pl.Expr, forward_returns: pl.Expr) 
     return pl.corr(signal, forward_returns, method="spearman")
 
 
-def information_coefficient(signal: pl.Expr, forward_returns: pl.Expr, *, method: str = "spearman") -> pl.Expr:
+def information_coefficient(signal: pl.Expr, forward_returns: pl.Expr, *, method: Literal["pearson", "spearman"] = "spearman") -> pl.Expr:
     """Information coefficient using the requested correlation method."""
     return pl.corr(signal, forward_returns, method=method)
 
@@ -88,7 +89,7 @@ def information_coefficient_conditional(
     forward_returns: pl.Expr,
     condition: pl.Expr,
     *,
-    method: str = "spearman",
+    method: Literal["pearson", "spearman"] = "spearman",
 ) -> pl.Expr:
     """Information coefficient on observations matching ``condition``."""
     return pl.corr(signal.filter(condition), forward_returns.filter(condition), method=method)
@@ -98,7 +99,7 @@ def information_coefficient_by_horizon(
     signal: pl.Expr,
     forward_returns: pl.Expr,
     *,
-    method: str = "spearman",
+    method: Literal["pearson", "spearman"] = "spearman",
 ) -> pl.Expr:
     """Information coefficient for one forward-return horizon."""
     return pl.corr(signal, forward_returns, method=method)
@@ -108,7 +109,7 @@ def information_coefficient_decay(
     signal: pl.Expr,
     forward_returns_by_horizon: Mapping[int, pl.Expr],
     *,
-    method: str = "spearman",
+    method: Literal["pearson", "spearman"] = "spearman",
     prefix: str = "information_coefficient_",
 ) -> list[pl.Expr]:
     """Build one horizon IC expression per forward-return horizon."""
@@ -174,11 +175,11 @@ def information_coefficient_statistics(information_coefficient: pl.Series) -> di
             "positive_fraction": float("nan"),
             "observation_count": 0,
         }
-    mean = float(arr.mean())
-    standard_deviation = float(arr.std()) if n > 1 else 0.0
+    mean = float(cast(float, arr.mean()))
+    standard_deviation = float(cast(float, arr.std())) if n > 1 else 0.0
     information_ratio = mean / standard_deviation if standard_deviation > 0 else float("nan")
     t_statistic = information_ratio * (n**0.5) if standard_deviation > 0 else float("nan")
-    positive_fraction = float((arr > 0).cast(pl.Float64).mean())
+    positive_fraction = float(cast(float, (arr > 0).cast(pl.Float64).mean()))
     return {
         "mean": mean,
         "standard_deviation": standard_deviation,

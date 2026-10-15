@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import math
 from datetime import date
+from typing import cast
 
 import polars as pl
 import pytest
@@ -62,7 +63,7 @@ def test_sharpe_uses_geometric_risk_free_conversion_and_sample_std() -> None:
     annual_risk_free = 0.05
     per_period_risk_free = (1.0 + annual_risk_free) ** (1.0 / 252) - 1.0
     excess = pl.Series([value - per_period_risk_free for value in values])
-    expected = excess.mean() / excess.std(ddof=1) * math.sqrt(252)
+    expected = cast(float, excess.mean()) / cast(float, excess.std(ddof=1)) * math.sqrt(252)
 
     actual = pl.DataFrame({"r": values}).select(fc.sharpe(pl.col("r"), risk_free=annual_risk_free)).item()
 

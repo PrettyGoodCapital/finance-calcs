@@ -111,5 +111,5 @@ def test_generalized_pareto_threshold_must_exceed_tail_probability():
 
 
 def test_eager_generalized_pareto_metrics_are_not_registered_on_namespace():
-    assert not hasattr(pl.col("returns").fcalcs, "value_at_risk_generalized_pareto")
-    assert not hasattr(pl.col("returns").fcalcs, "conditional_value_at_risk_generalized_pareto")
+    assert not hasattr(pl.col("returns").fcalcs, "value_at_risk_generalized_pareto")  # ty: ignore[unresolved-attribute]
+    assert not hasattr(pl.col("returns").fcalcs, "conditional_value_at_risk_generalized_pareto")  # ty: ignore[unresolved-attribute]

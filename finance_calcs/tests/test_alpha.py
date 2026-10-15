@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import math
 from datetime import date
+from typing import cast
 
 import numpy as np
 import polars as pl
@@ -152,14 +153,14 @@ def test_rank_normalize_bounds():
     out = df.select(fc.rank_normalize(pl.col("x")).alias("r")).to_series()
     assert min(out) >= -0.5
     assert max(out) <= 0.5
-    assert float(out.mean()) == pytest.approx(0.0, abs=1e-12)
+    assert float(cast(float, out.mean())) == pytest.approx(0.0, abs=1e-12)
 
 
 def test_zscore():
     df = pl.DataFrame({"x": [1.0, 2.0, 3.0, 4.0, 5.0]})
     out = df.select(fc.zscore(pl.col("x")).alias("z")).to_series()
-    assert float(out.mean()) == pytest.approx(0.0, abs=1e-12)
-    assert float(out.std()) == pytest.approx(1.0, abs=1e-12)
+    assert float(cast(float, out.mean())) == pytest.approx(0.0, abs=1e-12)
+    assert float(cast(float, out.std())) == pytest.approx(1.0, abs=1e-12)
 
 
 def test_winsorize_clips():
@@ -214,9 +215,9 @@ def test_quantile_turnover_aggregates_changed_flags():
 
 def test_namespace_alpha():
     df = pl.DataFrame({"p": [100.0, 101.0, 102.0, 100.0]})
-    out = df.select(pl.col("p").fcalcs.forward_returns(1).alias("f"))
+    out = df.select(pl.col("p").fcalcs.forward_returns(1).alias("f"))  # ty: ignore[unresolved-attribute]
     assert out.height == 4
 
 
 def test_eager_information_coefficient_statistics_is_not_registered_on_namespace():
-    assert not hasattr(pl.col("ic").fcalcs, "information_coefficient_statistics")
+    assert not hasattr(pl.col("ic").fcalcs, "information_coefficient_statistics")  # ty: ignore[unresolved-attribute]

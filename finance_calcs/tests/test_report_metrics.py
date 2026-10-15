@@ -92,9 +92,9 @@ def test_report_metrics_are_available_through_namespace() -> None:
     frame = pl.DataFrame({"r": [0.01, -0.02, 0.03]})
 
     out = frame.select(
-        pl.col("r").fcalcs.best_return().alias("best"),
-        pl.col("r").fcalcs.average_loss().alias("average_loss"),
-        pl.col("r").fcalcs.kelly_criterion().alias("kelly"),
+        pl.col("r").fcalcs.best_return().alias("best"),  # ty: ignore[unresolved-attribute]
+        pl.col("r").fcalcs.average_loss().alias("average_loss"),  # ty: ignore[unresolved-attribute]
+        pl.col("r").fcalcs.kelly_criterion().alias("kelly"),  # ty: ignore[unresolved-attribute]
     ).row(0, named=True)
 
     assert out == pytest.approx({"best": 0.03, "average_loss": -0.02, "kelly": 1.0 / 3.0})
