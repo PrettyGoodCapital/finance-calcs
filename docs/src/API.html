@@ -1,245 +1,643 @@
-<!doctype html>
-<html class="no-js" lang="en" data-content_root="../../">
-  <head><meta charset="utf-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="../../genindex.html"><link rel="search" title="Search" href="../../search.html"><link rel="next" title="QuantStats Compatibility" href="COMPATIBILITY.html"><link rel="prev" title="Examples" href="EXAMPLES.html">
+<!DOCTYPE html>
 
-    <!-- Generated with Sphinx 8.2.3 and Furo 2025.12.19 -->
-        <title>API - finance calcs v0.3.0</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
-    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=7bdb33bb" />
+<html lang="en" data-content_root="../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>API &#8212; finance calcs v0.3.0</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../_static/fuma.css?v=9324ae27" />
+    <link rel="stylesheet" type="text/css" href="../../_static/fuma-code.css?v=a950e949" />
     <link rel="stylesheet" type="text/css" href="../../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/autodoc_pydantic.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
-    <link rel="stylesheet" type="text/css" href="../../_static/searchlite.css?v=4235115c" />
-    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=8dab3a3b" />
-    <link rel="stylesheet" type="text/css" href="../../_static/styles/custom.css?v=890fd012" />
-    
-    
-
-
-<style>
-  body {
-    --color-code-background: #eeffcc;
-  --color-code-foreground: black;
-  
-  }
-  @media not print {
-    body[data-theme="dark"] {
-      --color-code-background: #202020;
-  --color-code-foreground: #d0d0d0;
-  
-    }
-    @media (prefers-color-scheme: dark) {
-      body:not([data-theme="light"]) {
-        --color-code-background: #202020;
-  --color-code-foreground: #d0d0d0;
-  
-      }
-    }
-  }
-</style></head>
-  <body>
-    
+    <link rel="stylesheet" type="text/css" href="../../_static/fonts/fuma-fonts.css?v=c2892c73" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/custom.css?v=88c24c6a" />
+    <script src="../../_static/documentation_options.js?v=e259d695"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script data-searchlite-index="searchlite-index.json" defer="defer" src="../../_static/searchlite.js?v=a5320898"></script>
+    <script defer="defer" src="../../_static/fuma.js?v=88a16a98"></script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../../_static/js/custom.js?v=956e5d78"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="QuantStats Compatibility" href="COMPATIBILITY.html" />
+    <link rel="prev" title="Examples" href="EXAMPLES.html" />
     <script>
-      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+      (function () {
+        var root = document.documentElement;
+        try {
+          var stored = localStorage.getItem("fuma-theme");
+          if (stored) {
+            root.classList.add(stored === "dark" ? "dark" : "light");
+            root.style.colorScheme = stored === "dark" ? "dark" : "light";
+          }
+          if (localStorage.getItem("fuma-sidebar") === "collapsed") root.dataset.sidebarCollapsed = "true";
+        } catch (e) {}
+      })();
     </script>
-    
+  </head>
+<body class="fd-body" data-layout="docs" data-toc-style="normal" data-open-level="0">
+<div id="fd-layout"><header id="fd-subnav">
+  <div class="fd-subnav-inner">
+    <button type="button" class="fd-icon-button fd-sidebar-toggle" aria-controls="fd-sidebar" aria-expanded="false" aria-label="Toggle navigation" title="Toggle navigation">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/></svg>
+    </button><a class="fd-brand" href="../../index.html"><span class="fd-brand-name">finance calcs v0.3.0</span>
+</a>
 
-<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
-  <symbol id="svg-toc" viewBox="0 0 24 24">
-    <title>Contents</title>
-    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
-      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
-    </svg>
-  </symbol>
-  <symbol id="svg-menu" viewBox="0 0 24 24">
-    <title>Menu</title>
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
-      <line x1="3" y1="12" x2="21" y2="12"></line>
-      <line x1="3" y1="6" x2="21" y2="6"></line>
-      <line x1="3" y1="18" x2="21" y2="18"></line>
-    </svg>
-  </symbol>
-  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
-    <title>Expand</title>
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
-      <polyline points="9 18 15 12 9 6"></polyline>
-    </svg>
-  </symbol>
-  <symbol id="svg-sun" viewBox="0 0 24 24">
-    <title>Light mode</title>
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
-      <circle cx="12" cy="12" r="5"></circle>
-      <line x1="12" y1="1" x2="12" y2="3"></line>
-      <line x1="12" y1="21" x2="12" y2="23"></line>
-      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-      <line x1="1" y1="12" x2="3" y2="12"></line>
-      <line x1="21" y1="12" x2="23" y2="12"></line>
-      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-    </svg>
-  </symbol>
-  <symbol id="svg-moon" viewBox="0 0 24 24">
-    <title>Dark mode</title>
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
-      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
-    </svg>
-  </symbol>
-  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
-    <title>Auto light/dark, in light mode</title>
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
-      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
-      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
-      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
-      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
-      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
-      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
-      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
-      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
-      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
-      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
-      <circle cx="14.5" cy="9.55" r="3.6"/>
-    </svg>
-  </symbol>
-  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
-    <title>Auto light/dark, in dark mode</title>
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
-      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
-      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
-      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
-      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
-      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
-      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
-      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
-      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
-      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
-      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
-      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
-    </svg>
-  </symbol>
-  <symbol id="svg-pencil" viewBox="0 0 24 24">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
-      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
-      <path d="M13.5 6.5l4 4" />
-      <path d="M20 21l2 -2l-2 -2" />
-      <path d="M17 17l-2 2l2 2" />
-    </svg>
-  </symbol>
-  <symbol id="svg-eye" viewBox="0 0 24 24">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
-      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
-      <path
-        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
-      <path d="M20 21l2 -2l-2 -2" />
-      <path d="M17 17l-2 2l2 2" />
-    </svg>
-  </symbol>
-</svg>
-
-<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle site navigation sidebar">
-<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc" aria-label="Toggle table of contents sidebar">
-<label class="overlay sidebar-overlay" for="__navigation"></label>
-<label class="overlay toc-overlay" for="__toc"></label>
-
-<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
-
-
-
-<div class="page">
-  <header class="mobile-header">
-    <div class="header-left">
-      <label class="nav-overlay-icon" for="__navigation">
-        <span class="icon"><svg><use href="#svg-menu"></use></svg></span>
-      </label>
+    <div class="fd-nav-actions">
+      <button type="button" class="fd-icon-button" data-fd-search-open aria-label="Search" title="Search"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></button>
+      <a class="fd-icon-button" href="https://github.com/prettygoodcapital/finance-calcs" target="_blank" rel="noopener" aria-label="GitHub" title="GitHub"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.4 5.4 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg></a>
+      <button type="button" class="fd-icon-button fd-theme-toggle" aria-label="Toggle theme" title="Toggle theme">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon fd-icon-light"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon fd-icon-dark"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9"/></svg>
+      </button>
     </div>
-    <div class="header-center">
-      <a href="../../index.html"><div class="brand">finance calcs <code style='font-size: var(--font-size--small--4);color: var(--sd-color-primary);'>v0.3.0</code></div></a>
+  </div>
+</header>
+
+<aside id="fd-sidebar" aria-label="Documentation">
+  <div class="fd-sidebar-header">
+    <div class="fd-sidebar-brand-row"><a class="fd-brand" href="../../index.html"><span class="fd-brand-name">finance calcs v0.3.0</span>
+</a>
+      <button type="button" class="fd-icon-button fd-sidebar-collapse" aria-label="Collapse sidebar" title="Collapse sidebar"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/></svg></button>
     </div>
-    <div class="header-right">
-      <div class="theme-toggle-container theme-toggle-header">
-        <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
-          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
-          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
-          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
-          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
-        </button>
-      </div>
-      <label class="toc-overlay-icon toc-header-icon" for="__toc">
-        <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
-      </label>
-    </div>
-  </header>
-  <aside class="sidebar-drawer">
-    <div class="sidebar-container">
+    <button type="button" class="fd-search-trigger" data-fd-search-open title="Search">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg><span>Search</span><kbd class="fd-kbd">/</kbd>
+    </button>
+  </div>
+
+  <nav class="fd-sidebar-nav">
+    <div class="fd-sidebar-group">
       
-      <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
-  
-  <span class="sidebar-brand-text">finance calcs <code style='font-size: var(--font-size--small--4);color: var(--sd-color-primary);'>v0.3.0</code></span>
-  
-</a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
-  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
-  <input type="hidden" name="check_keywords" value="yes">
-  <input type="hidden" name="area" value="default">
-</form>
-<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
-  <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="EXAMPLES.html">Examples</a></li>
-<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="COMPATIBILITY.html">QuantStats Compatibility</a></li>
+<ul class="fd-tree">
+  <li class="fd-tree-item">
+    <a class="fd-link" href="EXAMPLES.html">
+      <span class="fd-link-text">Examples</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link fd-current" href="#">
+      <span class="fd-link-text">API</span>
+    </a>
+  </li>
+  <li class="fd-tree-item">
+    <a class="fd-link" href="COMPATIBILITY.html">
+      <span class="fd-link-text">QuantStats Compatibility</span>
+    </a>
+  </li>
 </ul>
-
-</div>
-</div>
-
-      </div>
-      
     </div>
-  </aside>
-  <div class="main">
-    <div class="content">
-      <div class="article-container">
-        <a href="#" class="back-to-top muted-link">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
-          </svg>
-          <span>Back to top</span>
-        </a>
-        <div class="content-icon-container">
-          <div class="view-this-page">
-  <a class="muted-link" href="../../_sources/docs/src/API.md.txt" title="View this page">
-    <svg><use href="#svg-eye"></use></svg>
-    <span class="visually-hidden">View this page</span>
-  </a>
+  </nav>
+
+  <div class="fd-sidebar-footer">
+    <div class="fd-toolbar">
+      <a class="fd-toolbar-item" href="https://github.com/prettygoodcapital/finance-calcs" target="_blank" rel="noopener" aria-label="GitHub" title="GitHub"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.4 5.4 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg></a>
+      <div class="fd-theme-switch" role="group" aria-label="Theme">
+        <button type="button" class="fd-theme-option" data-fd-theme="light" aria-label="Light theme" title="Light theme"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg></button>
+        <button type="button" class="fd-theme-option" data-fd-theme="dark" aria-label="Dark theme" title="Dark theme"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9"/></svg></button>
+      </div>
+    </div>
+  </div>
+</aside>
+<button type="button" id="fd-sidebar-restore" class="fd-icon-button" aria-label="Expand sidebar" title="Expand sidebar"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/></svg></button>
+<div class="fd-sidebar-scrim" hidden></div>
+  <div id="fd-toc-popover">
+    <button type="button" class="fd-toc-trigger" aria-expanded="false" aria-controls="fd-toc-mobile" title="On this page">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M8 6h13"/><path d="M8 12h13"/><path d="M8 18h13"/><path d="M3 6h.01"/><path d="M3 12h.01"/><path d="M3 18h.01"/></svg><span>On this page</span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m6 9 6 6 6-6"/></svg>
+    </button>
+    <div id="fd-toc-mobile" hidden><ul class="fd-toc-list">
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#namespace-and-windowing">Namespace and Windowing</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#execution-and-input-contracts">Execution and Input Contracts</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#returns-and-periods">Returns and Periods</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.period_bucket">period_bucket()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.simple_returns">simple_returns()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.log_returns">log_returns()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.cumulative_returns">cumulative_returns()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.cumulative_return">cumulative_return()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.annualized_return">annualized_return()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.annualized_volatility">annualized_volatility()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#risk-and-drawdown">Risk and Drawdown</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.sharpe">sharpe()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.sortino">sortino()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.calmar">calmar()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.downside_deviation">downside_deviation()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.drawdown_series">drawdown_series()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.max_drawdown">max_drawdown()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.value_at_risk">value_at_risk()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.conditional_value_at_risk">conditional_value_at_risk()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.expected_shortfall">expected_shortfall()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.value_at_risk_parametric">value_at_risk_parametric()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#report-metrics">Report Metrics</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.best_return">best_return()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.worst_return">worst_return()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.average_win">average_win()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.average_loss">average_loss()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.gain_to_pain_ratio">gain_to_pain_ratio()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.recovery_factor">recovery_factor()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.kelly_criterion">kelly_criterion()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.drawdown_details">drawdown_details()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#overlap-and-price-channels">Overlap and Price Channels</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.sma">sma()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.ema">ema()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.wma">wma()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.dema">dema()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.tema">tema()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.midpoint">midpoint()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.midprice">midprice()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.bbands_upper">bbands_upper()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.bbands_middle">bbands_middle()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.bbands_lower">bbands_lower()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.donchian_upper">donchian_upper()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.donchian_lower">donchian_lower()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.donchian_middle">donchian_middle()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#momentum">Momentum</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.rsi">rsi()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.macd_line">macd_line()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.macd_signal">macd_signal()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.macd_hist">macd_hist()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.mom">mom()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.roc">roc()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.rocp">rocp()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.rocr">rocr()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.rocr100">rocr100()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.willr">willr()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.stoch_k">stoch_k()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.stoch_d">stoch_d()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.cci">cci()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.cmo">cmo()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.trix">trix()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.plus_dm">plus_dm()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.minus_dm">minus_dm()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.plus_di">plus_di()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.minus_di">minus_di()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.adx">adx()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#volatility-indicators">Volatility Indicators</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.true_range">true_range()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.atr">atr()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.natr">natr()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.parkinson_volatility">parkinson_volatility()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.garman_klass_volatility">garman_klass_volatility()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.rogers_satchell_volatility">rogers_satchell_volatility()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.yang_zhang_volatility">yang_zhang_volatility()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.exponentially_weighted_volatility">exponentially_weighted_volatility()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.realized_volatility">realized_volatility()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#volume-indicators">Volume Indicators</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.obv">obv()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.ad">ad()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.adosc">adosc()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#alpha-and-information-coefficient">Alpha and Information Coefficient</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.forward_returns">forward_returns()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.information_coefficient">information_coefficient()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.information_coefficient_pearson">information_coefficient_pearson()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.information_coefficient_spearman">information_coefficient_spearman()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.information_coefficient_conditional">information_coefficient_conditional()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.information_coefficient_by_horizon">information_coefficient_by_horizon()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.information_coefficient_decay">information_coefficient_decay()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.information_coefficient_ratio">information_coefficient_ratio()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.hit_rate">hit_rate()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.information_coefficient_statistics">information_coefficient_statistics()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#quantile-and-signal-transforms">Quantile and Signal Transforms</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.assign_quantile">assign_quantile()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.rank_normalize">rank_normalize()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.zscore">zscore()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.winsorize">winsorize()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.long_short_spread">long_short_spread()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.mean_return_by_quantile">mean_return_by_quantile()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.quantile_changed">quantile_changed()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.quantile_turnover">quantile_turnover()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#factor-and-benchmark-metrics">Factor and Benchmark Metrics</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.alpha">alpha()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.beta">beta()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.r_squared">r_squared()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.up_alpha">up_alpha()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.down_alpha">down_alpha()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.up_beta">up_beta()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.down_beta">down_beta()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.up_capture">up_capture()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.down_capture">down_capture()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.up_down_capture">up_down_capture()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.batting_average">batting_average()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.tracking_error">tracking_error()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.information_ratio">information_ratio()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#distribution-and-sharpe-statistics">Distribution and Sharpe Statistics</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.skewness">skewness()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.kurtosis">kurtosis()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.higher_moments">higher_moments()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.stability_of_timeseries">stability_of_timeseries()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.common_sense_ratio">common_sense_ratio()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.sharpe_probability">sharpe_probability()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.sharpe_deflated_probability">sharpe_deflated_probability()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.sharpe_minimum_track_record_length">sharpe_minimum_track_record_length()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.sharpe_bootstrap_confidence_interval">sharpe_bootstrap_confidence_interval()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.sharpe_confidence_interval">sharpe_confidence_interval()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#tail-risk">Tail Risk</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.tail_ratio">tail_ratio()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.ulcer_index">ulcer_index()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.omega_ratio">omega_ratio()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.value_at_risk_generalized_pareto">value_at_risk_generalized_pareto()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.conditional_value_at_risk_generalized_pareto">conditional_value_at_risk_generalized_pareto()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#market-microstructure">Market Microstructure</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.quoted_spread_bps">quoted_spread_bps()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.effective_spread_bps">effective_spread_bps()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.realized_spread_bps">realized_spread_bps()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.order_imbalance">order_imbalance()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.amihud_illiquidity">amihud_illiquidity()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.kyle_lambda">kyle_lambda()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#regime-and-persistence">Regime and Persistence</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.regime_signal">regime_signal()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.hurst_exponent">hurst_exponent()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.fractional_difference">fractional_difference()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#portfolio">Portfolio</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.gross_leverage">gross_leverage()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.gross_exposure">gross_exposure()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.net_exposure">net_exposure()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.long_exposure">long_exposure()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.short_exposure">short_exposure()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.concentration">concentration()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.top_n_concentration">top_n_concentration()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.active_share">active_share()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#post-trade">Post-Trade</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.transaction_notional">transaction_notional()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.transaction_cost">transaction_cost()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.transaction_volume">transaction_volume()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.slippage_bps">slippage_bps()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.implementation_shortfall">implementation_shortfall()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.vwap_slippage">vwap_slippage()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.turnover">turnover()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.cost_attribution">cost_attribution()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.extract_round_trips">extract_round_trips()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.round_trip_stats">round_trip_stats()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.long_short_round_trip_stats">long_short_round_trip_stats()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.sector_round_trip_stats">sector_round_trip_stats()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.win_rate">win_rate()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.profit_factor">profit_factor()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.payoff_ratio">payoff_ratio()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.average_trade_pnl">average_trade_pnl()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.trade_duration_stats">trade_duration_stats()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.mae_mfe">mae_mfe()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.consecutive_wins_losses">consecutive_wins_losses()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.exit_reason_stats">exit_reason_stats()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.trade_size_return_correlation">trade_size_return_correlation()</a>
+  </li>
+</ul>
 </div>
-<div class="theme-toggle-container theme-toggle-content">
-            <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
-              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
-              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
-              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
-              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
-            </button>
-          </div>
-          <label class="toc-overlay-icon toc-content-icon" for="__toc">
-            <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
-          </label>
-        </div>
-        <article role="main" id="furo-main-content">
-          <section class="tex2jax_ignore mathjax_ignore" id="api">
+  </div>
+
+  <main id="fd-main">
+    <article class="fd-page">
+      <div class="fd-prose">
+  <section class="tex2jax_ignore mathjax_ignore" id="api">
 <h1>API<a class="headerlink" href="#api" title="Link to this heading">¶</a></h1>
 <p><code class="docutils literal notranslate"><span class="pre">finance-calcs</span></code> exposes calculation functions at the top level and through the
 <code class="docutils literal notranslate"><span class="pre">.fcalcs</span></code> namespace on both <code class="docutils literal notranslate"><span class="pre">polars.Expr</span></code> and <code class="docutils literal notranslate"><span class="pre">polars.Series</span></code>. Most functions
@@ -312,7 +710,6 @@ period returns. They are the base layer for most risk and factor metrics.</p>
 <code class="docutils literal notranslate"><span class="pre">finance_enums.Frequency</span></code>, a standard alias such as <code class="docutils literal notranslate"><span class="pre">&quot;daily&quot;</span></code> or
 <code class="docutils literal notranslate"><span class="pre">&quot;monthly&quot;</span></code>, or a positive raw number of observations per year. Raw values
 support intraday and custom trading schedules without assuming market hours.</p>
-<div class="table-wrapper colwidths-auto docutils container">
 <table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Function</p></th>
@@ -351,7 +748,6 @@ support intraday and custom trading schedules without assuming market hours.</p>
 </tr>
 </tbody>
 </table>
-</div>
 <dl class="py function">
 <dt class="sig sig-object py" id="finance_calcs.period_bucket">
 <span class="sig-prename descclassname"><span class="pre">finance_calcs.</span></span><span class="sig-name descname"><span class="pre">period_bucket</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">date</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">period</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Frequency</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Expr</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Expr</span></span></span><a class="reference internal" href="../../_modules/finance_calcs/_periods.html#period_bucket"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#finance_calcs.period_bucket" title="Link to this definition">¶</a></dt>
@@ -422,7 +818,6 @@ period bucket.</p>
 <p>Risk metrics operate on return expressions. Scalar <code class="docutils literal notranslate"><span class="pre">risk_free</span></code> and
 <code class="docutils literal notranslate"><span class="pre">required_return</span></code> inputs are annual rates converted geometrically to
 per-observation rates. Expression inputs are treated as already per-observation.</p>
-<div class="table-wrapper colwidths-auto docutils container">
 <table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Function</p></th>
@@ -473,7 +868,6 @@ per-observation rates. Expression inputs are treated as already per-observation.
 </tr>
 </tbody>
 </table>
-</div>
 <dl class="py function">
 <dt class="sig sig-object py" id="finance_calcs.sharpe">
 <span class="sig-prename descclassname"><span class="pre">finance_calcs.</span></span><span class="sig-name descname"><span class="pre">sharpe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">returns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">risk_free</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Expr</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Frequency</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">Frequency.Day</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">period</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Frequency</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Expr</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">date</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Expr</span></span></span><a class="reference internal" href="../../_modules/finance_calcs/risk.html#sharpe"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#finance_calcs.sharpe" title="Link to this definition">¶</a></dt>
@@ -566,7 +960,6 @@ or below the rolling VaR. <code class="docutils literal notranslate"><span class
 <p>These metrics provide the calculation layer for static, terminal, and notebook
 reports. Expression metrics remain lazy-query compatible. <code class="docutils literal notranslate"><span class="pre">drawdown_details</span></code>
 is eager because it returns one row per variable-length drawdown episode.</p>
-<div class="table-wrapper colwidths-auto docutils container">
 <table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Function</p></th>
@@ -609,7 +1002,6 @@ is eager because it returns one row per variable-length drawdown episode.</p>
 </tr>
 </tbody>
 </table>
-</div>
 <dl class="py function">
 <dt class="sig sig-object py" id="finance_calcs.best_return">
 <span class="sig-prename descclassname"><span class="pre">finance_calcs.</span></span><span class="sig-name descname"><span class="pre">best_return</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">returns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">period</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Frequency</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Expr</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">date</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Expr</span></span></span><a class="reference internal" href="../../_modules/finance_calcs/performance.html#best_return"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#finance_calcs.best_return" title="Link to this definition">¶</a></dt>
@@ -666,7 +1058,6 @@ date series, integer row positions identify each point.</p>
 <h2>Overlap and Price Channels<a class="headerlink" href="#overlap-and-price-channels" title="Link to this heading">¶</a></h2>
 <p>Overlap studies smooth prices or build price channels from high/low/close data.
 <code class="docutils literal notranslate"><span class="pre">window</span></code> is an observation lookback, not a calendar bucket.</p>
-<div class="table-wrapper colwidths-auto docutils container">
 <table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Function</p></th>
@@ -729,7 +1120,6 @@ date series, integer row positions identify each point.</p>
 </tr>
 </tbody>
 </table>
-</div>
 <dl class="py function">
 <dt class="sig sig-object py" id="finance_calcs.sma">
 <span class="sig-prename descclassname"><span class="pre">finance_calcs.</span></span><span class="sig-name descname"><span class="pre">sma</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">close</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">20</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Expr</span></span></span><a class="reference internal" href="../../_modules/finance_calcs/overlap.html#sma"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#finance_calcs.sma" title="Link to this definition">¶</a></dt>
@@ -963,7 +1353,6 @@ weight: weight <code class="docutils literal notranslate"><span class="pre">i</s
 <p>Momentum functions consume close or OHLC expressions and return oscillator,
 rate-of-change, or directional-movement expressions. <code class="docutils literal notranslate"><span class="pre">window</span></code> is the observation
 lookback length.</p>
-<div class="table-wrapper colwidths-auto docutils container">
 <table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Function</p></th>
@@ -1054,7 +1443,6 @@ lookback length.</p>
 </tr>
 </tbody>
 </table>
-</div>
 <dl class="py function">
 <dt class="sig sig-object py" id="finance_calcs.rsi">
 <span class="sig-prename descclassname"><span class="pre">finance_calcs.</span></span><span class="sig-name descname"><span class="pre">rsi</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">close</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">14</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Expr</span></span></span><a class="reference internal" href="../../_modules/finance_calcs/momentum.html#rsi"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#finance_calcs.rsi" title="Link to this definition">¶</a></dt>
@@ -1421,7 +1809,6 @@ lookback length.</p>
 <h2>Volatility Indicators<a class="headerlink" href="#volatility-indicators" title="Link to this heading">¶</a></h2>
 <p>These functions estimate realized or range-based volatility from returns or
 OHLC bars. <code class="docutils literal notranslate"><span class="pre">window</span></code> is the observation lookback length.</p>
-<div class="table-wrapper colwidths-auto docutils container">
 <table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Function</p></th>
@@ -1468,7 +1855,6 @@ OHLC bars. <code class="docutils literal notranslate"><span class="pre">window</
 </tr>
 </tbody>
 </table>
-</div>
 <dl class="py function">
 <dt class="sig sig-object py" id="finance_calcs.true_range">
 <span class="sig-prename descclassname"><span class="pre">finance_calcs.</span></span><span class="sig-name descname"><span class="pre">true_range</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">high</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">low</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">close</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Expr</span></span></span><a class="reference internal" href="../../_modules/finance_calcs/volatility.html#true_range"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#finance_calcs.true_range" title="Link to this definition">¶</a></dt>
@@ -1530,10 +1916,8 @@ OHLC bars. <code class="docutils literal notranslate"><span class="pre">window</
 <dt class="sig sig-object py" id="finance_calcs.parkinson_volatility">
 <span class="sig-prename descclassname"><span class="pre">finance_calcs.</span></span><span class="sig-name descname"><span class="pre">parkinson_volatility</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">high</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">low</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Frequency</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">Frequency.Day</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Expr</span></span></span><a class="reference internal" href="../../_modules/finance_calcs/volatility.html#parkinson_volatility"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#finance_calcs.parkinson_volatility" title="Link to this definition">¶</a></dt>
 <dd><p>Parkinson high-low range volatility estimator.</p>
-<div class="math-wrapper docutils container">
 <div class="math notranslate nohighlight">
 \[\begin{split}\\hat{\\sigma}^2 = \\frac{1}{4 \\ln 2} \\cdot \\overline{\\left(\\ln(H/L)\\right)^2}\end{split}\]</div>
-</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1552,10 +1936,8 @@ OHLC bars. <code class="docutils literal notranslate"><span class="pre">window</
 <dt class="sig sig-object py" id="finance_calcs.garman_klass_volatility">
 <span class="sig-prename descclassname"><span class="pre">finance_calcs.</span></span><span class="sig-name descname"><span class="pre">garman_klass_volatility</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">open_</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">high</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">low</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">close</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Frequency</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">Frequency.Day</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Expr</span></span></span><a class="reference internal" href="../../_modules/finance_calcs/volatility.html#garman_klass_volatility"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#finance_calcs.garman_klass_volatility" title="Link to this definition">¶</a></dt>
 <dd><p>Garman-Klass OHLC volatility estimator.</p>
-<div class="math-wrapper docutils container">
 <div class="math notranslate nohighlight">
 \[\begin{split}\\hat{\\sigma}^2 = \\overline{\\tfrac{1}{2}(\\ln H/L)^2 - (2\\ln 2 - 1)(\\ln C/O)^2}\end{split}\]</div>
-</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1576,10 +1958,8 @@ OHLC bars. <code class="docutils literal notranslate"><span class="pre">window</
 <dt class="sig sig-object py" id="finance_calcs.rogers_satchell_volatility">
 <span class="sig-prename descclassname"><span class="pre">finance_calcs.</span></span><span class="sig-name descname"><span class="pre">rogers_satchell_volatility</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">open_</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">high</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">low</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">close</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Frequency</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">Frequency.Day</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Expr</span></span></span><a class="reference internal" href="../../_modules/finance_calcs/volatility.html#rogers_satchell_volatility"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#finance_calcs.rogers_satchell_volatility" title="Link to this definition">¶</a></dt>
 <dd><p>Rogers-Satchell drift-independent volatility.</p>
-<div class="math-wrapper docutils container">
 <div class="math notranslate nohighlight">
 \[\begin{split}\\hat{\\sigma}^2 = \\overline{\\ln(H/C)\\ln(H/O) + \\ln(L/C)\\ln(L/O)}\end{split}\]</div>
-</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1659,7 +2039,6 @@ open-to-close, and Rogers-Satchell drift-independent components.</p>
 <h2>Volume Indicators<a class="headerlink" href="#volume-indicators" title="Link to this heading">¶</a></h2>
 <p>Volume indicators combine close movement, intrabar range, and volume into flow
 or accumulation measures.</p>
-<div class="table-wrapper colwidths-auto docutils container">
 <table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Function</p></th>
@@ -1682,7 +2061,6 @@ or accumulation measures.</p>
 </tr>
 </tbody>
 </table>
-</div>
 <dl class="py function">
 <dt class="sig sig-object py" id="finance_calcs.obv">
 <span class="sig-prename descclassname"><span class="pre">finance_calcs.</span></span><span class="sig-name descname"><span class="pre">obv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">close</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">volume</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Expr</span></span></span><a class="reference internal" href="../../_modules/finance_calcs/volume.html#obv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#finance_calcs.obv" title="Link to this definition">¶</a></dt>
@@ -1748,7 +2126,6 @@ because the prior close is unknown.</p>
 <p>Alpha helpers are designed for cross-sectional signal panels. Compute forward
 returns, per-date IC values, and IC summary statistics from generated or real
 <code class="docutils literal notranslate"><span class="pre">date,</span> <span class="pre">symbol,</span> <span class="pre">signal,</span> <span class="pre">fwd_returns</span></code> data.</p>
-<div class="table-wrapper colwidths-auto docutils container">
 <table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Function</p></th>
@@ -1799,7 +2176,6 @@ returns, per-date IC values, and IC summary statistics from generated or real
 </tr>
 </tbody>
 </table>
-</div>
 <dl class="py function">
 <dt class="sig sig-object py" id="finance_calcs.forward_returns">
 <span class="sig-prename descclassname"><span class="pre">finance_calcs.</span></span><span class="sig-name descname"><span class="pre">forward_returns</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">price</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">horizon</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Expr</span></span></span><a class="reference internal" href="../../_modules/finance_calcs/alpha.html#forward_returns"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#finance_calcs.forward_returns" title="Link to this definition">¶</a></dt>
@@ -1921,7 +2297,6 @@ positive fraction, and observation count.</p>
 <h2>Quantile and Signal Transforms<a class="headerlink" href="#quantile-and-signal-transforms" title="Link to this heading">¶</a></h2>
 <p>These functions prepare cross-sectional signals for portfolio construction or
 quantile spread analytics.</p>
-<div class="table-wrapper colwidths-auto docutils container">
 <table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Function</p></th>
@@ -1964,7 +2339,6 @@ quantile spread analytics.</p>
 </tr>
 </tbody>
 </table>
-</div>
 <dl class="py function">
 <dt class="sig sig-object py" id="finance_calcs.assign_quantile">
 <span class="sig-prename descclassname"><span class="pre">finance_calcs.</span></span><span class="sig-name descname"><span class="pre">assign_quantile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">signal</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_quantiles</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Expr</span></span></span><a class="reference internal" href="../../_modules/finance_calcs/quantile.html#assign_quantile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#finance_calcs.assign_quantile" title="Link to this definition">¶</a></dt>
@@ -2090,7 +2464,6 @@ quantile.</p>
 <p>Factor metrics compare strategy returns against a benchmark return series.
 They support lifetime, rolling, and period-bucketed calculations where the
 signature includes <code class="docutils literal notranslate"><span class="pre">window</span></code>, <code class="docutils literal notranslate"><span class="pre">period</span></code>, and <code class="docutils literal notranslate"><span class="pre">date</span></code>.</p>
-<div class="table-wrapper colwidths-auto docutils container">
 <table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Function</p></th>
@@ -2153,7 +2526,6 @@ signature includes <code class="docutils literal notranslate"><span class="pre">
 </tr>
 </tbody>
 </table>
-</div>
 <dl class="py function">
 <dt class="sig sig-object py" id="finance_calcs.alpha">
 <span class="sig-prename descclassname"><span class="pre">finance_calcs.</span></span><span class="sig-name descname"><span class="pre">alpha</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">returns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">benchmark</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">risk_free</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Expr</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Frequency</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">Frequency.Day</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">period</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Frequency</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Expr</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">date</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Expr</span></span></span><a class="reference internal" href="../../_modules/finance_calcs/factor.html#alpha"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#finance_calcs.alpha" title="Link to this definition">¶</a></dt>
@@ -2248,7 +2620,6 @@ inside each bucket.</p>
 <p>The first five functions are expression metrics. The Sharpe significance and
 confidence-interval helpers consume a concrete <code class="docutils literal notranslate"><span class="pre">pl.Series</span></code> because they perform
 sample-level statistical calculations outside the Polars expression engine.</p>
-<div class="table-wrapper colwidths-auto docutils container">
 <table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Function</p></th>
@@ -2299,7 +2670,6 @@ sample-level statistical calculations outside the Polars expression engine.</p>
 </tr>
 </tbody>
 </table>
-</div>
 <dl class="py function">
 <dt class="sig sig-object py" id="finance_calcs.skewness">
 <span class="sig-prename descclassname"><span class="pre">finance_calcs.</span></span><span class="sig-name descname"><span class="pre">skewness</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">returns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Expr</span></span></span><a class="reference internal" href="../../_modules/finance_calcs/stats.html#skewness"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#finance_calcs.skewness" title="Link to this definition">¶</a></dt>
@@ -2484,7 +2854,6 @@ from the Mertens (2002) asymptotic variance of the Sharpe.</p>
 <p>Tail-risk expression metrics support lifetime, rolling, and period-bucketed
 calculations. The GPD helpers consume <code class="docutils literal notranslate"><span class="pre">pl.Series</span></code> and fit a Peaks-over-Threshold
 model to tail losses.</p>
-<div class="table-wrapper colwidths-auto docutils container">
 <table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Function</p></th>
@@ -2515,7 +2884,6 @@ model to tail losses.</p>
 </tr>
 </tbody>
 </table>
-</div>
 <dl class="py function">
 <dt class="sig sig-object py" id="finance_calcs.tail_ratio">
 <span class="sig-prename descclassname"><span class="pre">finance_calcs.</span></span><span class="sig-name descname"><span class="pre">tail_ratio</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">returns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">window</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">period</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Frequency</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Expr</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">date</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Expr</span></span></span><a class="reference internal" href="../../_modules/finance_calcs/tail.html#tail_ratio"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#finance_calcs.tail_ratio" title="Link to this definition">¶</a></dt>
@@ -2596,7 +2964,6 @@ used for the GPD fit (<code class="docutils literal notranslate"><span class="pr
 <section id="market-microstructure">
 <h2>Market Microstructure<a class="headerlink" href="#market-microstructure" title="Link to this heading">¶</a></h2>
 <p>These expression metrics quantify spreads, liquidity, and price impact.</p>
-<div class="table-wrapper colwidths-auto docutils container">
 <table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Function</p></th>
@@ -2624,7 +2991,6 @@ used for the GPD fit (<code class="docutils literal notranslate"><span class="pr
 </tr>
 </tbody>
 </table>
-</div>
 <dl class="py function">
 <dt class="sig sig-object py" id="finance_calcs.quoted_spread_bps">
 <span class="sig-prename descclassname"><span class="pre">finance_calcs.</span></span><span class="sig-name descname"><span class="pre">quoted_spread_bps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">mid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Expr</span></span></span><a class="reference internal" href="../../_modules/finance_calcs/microstructure.html#quoted_spread_bps"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#finance_calcs.quoted_spread_bps" title="Link to this definition">¶</a></dt>
@@ -2659,7 +3025,6 @@ used for the GPD fit (<code class="docutils literal notranslate"><span class="pr
 <hr class="docutils" />
 <section id="regime-and-persistence">
 <h2>Regime and Persistence<a class="headerlink" href="#regime-and-persistence" title="Link to this heading">¶</a></h2>
-<div class="table-wrapper colwidths-auto docutils container">
 <table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Function</p></th>
@@ -2678,7 +3043,6 @@ used for the GPD fit (<code class="docutils literal notranslate"><span class="pr
 </tr>
 </tbody>
 </table>
-</div>
 <dl class="py function">
 <dt class="sig sig-object py" id="finance_calcs.regime_signal">
 <span class="sig-prename descclassname"><span class="pre">finance_calcs.</span></span><span class="sig-name descname"><span class="pre">regime_signal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">returns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">window</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">63</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Expr</span></span></span><a class="reference internal" href="../../_modules/finance_calcs/regime.html#regime_signal"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#finance_calcs.regime_signal" title="Link to this definition">¶</a></dt>
@@ -2700,7 +3064,6 @@ used for the GPD fit (<code class="docutils literal notranslate"><span class="pr
 <h2>Portfolio<a class="headerlink" href="#portfolio" title="Link to this heading">¶</a></h2>
 <p>Portfolio metrics aggregate position weights. They are most useful inside a
 <code class="docutils literal notranslate"><span class="pre">group_by(&quot;date&quot;)</span></code> aggregation over a long-form position panel.</p>
-<div class="table-wrapper colwidths-auto docutils container">
 <table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Function</p></th>
@@ -2743,7 +3106,6 @@ used for the GPD fit (<code class="docutils literal notranslate"><span class="pr
 </tr>
 </tbody>
 </table>
-</div>
 <dl class="py function">
 <dt class="sig sig-object py" id="finance_calcs.gross_leverage">
 <span class="sig-prename descclassname"><span class="pre">finance_calcs.</span></span><span class="sig-name descname"><span class="pre">gross_leverage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Expr</span></span></span><a class="reference internal" href="../../_modules/finance_calcs/portfolio.html#gross_leverage"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#finance_calcs.gross_leverage" title="Link to this definition">¶</a></dt>
@@ -2873,7 +3235,6 @@ for a single-name portfolio.</p>
 slippage, turnover, and trade-quality metrics are expression kernels. Round-trip
 extraction and summary helpers take concrete <code class="docutils literal notranslate"><span class="pre">pl.DataFrame</span></code> inputs because they
 need ordered trade sequences.</p>
-<div class="table-wrapper colwidths-auto docutils container">
 <table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Function</p></th>
@@ -2968,7 +3329,6 @@ need ordered trade sequences.</p>
 </tr>
 </tbody>
 </table>
-</div>
 <dl class="py function">
 <dt class="sig sig-object py" id="finance_calcs.transaction_notional">
 <span class="sig-prename descclassname"><span class="pre">finance_calcs.</span></span><span class="sig-name descname"><span class="pre">transaction_notional</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">quantity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">price</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expr</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Expr</span></span></span><a class="reference internal" href="../../_modules/finance_calcs/post_trade.html#transaction_notional"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#finance_calcs.transaction_notional" title="Link to this definition">¶</a></dt>
@@ -3105,288 +3465,571 @@ date. The contribution is <code class="docutils literal notranslate"><span class
 </section>
 </section>
 
-        </article>
+
       </div>
-      <footer>
-        
-        <div class="related-pages">
-          <a class="next-page" href="COMPATIBILITY.html">
-              <div class="page-info">
-                <div class="context">
-                  <span>Next</span>
-                </div>
-                <div class="title">QuantStats Compatibility</div>
-              </div>
-              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
-            </a>
-          <a class="prev-page" href="EXAMPLES.html">
-              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
-              <div class="page-info">
-                <div class="context">
-                  <span>Previous</span>
-                </div>
-                
-                <div class="title">Examples</div>
-                
-              </div>
-            </a>
-        </div>
-        <div class="bottom-of-page">
-          <div class="left-details">
-            <div class="copyright">
-                Copyright &#169; PrettyGoodCapital
-            </div>
-            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
-            
-            <a href="https://github.com/pradyunsg/furo">Furo</a>
-            
-          </div>
-          <div class="right-details">
-            
-          </div>
-        </div>
-        
-      </footer>
-    </div>
-    <aside class="toc-drawer">
-      
-      
-      <div class="toc-sticky toc-scroll">
-        <div class="toc-title-container">
-          <span class="toc-title">
-            On this page
-          </span>
-        </div>
-        <div class="toc-tree-container">
-          <div class="toc-tree">
-            <ul>
-<li><a class="reference internal" href="#">API</a><ul>
-<li><a class="reference internal" href="#namespace-and-windowing">Namespace and Windowing</a></li>
-<li><a class="reference internal" href="#execution-and-input-contracts">Execution and Input Contracts</a></li>
-<li><a class="reference internal" href="#returns-and-periods">Returns and Periods</a><ul>
-<li><a class="reference internal" href="#finance_calcs.period_bucket"><code class="docutils literal notranslate"><span class="pre">period_bucket()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.simple_returns"><code class="docutils literal notranslate"><span class="pre">simple_returns()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.log_returns"><code class="docutils literal notranslate"><span class="pre">log_returns()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.cumulative_returns"><code class="docutils literal notranslate"><span class="pre">cumulative_returns()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.cumulative_return"><code class="docutils literal notranslate"><span class="pre">cumulative_return()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.annualized_return"><code class="docutils literal notranslate"><span class="pre">annualized_return()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.annualized_volatility"><code class="docutils literal notranslate"><span class="pre">annualized_volatility()</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#risk-and-drawdown">Risk and Drawdown</a><ul>
-<li><a class="reference internal" href="#finance_calcs.sharpe"><code class="docutils literal notranslate"><span class="pre">sharpe()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.sortino"><code class="docutils literal notranslate"><span class="pre">sortino()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.calmar"><code class="docutils literal notranslate"><span class="pre">calmar()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.downside_deviation"><code class="docutils literal notranslate"><span class="pre">downside_deviation()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.drawdown_series"><code class="docutils literal notranslate"><span class="pre">drawdown_series()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.max_drawdown"><code class="docutils literal notranslate"><span class="pre">max_drawdown()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.value_at_risk"><code class="docutils literal notranslate"><span class="pre">value_at_risk()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.conditional_value_at_risk"><code class="docutils literal notranslate"><span class="pre">conditional_value_at_risk()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.expected_shortfall"><code class="docutils literal notranslate"><span class="pre">expected_shortfall()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.value_at_risk_parametric"><code class="docutils literal notranslate"><span class="pre">value_at_risk_parametric()</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#report-metrics">Report Metrics</a><ul>
-<li><a class="reference internal" href="#finance_calcs.best_return"><code class="docutils literal notranslate"><span class="pre">best_return()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.worst_return"><code class="docutils literal notranslate"><span class="pre">worst_return()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.average_win"><code class="docutils literal notranslate"><span class="pre">average_win()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.average_loss"><code class="docutils literal notranslate"><span class="pre">average_loss()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.gain_to_pain_ratio"><code class="docutils literal notranslate"><span class="pre">gain_to_pain_ratio()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.recovery_factor"><code class="docutils literal notranslate"><span class="pre">recovery_factor()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.kelly_criterion"><code class="docutils literal notranslate"><span class="pre">kelly_criterion()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.drawdown_details"><code class="docutils literal notranslate"><span class="pre">drawdown_details()</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#overlap-and-price-channels">Overlap and Price Channels</a><ul>
-<li><a class="reference internal" href="#finance_calcs.sma"><code class="docutils literal notranslate"><span class="pre">sma()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.ema"><code class="docutils literal notranslate"><span class="pre">ema()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.wma"><code class="docutils literal notranslate"><span class="pre">wma()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.dema"><code class="docutils literal notranslate"><span class="pre">dema()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.tema"><code class="docutils literal notranslate"><span class="pre">tema()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.midpoint"><code class="docutils literal notranslate"><span class="pre">midpoint()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.midprice"><code class="docutils literal notranslate"><span class="pre">midprice()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.bbands_upper"><code class="docutils literal notranslate"><span class="pre">bbands_upper()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.bbands_middle"><code class="docutils literal notranslate"><span class="pre">bbands_middle()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.bbands_lower"><code class="docutils literal notranslate"><span class="pre">bbands_lower()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.donchian_upper"><code class="docutils literal notranslate"><span class="pre">donchian_upper()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.donchian_lower"><code class="docutils literal notranslate"><span class="pre">donchian_lower()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.donchian_middle"><code class="docutils literal notranslate"><span class="pre">donchian_middle()</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#momentum">Momentum</a><ul>
-<li><a class="reference internal" href="#finance_calcs.rsi"><code class="docutils literal notranslate"><span class="pre">rsi()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.macd_line"><code class="docutils literal notranslate"><span class="pre">macd_line()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.macd_signal"><code class="docutils literal notranslate"><span class="pre">macd_signal()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.macd_hist"><code class="docutils literal notranslate"><span class="pre">macd_hist()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.mom"><code class="docutils literal notranslate"><span class="pre">mom()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.roc"><code class="docutils literal notranslate"><span class="pre">roc()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.rocp"><code class="docutils literal notranslate"><span class="pre">rocp()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.rocr"><code class="docutils literal notranslate"><span class="pre">rocr()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.rocr100"><code class="docutils literal notranslate"><span class="pre">rocr100()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.willr"><code class="docutils literal notranslate"><span class="pre">willr()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.stoch_k"><code class="docutils literal notranslate"><span class="pre">stoch_k()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.stoch_d"><code class="docutils literal notranslate"><span class="pre">stoch_d()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.cci"><code class="docutils literal notranslate"><span class="pre">cci()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.cmo"><code class="docutils literal notranslate"><span class="pre">cmo()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.trix"><code class="docutils literal notranslate"><span class="pre">trix()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.plus_dm"><code class="docutils literal notranslate"><span class="pre">plus_dm()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.minus_dm"><code class="docutils literal notranslate"><span class="pre">minus_dm()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.plus_di"><code class="docutils literal notranslate"><span class="pre">plus_di()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.minus_di"><code class="docutils literal notranslate"><span class="pre">minus_di()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.adx"><code class="docutils literal notranslate"><span class="pre">adx()</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#volatility-indicators">Volatility Indicators</a><ul>
-<li><a class="reference internal" href="#finance_calcs.true_range"><code class="docutils literal notranslate"><span class="pre">true_range()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.atr"><code class="docutils literal notranslate"><span class="pre">atr()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.natr"><code class="docutils literal notranslate"><span class="pre">natr()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.parkinson_volatility"><code class="docutils literal notranslate"><span class="pre">parkinson_volatility()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.garman_klass_volatility"><code class="docutils literal notranslate"><span class="pre">garman_klass_volatility()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.rogers_satchell_volatility"><code class="docutils literal notranslate"><span class="pre">rogers_satchell_volatility()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.yang_zhang_volatility"><code class="docutils literal notranslate"><span class="pre">yang_zhang_volatility()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.exponentially_weighted_volatility"><code class="docutils literal notranslate"><span class="pre">exponentially_weighted_volatility()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.realized_volatility"><code class="docutils literal notranslate"><span class="pre">realized_volatility()</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#volume-indicators">Volume Indicators</a><ul>
-<li><a class="reference internal" href="#finance_calcs.obv"><code class="docutils literal notranslate"><span class="pre">obv()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.ad"><code class="docutils literal notranslate"><span class="pre">ad()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.adosc"><code class="docutils literal notranslate"><span class="pre">adosc()</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#alpha-and-information-coefficient">Alpha and Information Coefficient</a><ul>
-<li><a class="reference internal" href="#finance_calcs.forward_returns"><code class="docutils literal notranslate"><span class="pre">forward_returns()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.information_coefficient"><code class="docutils literal notranslate"><span class="pre">information_coefficient()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.information_coefficient_pearson"><code class="docutils literal notranslate"><span class="pre">information_coefficient_pearson()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.information_coefficient_spearman"><code class="docutils literal notranslate"><span class="pre">information_coefficient_spearman()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.information_coefficient_conditional"><code class="docutils literal notranslate"><span class="pre">information_coefficient_conditional()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.information_coefficient_by_horizon"><code class="docutils literal notranslate"><span class="pre">information_coefficient_by_horizon()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.information_coefficient_decay"><code class="docutils literal notranslate"><span class="pre">information_coefficient_decay()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.information_coefficient_ratio"><code class="docutils literal notranslate"><span class="pre">information_coefficient_ratio()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.hit_rate"><code class="docutils literal notranslate"><span class="pre">hit_rate()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.information_coefficient_statistics"><code class="docutils literal notranslate"><span class="pre">information_coefficient_statistics()</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#quantile-and-signal-transforms">Quantile and Signal Transforms</a><ul>
-<li><a class="reference internal" href="#finance_calcs.assign_quantile"><code class="docutils literal notranslate"><span class="pre">assign_quantile()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.rank_normalize"><code class="docutils literal notranslate"><span class="pre">rank_normalize()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.zscore"><code class="docutils literal notranslate"><span class="pre">zscore()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.winsorize"><code class="docutils literal notranslate"><span class="pre">winsorize()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.long_short_spread"><code class="docutils literal notranslate"><span class="pre">long_short_spread()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.mean_return_by_quantile"><code class="docutils literal notranslate"><span class="pre">mean_return_by_quantile()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.quantile_changed"><code class="docutils literal notranslate"><span class="pre">quantile_changed()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.quantile_turnover"><code class="docutils literal notranslate"><span class="pre">quantile_turnover()</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#factor-and-benchmark-metrics">Factor and Benchmark Metrics</a><ul>
-<li><a class="reference internal" href="#finance_calcs.alpha"><code class="docutils literal notranslate"><span class="pre">alpha()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.beta"><code class="docutils literal notranslate"><span class="pre">beta()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.r_squared"><code class="docutils literal notranslate"><span class="pre">r_squared()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.up_alpha"><code class="docutils literal notranslate"><span class="pre">up_alpha()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.down_alpha"><code class="docutils literal notranslate"><span class="pre">down_alpha()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.up_beta"><code class="docutils literal notranslate"><span class="pre">up_beta()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.down_beta"><code class="docutils literal notranslate"><span class="pre">down_beta()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.up_capture"><code class="docutils literal notranslate"><span class="pre">up_capture()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.down_capture"><code class="docutils literal notranslate"><span class="pre">down_capture()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.up_down_capture"><code class="docutils literal notranslate"><span class="pre">up_down_capture()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.batting_average"><code class="docutils literal notranslate"><span class="pre">batting_average()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.tracking_error"><code class="docutils literal notranslate"><span class="pre">tracking_error()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.information_ratio"><code class="docutils literal notranslate"><span class="pre">information_ratio()</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#distribution-and-sharpe-statistics">Distribution and Sharpe Statistics</a><ul>
-<li><a class="reference internal" href="#finance_calcs.skewness"><code class="docutils literal notranslate"><span class="pre">skewness()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.kurtosis"><code class="docutils literal notranslate"><span class="pre">kurtosis()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.higher_moments"><code class="docutils literal notranslate"><span class="pre">higher_moments()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.stability_of_timeseries"><code class="docutils literal notranslate"><span class="pre">stability_of_timeseries()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.common_sense_ratio"><code class="docutils literal notranslate"><span class="pre">common_sense_ratio()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.sharpe_probability"><code class="docutils literal notranslate"><span class="pre">sharpe_probability()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.sharpe_deflated_probability"><code class="docutils literal notranslate"><span class="pre">sharpe_deflated_probability()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.sharpe_minimum_track_record_length"><code class="docutils literal notranslate"><span class="pre">sharpe_minimum_track_record_length()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.sharpe_bootstrap_confidence_interval"><code class="docutils literal notranslate"><span class="pre">sharpe_bootstrap_confidence_interval()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.sharpe_confidence_interval"><code class="docutils literal notranslate"><span class="pre">sharpe_confidence_interval()</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#tail-risk">Tail Risk</a><ul>
-<li><a class="reference internal" href="#finance_calcs.tail_ratio"><code class="docutils literal notranslate"><span class="pre">tail_ratio()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.ulcer_index"><code class="docutils literal notranslate"><span class="pre">ulcer_index()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.omega_ratio"><code class="docutils literal notranslate"><span class="pre">omega_ratio()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.value_at_risk_generalized_pareto"><code class="docutils literal notranslate"><span class="pre">value_at_risk_generalized_pareto()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.conditional_value_at_risk_generalized_pareto"><code class="docutils literal notranslate"><span class="pre">conditional_value_at_risk_generalized_pareto()</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#market-microstructure">Market Microstructure</a><ul>
-<li><a class="reference internal" href="#finance_calcs.quoted_spread_bps"><code class="docutils literal notranslate"><span class="pre">quoted_spread_bps()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.effective_spread_bps"><code class="docutils literal notranslate"><span class="pre">effective_spread_bps()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.realized_spread_bps"><code class="docutils literal notranslate"><span class="pre">realized_spread_bps()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.order_imbalance"><code class="docutils literal notranslate"><span class="pre">order_imbalance()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.amihud_illiquidity"><code class="docutils literal notranslate"><span class="pre">amihud_illiquidity()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.kyle_lambda"><code class="docutils literal notranslate"><span class="pre">kyle_lambda()</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#regime-and-persistence">Regime and Persistence</a><ul>
-<li><a class="reference internal" href="#finance_calcs.regime_signal"><code class="docutils literal notranslate"><span class="pre">regime_signal()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.hurst_exponent"><code class="docutils literal notranslate"><span class="pre">hurst_exponent()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.fractional_difference"><code class="docutils literal notranslate"><span class="pre">fractional_difference()</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#portfolio">Portfolio</a><ul>
-<li><a class="reference internal" href="#finance_calcs.gross_leverage"><code class="docutils literal notranslate"><span class="pre">gross_leverage()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.gross_exposure"><code class="docutils literal notranslate"><span class="pre">gross_exposure()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.net_exposure"><code class="docutils literal notranslate"><span class="pre">net_exposure()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.long_exposure"><code class="docutils literal notranslate"><span class="pre">long_exposure()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.short_exposure"><code class="docutils literal notranslate"><span class="pre">short_exposure()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.concentration"><code class="docutils literal notranslate"><span class="pre">concentration()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.top_n_concentration"><code class="docutils literal notranslate"><span class="pre">top_n_concentration()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.active_share"><code class="docutils literal notranslate"><span class="pre">active_share()</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#post-trade">Post-Trade</a><ul>
-<li><a class="reference internal" href="#finance_calcs.transaction_notional"><code class="docutils literal notranslate"><span class="pre">transaction_notional()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.transaction_cost"><code class="docutils literal notranslate"><span class="pre">transaction_cost()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.transaction_volume"><code class="docutils literal notranslate"><span class="pre">transaction_volume()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.slippage_bps"><code class="docutils literal notranslate"><span class="pre">slippage_bps()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.implementation_shortfall"><code class="docutils literal notranslate"><span class="pre">implementation_shortfall()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.vwap_slippage"><code class="docutils literal notranslate"><span class="pre">vwap_slippage()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.turnover"><code class="docutils literal notranslate"><span class="pre">turnover()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.cost_attribution"><code class="docutils literal notranslate"><span class="pre">cost_attribution()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.extract_round_trips"><code class="docutils literal notranslate"><span class="pre">extract_round_trips()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.round_trip_stats"><code class="docutils literal notranslate"><span class="pre">round_trip_stats()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.long_short_round_trip_stats"><code class="docutils literal notranslate"><span class="pre">long_short_round_trip_stats()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.sector_round_trip_stats"><code class="docutils literal notranslate"><span class="pre">sector_round_trip_stats()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.win_rate"><code class="docutils literal notranslate"><span class="pre">win_rate()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.profit_factor"><code class="docutils literal notranslate"><span class="pre">profit_factor()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.payoff_ratio"><code class="docutils literal notranslate"><span class="pre">payoff_ratio()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.average_trade_pnl"><code class="docutils literal notranslate"><span class="pre">average_trade_pnl()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.trade_duration_stats"><code class="docutils literal notranslate"><span class="pre">trade_duration_stats()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.mae_mfe"><code class="docutils literal notranslate"><span class="pre">mae_mfe()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.consecutive_wins_losses"><code class="docutils literal notranslate"><span class="pre">consecutive_wins_losses()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.exit_reason_stats"><code class="docutils literal notranslate"><span class="pre">exit_reason_stats()</span></code></a></li>
-<li><a class="reference internal" href="#finance_calcs.trade_size_return_correlation"><code class="docutils literal notranslate"><span class="pre">trade_size_return_correlation()</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
+<nav class="fd-pagination" aria-label="Pagination">
+  <a class="fd-pagination-card fd-pagination-prev" href="EXAMPLES.html" title="Previous: Examples">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m15 18-6-6 6-6"/></svg>
+    <span class="fd-pagination-text">
+      <span class="fd-pagination-label">Previous</span>
+      <span class="fd-pagination-title">Examples</span>
+    </span>
+  </a>
+  <a class="fd-pagination-card fd-pagination-next" href="COMPATIBILITY.html" title="Next: QuantStats Compatibility">
+    <span class="fd-pagination-text">
+      <span class="fd-pagination-label">Next</span>
+      <span class="fd-pagination-title">QuantStats Compatibility</span>
+    </span>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="m9 18 6-6-6-6"/></svg>
+  </a>
+</nav>
+<footer id="fd-footer">
+  <p class="fd-footer-meta"><span>&#169; PrettyGoodCapital</span><span>Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.</span>
+  </p>
+</footer>
+    </article>
+  </main>
+<nav id="fd-toc" aria-label="On this page">
+  <p class="fd-toc-title"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M8 6h13"/><path d="M8 12h13"/><path d="M8 18h13"/><path d="M3 6h.01"/><path d="M3 12h.01"/><path d="M3 18h.01"/></svg>On this page</p>
+  <div class="fd-toc-body"><svg class="fd-toc-rail" aria-hidden="true" preserveAspectRatio="none">
+      <path class="fd-toc-track" fill="none" />
+      <path class="fd-toc-thumb" fill="none" />
+    </svg><ul class="fd-toc-list">
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#namespace-and-windowing">Namespace and Windowing</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#execution-and-input-contracts">Execution and Input Contracts</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#returns-and-periods">Returns and Periods</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.period_bucket">period_bucket()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.simple_returns">simple_returns()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.log_returns">log_returns()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.cumulative_returns">cumulative_returns()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.cumulative_return">cumulative_return()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.annualized_return">annualized_return()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.annualized_volatility">annualized_volatility()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#risk-and-drawdown">Risk and Drawdown</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.sharpe">sharpe()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.sortino">sortino()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.calmar">calmar()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.downside_deviation">downside_deviation()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.drawdown_series">drawdown_series()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.max_drawdown">max_drawdown()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.value_at_risk">value_at_risk()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.conditional_value_at_risk">conditional_value_at_risk()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.expected_shortfall">expected_shortfall()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.value_at_risk_parametric">value_at_risk_parametric()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#report-metrics">Report Metrics</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.best_return">best_return()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.worst_return">worst_return()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.average_win">average_win()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.average_loss">average_loss()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.gain_to_pain_ratio">gain_to_pain_ratio()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.recovery_factor">recovery_factor()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.kelly_criterion">kelly_criterion()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.drawdown_details">drawdown_details()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#overlap-and-price-channels">Overlap and Price Channels</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.sma">sma()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.ema">ema()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.wma">wma()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.dema">dema()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.tema">tema()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.midpoint">midpoint()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.midprice">midprice()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.bbands_upper">bbands_upper()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.bbands_middle">bbands_middle()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.bbands_lower">bbands_lower()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.donchian_upper">donchian_upper()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.donchian_lower">donchian_lower()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.donchian_middle">donchian_middle()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#momentum">Momentum</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.rsi">rsi()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.macd_line">macd_line()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.macd_signal">macd_signal()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.macd_hist">macd_hist()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.mom">mom()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.roc">roc()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.rocp">rocp()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.rocr">rocr()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.rocr100">rocr100()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.willr">willr()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.stoch_k">stoch_k()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.stoch_d">stoch_d()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.cci">cci()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.cmo">cmo()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.trix">trix()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.plus_dm">plus_dm()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.minus_dm">minus_dm()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.plus_di">plus_di()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.minus_di">minus_di()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.adx">adx()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#volatility-indicators">Volatility Indicators</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.true_range">true_range()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.atr">atr()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.natr">natr()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.parkinson_volatility">parkinson_volatility()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.garman_klass_volatility">garman_klass_volatility()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.rogers_satchell_volatility">rogers_satchell_volatility()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.yang_zhang_volatility">yang_zhang_volatility()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.exponentially_weighted_volatility">exponentially_weighted_volatility()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.realized_volatility">realized_volatility()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#volume-indicators">Volume Indicators</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.obv">obv()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.ad">ad()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.adosc">adosc()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#alpha-and-information-coefficient">Alpha and Information Coefficient</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.forward_returns">forward_returns()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.information_coefficient">information_coefficient()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.information_coefficient_pearson">information_coefficient_pearson()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.information_coefficient_spearman">information_coefficient_spearman()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.information_coefficient_conditional">information_coefficient_conditional()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.information_coefficient_by_horizon">information_coefficient_by_horizon()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.information_coefficient_decay">information_coefficient_decay()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.information_coefficient_ratio">information_coefficient_ratio()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.hit_rate">hit_rate()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.information_coefficient_statistics">information_coefficient_statistics()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#quantile-and-signal-transforms">Quantile and Signal Transforms</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.assign_quantile">assign_quantile()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.rank_normalize">rank_normalize()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.zscore">zscore()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.winsorize">winsorize()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.long_short_spread">long_short_spread()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.mean_return_by_quantile">mean_return_by_quantile()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.quantile_changed">quantile_changed()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.quantile_turnover">quantile_turnover()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#factor-and-benchmark-metrics">Factor and Benchmark Metrics</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.alpha">alpha()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.beta">beta()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.r_squared">r_squared()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.up_alpha">up_alpha()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.down_alpha">down_alpha()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.up_beta">up_beta()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.down_beta">down_beta()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.up_capture">up_capture()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.down_capture">down_capture()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.up_down_capture">up_down_capture()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.batting_average">batting_average()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.tracking_error">tracking_error()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.information_ratio">information_ratio()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#distribution-and-sharpe-statistics">Distribution and Sharpe Statistics</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.skewness">skewness()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.kurtosis">kurtosis()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.higher_moments">higher_moments()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.stability_of_timeseries">stability_of_timeseries()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.common_sense_ratio">common_sense_ratio()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.sharpe_probability">sharpe_probability()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.sharpe_deflated_probability">sharpe_deflated_probability()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.sharpe_minimum_track_record_length">sharpe_minimum_track_record_length()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.sharpe_bootstrap_confidence_interval">sharpe_bootstrap_confidence_interval()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.sharpe_confidence_interval">sharpe_confidence_interval()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#tail-risk">Tail Risk</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.tail_ratio">tail_ratio()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.ulcer_index">ulcer_index()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.omega_ratio">omega_ratio()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.value_at_risk_generalized_pareto">value_at_risk_generalized_pareto()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.conditional_value_at_risk_generalized_pareto">conditional_value_at_risk_generalized_pareto()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#market-microstructure">Market Microstructure</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.quoted_spread_bps">quoted_spread_bps()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.effective_spread_bps">effective_spread_bps()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.realized_spread_bps">realized_spread_bps()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.order_imbalance">order_imbalance()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.amihud_illiquidity">amihud_illiquidity()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.kyle_lambda">kyle_lambda()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#regime-and-persistence">Regime and Persistence</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.regime_signal">regime_signal()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.hurst_exponent">hurst_exponent()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.fractional_difference">fractional_difference()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#portfolio">Portfolio</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.gross_leverage">gross_leverage()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.gross_exposure">gross_exposure()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.net_exposure">net_exposure()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.long_exposure">long_exposure()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.short_exposure">short_exposure()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.concentration">concentration()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.top_n_concentration">top_n_concentration()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.active_share">active_share()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="1">
+    <a href="#post-trade">Post-Trade</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.transaction_notional">transaction_notional()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.transaction_cost">transaction_cost()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.transaction_volume">transaction_volume()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.slippage_bps">slippage_bps()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.implementation_shortfall">implementation_shortfall()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.vwap_slippage">vwap_slippage()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.turnover">turnover()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.cost_attribution">cost_attribution()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.extract_round_trips">extract_round_trips()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.round_trip_stats">round_trip_stats()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.long_short_round_trip_stats">long_short_round_trip_stats()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.sector_round_trip_stats">sector_round_trip_stats()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.win_rate">win_rate()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.profit_factor">profit_factor()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.payoff_ratio">payoff_ratio()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.average_trade_pnl">average_trade_pnl()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.trade_duration_stats">trade_duration_stats()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.mae_mfe">mae_mfe()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.consecutive_wins_losses">consecutive_wins_losses()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.exit_reason_stats">exit_reason_stats()</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#finance_calcs.trade_size_return_correlation">trade_size_return_correlation()</a>
+  </li>
 </ul>
 
-          </div>
-        </div>
-      </div>
-      
-      
-    </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=e259d695"></script>
-    <script src="../../_static/doctools.js?v=9bcbadda"></script>
-    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
-    <script src="../../_static/scripts/furo.js?v=46bd48cc"></script>
-    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
-    <script src="../../_static/copybutton.js?v=f281be69"></script>
-    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
-    <script data-searchlite-index="searchlite-index.json" defer="defer" src="../../_static/searchlite.js?v=a5320898"></script>
-    <script data-searchlite-adopt="true" defer="defer" src="../../_static/searchlite-ui.js?v=4e4bdd69"></script>
-    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
-    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-    <script src="../../_static/js/custom.js?v=956e5d78"></script>
-    </body>
+  <div class="fd-toc-actions">
+    <a class="fd-toc-action" href="https://github.com/prettygoodcapital/finance-calcs/edit/HEAD/docs/src/API.md" target="_blank" rel="noopener" title="Edit this page"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></svg><span>Edit this page</span></a>
+    <a class="fd-toc-action" href="../../_sources/docs/src/API.md.txt" rel="nofollow" title="View source"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg><span>View source</span></a>
+  </div>
+</nav>
+</div>
+<dialog id="fd-search-dialog" aria-label="Search">
+  <form class="fd-search-panel" method="dialog" role="search">
+    <div class="fd-search-field">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="fd-icon "><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      <input type="search" id="fd-search-input" autocomplete="off" spellcheck="false" placeholder="Search documentation..." aria-label="Search" />
+      <kbd class="fd-kbd">Esc</kbd>
+    </div>
+    <div id="fd-search-results" role="listbox" aria-label="Search results"></div>
+    <p id="fd-search-empty" class="fd-search-empty" hidden>No results found.</p>
+  </form>
+</dialog>
+  </body>
 </html>
