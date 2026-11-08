@@ -3,8 +3,13 @@
 requirements:  ## install required dev dependencies
 	rustup component add rustfmt
 	rustup component add clippy
+<<<<<<< before updating
 	cargo install --locked cargo-nextest --version 0.9.143
 	cargo install --locked cargo-llvm-cov --version 0.8.7
+=======
+	cargo install --locked cargo-nextest
+	cargo install --locked cargo-llvm-cov
+>>>>>>> after updating
 
 develop: requirements  ## install required dev dependencies
 
@@ -31,7 +36,7 @@ checks: check
 
 .PHONY: test tests test-ci tests-ci
 test:  ## run the tests
-	cargo llvm-cov nextest --cobertura --output-path  junit.xml
+	cargo llvm-cov nextest --cobertura --output-path coverage.xml
 
 # alias
 tests: test
