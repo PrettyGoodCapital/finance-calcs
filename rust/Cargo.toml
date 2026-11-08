@@ -14,9 +14,3 @@ path = "src/lib.rs"
 crate-type = ["rlib"]
 
 [dependencies]
-
-<<<<<<< before updating
-[profile.test.junit]
-path = "junit.xml"
-=======
->>>>>>> after updating
