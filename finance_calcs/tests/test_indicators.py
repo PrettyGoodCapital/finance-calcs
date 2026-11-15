@@ -242,7 +242,7 @@ def test_adosc_runs(ohlcv):
 
 def test_namespace_single_input(ohlcv):
     out = ohlcv.select(
-        pl.col("close").fcalcs.rsi(14).alias("rsi"),  # ty: ignore[unresolved-attribute]
-        pl.col("close").fcalcs.sma(20).alias("sma"),  # ty: ignore[unresolved-attribute]
+        pl.col("close").fcalcs.rsi(14).alias("rsi"),  # ty: ignore[missing-attribute]
+        pl.col("close").fcalcs.sma(20).alias("sma"),  # ty: ignore[missing-attribute]
     )
     assert out.height == ohlcv.height

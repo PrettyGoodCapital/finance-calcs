@@ -215,9 +215,9 @@ def test_quantile_turnover_aggregates_changed_flags():
 
 def test_namespace_alpha():
     df = pl.DataFrame({"p": [100.0, 101.0, 102.0, 100.0]})
-    out = df.select(pl.col("p").fcalcs.forward_returns(1).alias("f"))  # ty: ignore[unresolved-attribute]
+    out = df.select(pl.col("p").fcalcs.forward_returns(1).alias("f"))  # ty: ignore[missing-attribute]
     assert out.height == 4
 
 
 def test_eager_information_coefficient_statistics_is_not_registered_on_namespace():
-    assert not hasattr(pl.col("ic").fcalcs, "information_coefficient_statistics")  # ty: ignore[unresolved-attribute]
+    assert not hasattr(pl.col("ic").fcalcs, "information_coefficient_statistics")  # ty: ignore[missing-attribute]
